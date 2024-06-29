@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddExamine(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "data", "lucene")));
         services.AddExamineLuceneIndex("DMM");
         services.AddScheduler();
+        services.AddHostedService<DmmRunOnStartupService>();
 
         return services;
     }
@@ -26,7 +27,6 @@ public static class ServiceCollectionExtensions
             {
                 scheduler.Schedule<DmmScheduledJob>()
                     .Hourly()
-                    .RunOnceAtStart()
                     .PreventOverlapping(nameof(DmmScheduledJob));
             })
             .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());

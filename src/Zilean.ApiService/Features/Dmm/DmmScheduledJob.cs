@@ -4,5 +4,8 @@ public class DmmScheduledJob(IDebridMediaManagerCrawler crawler) : IInvocable, I
 {
     public CancellationToken CancellationToken { get; set; }
 
-    public Task Invoke() => crawler.Execute(CancellationToken);
+    public Task Invoke() =>
+        crawler.IsRunning ?
+            Task.CompletedTask :
+            crawler.Execute(CancellationToken);
 }
