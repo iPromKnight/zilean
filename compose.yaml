@@ -1,0 +1,12 @@
+volumes:
+  zilean_data:
+
+services:
+  zilean:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - zilean_data:/app/data
