@@ -22,6 +22,8 @@ USER zilean
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
   CMD pgrep -f dotnet || exit 1
 
+ENV ASPNETCORE_URLS=http://+:8181
+
 VOLUME /app/data
 
 ENTRYPOINT ["dotnet", "Zilean.ApiService.dll"]

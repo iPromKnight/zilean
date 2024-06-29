@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8181:8181"
     volumes:
       - zilean_data:/app/data
 ````

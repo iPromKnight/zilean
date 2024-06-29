@@ -1,5 +1,3 @@
-using Zilean.ApiService.Features.Dmm;
-
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 public static class WebApplicationExtensions
@@ -12,5 +10,8 @@ public static class WebApplicationExtensions
         return app;
     }
 
-    public static WebApplication MapZileanEndpoints(this WebApplication app) => app.MapDmmEndpoints();
+    public static WebApplication MapZileanEndpoints(this WebApplication app) =>
+        app
+            .MapDmmEndpoints()
+            .MapHealthCheckEndpoints();
 }

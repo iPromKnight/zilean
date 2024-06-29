@@ -17,6 +17,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eng", "eng", "{49EC8AF3-9A9
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6", "k6", "{3F62995D-FA0F-434F-B90A-5E59C5960A4A}"
+	ProjectSection(SolutionItems) = preProject
+		k6\high_load_test.js = k6\high_load_test.js
+		k6\stress_test.js = k6\stress_test.js
+		k6\performance_test.js = k6\performance_test.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +40,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7C26F187-7FD3-45DE-A67B-59E5D21B3872} = {0639BF70-EA59-4820-B0AF-90E3EC23E084}
+		{3F62995D-FA0F-434F-B90A-5E59C5960A4A} = {49EC8AF3-9A9C-4291-A6DE-5BE594C50604}
 	EndGlobalSection
 EndGlobal
