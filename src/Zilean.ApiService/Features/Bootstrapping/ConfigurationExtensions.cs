@@ -8,6 +8,8 @@ public static class ConfigurationExtensions
 
     public static IConfigurationBuilder AddConfigurationFiles(this IConfigurationBuilder configuration)
     {
+        EnsureConfigFilesExist();
+
         configuration.SetBasePath(Path.Combine(AppContext.BaseDirectory, ConfigurationFolder));
 
         configuration.AddJsonFile(LoggingConfig, false, true);
@@ -17,4 +19,47 @@ public static class ConfigurationExtensions
 
         return configuration;
     }
+
+    private static void EnsureConfigFilesExist()
+    {
+        var loggingPath = Path.Combine(AppContext.BaseDirectory, ConfigurationFolder, LoggingConfig);
+        if (!File.Exists(loggingPath))
+        {
+            File.WriteAllText(loggingPath, DefaultLoggingContents);
+        }
+
+        var settingsPath = Path.Combine(AppContext.BaseDirectory, ConfigurationFolder, SettingsConfig);
+        if (!File.Exists(settingsPath))
+        {
+            File.WriteAllText(settingsPath, DefaultSettingsContents);
+        }
+    }
+
+    private const string DefaultLoggingContents =
+        """
+        {
+          "Serilog": {
+            "MinimumLevel": {
+              "Default": "Information",
+              "Override": {
+                "Microsoft": "Warning",
+                "System": "Warning",
+                "System.Net.Http.HttpClient.Scraper.LogicalHandler": "Warning",
+                "System.Net.Http.HttpClient.Scraper.ClientHandler": "Warning"
+              }
+            }
+          }
+        }
+        """;
+
+    private const string DefaultSettingsContents =
+        """
+        {
+          "Zilean": {
+            "Dmm": {
+              "Enabled": true
+            }
+          }
+        }
+        """;
 }
