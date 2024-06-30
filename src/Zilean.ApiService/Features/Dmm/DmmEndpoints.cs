@@ -56,7 +56,7 @@ public static class DmmEndpoints
                     .Execute()
                     .OrderByDescending(r => r.Score)
                     .Take(200)
-                    .Select(r => new DebridMediaManagerCrawler.ExtractedDMMContent(r["Filename"], r.Id));
+                    .Select(r => new DebridMediaManagerCrawler.ExtractedDMMContent(r["Filename"], r.Id, long.Parse(r["Filesize"])));
 
                 return TypedResults.Ok(results);
             });

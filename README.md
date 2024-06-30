@@ -54,11 +54,13 @@ Success:
 [
   {
     "filename": "string",
-    "infoHash": "string"
+    "infoHash": "string",
+    "filesize": "long"
   },
   {
     "filename": "string",
-    "infoHash": "string"
+    "infoHash": "string",
+    "filesize": "long"
   }
 ]
 ```

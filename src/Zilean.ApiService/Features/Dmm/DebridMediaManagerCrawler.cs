@@ -2,7 +2,7 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloader, ILogger<DebridMediaManagerCrawler> logger, IExamineManager examineManager) : IDebridMediaManagerCrawler
 {
-    public record ExtractedDMMContent(string Filename, string InfoHash);
+    public record ExtractedDMMContent(string Filename, string InfoHash, long Filesize);
 
     [GeneratedRegex("""<iframe src="https:\/\/debridmediamanager.com\/hashlist#(.*)"></iframe>""")]
     private static partial Regex HashCollectionMatcher();
@@ -56,6 +56,7 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
                 new Dictionary<string, object>
                 {
                     ["Filename"] = torrent.Filename.Replace(".", " ", StringComparison.Ordinal),
+                    ["Filesize"] = torrent.Filesize,
                 }));
 
             dmmIndexer.IndexItems(valueSets);
@@ -135,7 +136,7 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
         var sanitizedTorrents = torrents
             .Where(x => x is not null)
             .GroupBy(x => x.InfoHash)
-            .Select(g => new ExtractedDMMContent(g.First().Filename, g.Key))
+            .Select(g => new ExtractedDMMContent(g.First().Filename, g.Key, g.First().Filesize))
             .ToList();
 
         logger.LogInformation("Parsed {Torrents} torrents for {Name}", sanitizedTorrents.Count, filenameOnly);
@@ -145,7 +146,8 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
 
     private static ExtractedDMMContent? ParsePageContent(JsonElement item) =>
         !item.TryGetProperty("filename", out var filenameElement) ||
+        !item.TryGetProperty("bytes", out var filesizeElement) ||
         !item.TryGetProperty("hash", out var hashElement)
             ? null
-            : new ExtractedDMMContent(filenameElement.GetString(), hashElement.GetString());
+            : new ExtractedDMMContent(filenameElement.GetString(), hashElement.GetString(), filesizeElement.GetInt64());
 }
