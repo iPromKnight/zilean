@@ -2,16 +2,19 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmEndpoints
 {
-    public const string GroupName = "dmm";
-    public const string Search = "/search";
+    private const string GroupName = "dmm";
+    private const string Search = "/search";
 
-    public static WebApplication MapDmmEndpoints(this WebApplication app)
+    public static WebApplication MapDmmEndpoints(this WebApplication app, IConfiguration configuration)
     {
-        app.MapGroup(GroupName)
-            .WithTags(GroupName)
-            .Dmm()
-            .DisableAntiforgery()
-            .AllowAnonymous();
+        if (DmmConfiguration.IsDmmEnabled(configuration))
+        {
+            app.MapGroup(GroupName)
+                .WithTags(GroupName)
+                .Dmm()
+                .DisableAntiforgery()
+                .AllowAnonymous();
+        }
 
         return app;
     }
@@ -25,25 +28,25 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task<Results<Ok<IEnumerable<DebridMediaManagerCrawler.ExtractedDMMContent>>, ProblemHttpResult>> PerformSearch(HttpContext context, IExamineManager examineManager, IDebridMediaManagerCrawler dmmCrawler, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Results<Ok<IEnumerable<ExtractedDmmEntry>>, ProblemHttpResult>> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
-            if (dmmCrawler.IsRunning)
+            if (dmmState.IsRunning)
             {
-                return TypedResults.Ok(Enumerable.Empty<DebridMediaManagerCrawler.ExtractedDMMContent>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(Enumerable.Empty<DebridMediaManagerCrawler.ExtractedDMMContent>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
             if (!examineManager.TryGetIndex("DMM", out var dmmIndexer))
             {
                 const string error = "Failed to get dmm lucene indexer, aborting...";
                 Serilog.Log.Error(error);
-                return TypedResults.Ok(Enumerable.Empty<DebridMediaManagerCrawler.ExtractedDMMContent>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
             return await Task.Run(() =>
@@ -55,8 +58,7 @@ public static class DmmEndpoints
                     .Field("Filename", queryRequest.QueryText)
                     .Execute()
                     .OrderByDescending(r => r.Score)
-                    .Take(200)
-                    .Select(r => new DebridMediaManagerCrawler.ExtractedDMMContent(r["Filename"], r.Id, long.Parse(r["Filesize"])));
+                    .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])));
 
                 return TypedResults.Ok(results);
             });

@@ -1,18 +1,20 @@
 ﻿var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.Configuration.AddConfigurationFiles();
+
+builder.AddOtlpServiceDefaults();
 
 builder.Services
     .AddSwaggerSupport()
-    .AddDmmSupport();
+    .AddSchedulingSupport()
+    .AddLuceneSupport()
+    .AddDmmSupport(builder.Configuration);
 
 var app = builder.Build();
-
-app.MapDefaultEndpoints();
 
 app.MapZileanEndpoints()
     .EnableSwagger();
 
-app.Services.ScheduleDmmJobs();
+app.Services.SetupScheduling(app.Configuration);
 
 app.Run();

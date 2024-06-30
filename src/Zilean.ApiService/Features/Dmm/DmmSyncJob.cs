@@ -1,8 +1,13 @@
 namespace Zilean.ApiService.Features.Dmm;
 
-public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloader, ILogger<DebridMediaManagerCrawler> logger, IExamineManager examineManager) : IDebridMediaManagerCrawler
+public partial class DmmSyncJob(
+    ILogger<DmmSyncJob> logger,
+    IExamineManager examineManager,
+    IDmmFileDownloader dmmFileDownloader,
+    DmmSyncState dmmSyncState) : IInvocable,
+    ICancellableInvocable
 {
-    public record ExtractedDMMContent(string Filename, string InfoHash, long Filesize);
+    public CancellationToken CancellationToken { get; set; }
 
     [GeneratedRegex("""<iframe src="https:\/\/debridmediamanager.com\/hashlist#(.*)"></iframe>""")]
     private static partial Regex HashCollectionMatcher();
@@ -12,14 +17,14 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
     private ConcurrentDictionary<string, object> _parsedPages = [];
     private readonly int _saveInterval = 50;
     private int _processedFilesCount;
-    public bool IsRunning { get; private set; }
 
-    public async Task Execute(CancellationToken cancellationToken)
+    public async Task Invoke()
     {
-        IsRunning = true;
+        dmmSyncState.IsRunning = true;
+
         await LoadParsedPages();
 
-        var tempDirectory = await dmmFileDownloader.DownloadFileToTempPath(cancellationToken);
+        var tempDirectory = await dmmFileDownloader.DownloadFileToTempPath(CancellationToken);
 
         var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
             .Where(f => !_parsedPages.ContainsKey(Path.GetFileName(f)))
@@ -74,7 +79,7 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
 
         logger.LogInformation("Finished processing {Files} new files", _processedFilesCount);
 
-        IsRunning = false;
+        dmmSyncState.IsRunning = false;
     }
 
     private async Task LoadParsedPages()
@@ -82,24 +87,24 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
         if (File.Exists(_parsedPageFile))
         {
             using var reader = new StreamReader(_parsedPageFile);
-            _parsedPages = await JsonSerializer.DeserializeAsync<ConcurrentDictionary<string, object>>(reader.BaseStream);
+            _parsedPages = await JsonSerializer.DeserializeAsync<ConcurrentDictionary<string, object>>(reader.BaseStream, cancellationToken: CancellationToken);
         }
     }
 
     private async Task SaveParsedPages()
     {
         await using var writer = new StreamWriter(_parsedPageFile);
-        await JsonSerializer.SerializeAsync(writer.BaseStream, _parsedPages);
+        await JsonSerializer.SerializeAsync(writer.BaseStream, _parsedPages, cancellationToken: CancellationToken);
     }
 
-    private async Task<List<ExtractedDMMContent>> ExtractPageContents(string filePath, string filenameOnly)
+    private async Task<List<ExtractedDmmEntry>> ExtractPageContents(string filePath, string filenameOnly)
     {
         if (_parsedPages.TryGetValue(filenameOnly, out _) || !File.Exists(filePath))
         {
             return [];
         }
 
-        var pageSource = await File.ReadAllTextAsync(filePath);
+        var pageSource = await File.ReadAllTextAsync(filePath, CancellationToken);
 
         var match = HashCollectionMatcher().Match(pageSource);
 
@@ -124,7 +129,7 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
             .ToAsyncEnumerable()
             .Select(ParsePageContent)
             .Where(t => t is not null)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: CancellationToken);
 
         if (torrents.Count == 0)
         {
@@ -136,7 +141,7 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
         var sanitizedTorrents = torrents
             .Where(x => x is not null)
             .GroupBy(x => x.InfoHash)
-            .Select(g => new ExtractedDMMContent(g.First().Filename, g.Key, g.First().Filesize))
+            .Select(g => new ExtractedDmmEntry(g.First().Filename, g.Key, g.First().Filesize))
             .ToList();
 
         logger.LogInformation("Parsed {Torrents} torrents for {Name}", sanitizedTorrents.Count, filenameOnly);
@@ -144,10 +149,10 @@ public partial class DebridMediaManagerCrawler(IDMMFileDownloader dmmFileDownloa
         return sanitizedTorrents;
     }
 
-    private static ExtractedDMMContent? ParsePageContent(JsonElement item) =>
+    private static ExtractedDmmEntry? ParsePageContent(JsonElement item) =>
         !item.TryGetProperty("filename", out var filenameElement) ||
         !item.TryGetProperty("bytes", out var filesizeElement) ||
         !item.TryGetProperty("hash", out var hashElement)
             ? null
-            : new ExtractedDMMContent(filenameElement.GetString(), hashElement.GetString(), filesizeElement.GetInt64());
+            : new ExtractedDmmEntry(filenameElement.GetString(), hashElement.GetString(), filesizeElement.GetInt64());
 }

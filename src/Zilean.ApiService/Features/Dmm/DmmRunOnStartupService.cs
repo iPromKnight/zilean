@@ -1,6 +1,6 @@
 namespace Zilean.ApiService.Features.Dmm;
 
-public class DmmRunOnStartupService(IDebridMediaManagerCrawler dmmCrawler, ILogger<DmmRunOnStartupService> logger) : IHostedService
+public class DmmRunOnStartupService(ILogger<DmmRunOnStartupService> logger, IServiceProvider serviceProvider) : IHostedService
 {
     private readonly string _parsedPageFile = Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
 
@@ -12,7 +12,10 @@ public class DmmRunOnStartupService(IDebridMediaManagerCrawler dmmCrawler, ILogg
             return;
         }
 
-        await dmmCrawler.Execute(cancellationToken);
+        await using var scope = serviceProvider.CreateAsyncScope();
+        var syncJob = scope.ServiceProvider.GetRequiredService<DmmSyncJob>();
+        syncJob.CancellationToken = cancellationToken;
+        await syncJob.Invoke();
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

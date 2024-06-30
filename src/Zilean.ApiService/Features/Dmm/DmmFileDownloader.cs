@@ -1,6 +1,11 @@
 namespace Zilean.ApiService.Features.Dmm;
 
-public class DMMFileDownloader(HttpClient client, ILogger<DMMFileDownloader> logger) : IDMMFileDownloader
+public interface IDmmFileDownloader
+{
+    Task<string> DownloadFileToTempPath(CancellationToken cancellationToken);
+}
+
+public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> logger) : IDmmFileDownloader
 {
     private const string Filename = "main.zip";
 

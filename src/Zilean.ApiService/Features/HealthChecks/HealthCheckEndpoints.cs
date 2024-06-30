@@ -2,8 +2,8 @@ namespace Zilean.ApiService.Features.HealthChecks;
 
 public static class HealthCheckEndpoints
 {
-    public const string GroupName = "healthchecks";
-    public const string Ping = "/ping";
+    private const string GroupName = "healthchecks";
+    private const string Ping = "/ping";
 
     public static WebApplication MapHealthCheckEndpoints(this WebApplication app)
     {
