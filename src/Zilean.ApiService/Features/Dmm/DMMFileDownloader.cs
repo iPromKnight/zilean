@@ -27,18 +27,16 @@ public class DMMFileDownloader(HttpClient client, ILogger<DMMFileDownloader> log
         response.EnsureSuccessStatusCode();
 
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-        using var archive = new ZipArchive(stream);
 
-        logger.LogInformation("Extracting DMM Hashlists to {TempDirectory}", tempDirectory);
+        // Save the stream to a temporary file
+        var tempFilePath = Path.Combine(Path.GetTempPath(), "DMMHashlists.zip");
+        await SaveStreamToFile(stream, tempFilePath, cancellationToken);
 
-        foreach (var entry in archive.Entries)
-        {
-            var entryPath = Path.Combine(tempDirectory, Path.GetFileName(entry.FullName));
-            if (!entry.FullName.EndsWith('/')) // It's a file
-            {
-                entry.ExtractToFile(entryPath, true);
-            }
-        }
+        // Extract the temporary file
+        ExtractZipFile(tempFilePath, tempDirectory);
+
+        // Delete the temporary file
+        File.Delete(tempFilePath);
 
         foreach (var file in _filesToIgnore)
         {
@@ -48,6 +46,26 @@ public class DMMFileDownloader(HttpClient client, ILogger<DMMFileDownloader> log
         logger.LogInformation("Downloaded and extracted Repository to {TempDirectory}", tempDirectory);
 
         return tempDirectory;
+    }
+
+    private static async Task SaveStreamToFile(Stream stream, string filePath, CancellationToken cancellationToken)
+    {
+        await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+        await stream.CopyToAsync(fileStream, cancellationToken);
+    }
+
+    private static void ExtractZipFile(string zipFilePath, string extractPath)
+    {
+        using var archive = ZipFile.OpenRead(zipFilePath);
+
+        foreach (var entry in archive.Entries)
+        {
+            var entryPath = Path.Combine(extractPath, Path.GetFileName(entry.FullName));
+            if (!entry.FullName.EndsWith('/'))
+            {
+                entry.ExtractToFile(entryPath, true);
+            }
+        }
     }
 
     private static void CleanRepoExtras(string tempDirectory, string fileName)
