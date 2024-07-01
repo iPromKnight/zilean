@@ -3,9 +3,12 @@ volumes:
 
 services:
   zilean:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ipromknight/zilean:latest
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+    user: "${PUID}:${PGID}"
     ports:
       - "8181:8181"
     volumes:
