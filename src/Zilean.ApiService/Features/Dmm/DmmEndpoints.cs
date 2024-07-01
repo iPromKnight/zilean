@@ -61,7 +61,6 @@ public static class DmmEndpoints
                     .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])))
                     .ToList();
 
-                examineManager.Dispose();
 
                 return TypedResults.Ok(results);
             });

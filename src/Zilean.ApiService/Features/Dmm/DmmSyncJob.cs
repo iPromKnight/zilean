@@ -79,8 +79,6 @@ public partial class DmmSyncJob(
 
         logger.LogInformation("Finished processing {Files} new files", _processedFilesCount);
 
-        examineManager.Dispose();
-
         dmmSyncState.IsRunning = false;
     }
 
