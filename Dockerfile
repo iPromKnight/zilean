@@ -10,7 +10,9 @@ RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH /p:Assem
 # Run Stage
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-RUN addgroup --system zilean && adduser --system zilean && usermod -aG zilean zilean
+ENV ZILEAN_UID=1000
+ENV ZILEAN_GID=1000
+RUN addgroup --system --gid $ZILEAN_GID zilean && adduser --system --uid $ZILEAN_UID --gid $ZILEAN_GID zilean
 RUN mkdir /app/data && chown -R zilean:zilean /app
 USER zilean
 ENV ASPNETCORE_URLS=http://+:8181
