@@ -28,25 +28,25 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task<Results<Ok<IEnumerable<ExtractedDmmEntry>>, ProblemHttpResult>> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Results<Ok<List<ExtractedDmmEntry>>, ProblemHttpResult>> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
             if (dmmState.IsRunning)
             {
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(new List<ExtractedDmmEntry>());
             }
 
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(new List<ExtractedDmmEntry>());
             }
 
             if (!examineManager.TryGetIndex("DMM", out var dmmIndexer))
             {
                 const string error = "Failed to get dmm lucene indexer, aborting...";
                 Serilog.Log.Error(error);
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(new List<ExtractedDmmEntry>());
             }
 
             return await Task.Run(() =>
@@ -58,7 +58,10 @@ public static class DmmEndpoints
                     .Field("Filename", queryRequest.QueryText)
                     .Execute()
                     .OrderByDescending(r => r.Score)
-                    .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])));
+                    .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])))
+                    .ToList();
+
+                examineManager.Dispose();
 
                 return TypedResults.Ok(results);
             });
