@@ -19,7 +19,7 @@ public class DmmRunOnStartupService(ILogger<DmmRunOnStartupService> logger, ISer
 
         logger.LogInformation("Initial run completed. Cycling application in 5 seconds to free resources used by lucene indexers initial processing.");
         await Task.Delay(5000, cancellationToken);
-        Environment.Exit(0);
+        Environment.Exit(1);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
