@@ -49,12 +49,15 @@ public partial class DmmSyncJob(
             Interlocked.Increment(ref _processedFilesCount);
         }
 
-        logger.LogInformation("Indexing {Torrents} new torrents", torrents.Count);
+        var distinctTorrents = torrents.DistinctBy(x=>x.InfoHash).ToList();
+
+        logger.LogInformation("Total torrents from files: {Torrents}", torrents.Count);
+        logger.LogInformation("Indexing {Torrents} distinct new torrents", distinctTorrents.Count);
         logger.LogInformation("If this is the first run, This process takes a few minutes, please be patient...");
 
         var resetEvent = new ManualResetEventSlim();
 
-        var valueSets = torrents.Select(torrent => new ValueSet(
+        var valueSets = distinctTorrents.DistinctBy(x=>x.InfoHash).Select(torrent => new ValueSet(
             torrent.InfoHash,
             "Torrents",
             new Dictionary<string, object>
