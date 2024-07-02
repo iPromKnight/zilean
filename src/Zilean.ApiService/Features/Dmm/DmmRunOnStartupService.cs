@@ -16,6 +16,10 @@ public class DmmRunOnStartupService(ILogger<DmmRunOnStartupService> logger, ISer
         var syncJob = scope.ServiceProvider.GetRequiredService<DmmSyncJob>();
         syncJob.CancellationToken = cancellationToken;
         await syncJob.Invoke();
+
+        logger.LogInformation("Initial run completed. Cycling application in 5 seconds to free resources used by lucene indexers initial processing.");
+        await Task.Delay(5000, cancellationToken);
+        Environment.Exit(0);
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;

@@ -10,8 +10,8 @@ public static class WebApplicationExtensions
         return app;
     }
 
-    public static WebApplication MapZileanEndpoints(this WebApplication app) =>
+    public static WebApplication MapZileanEndpoints(this WebApplication app, ZileanConfiguration configuration) =>
         app
-            .MapDmmEndpoints(app.Configuration)
+            .MapDmmEndpoints(configuration)
             .MapHealthCheckEndpoints();
 }

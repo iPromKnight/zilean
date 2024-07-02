@@ -20,11 +20,4 @@
       <PackageReference Include="System.Linq.Async" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Remove="data\*.json" />
-      <None Include="data\*.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
-
 </Project>

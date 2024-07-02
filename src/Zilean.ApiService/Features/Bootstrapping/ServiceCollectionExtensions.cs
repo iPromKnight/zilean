@@ -26,9 +26,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
-    public static IServiceCollection AddDmmSupport(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDmmSupport(this IServiceCollection services, ZileanConfiguration configuration)
     {
-        if (!DmmConfiguration.IsDmmEnabled(configuration))
+        if (!configuration.Dmm.Enabled)
         {
             return services;
         }
@@ -48,14 +48,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceProvider SetupScheduling(this IServiceProvider provider, IConfiguration configuration)
+    public static IServiceProvider SetupScheduling(this IServiceProvider provider, ZileanConfiguration configuration)
     {
         provider.UseScheduler(scheduler =>
             {
-                if (DmmConfiguration.IsDmmEnabled(configuration))
+                if (configuration.Dmm.Enabled)
                 {
                     scheduler.Schedule<DmmSyncJob>()
-                        .Hourly()
+                        .Cron(configuration.Dmm.ScrapeSchedule)
                         .PreventOverlapping(nameof(DmmSyncJob));
                 }
             })

@@ -2,19 +2,21 @@
 
 builder.Configuration.AddConfigurationFiles();
 
+var zileanConfiguration = builder.Configuration.GetZileanConfiguration();
+
 builder.AddOtlpServiceDefaults();
 
 builder.Services
     .AddSwaggerSupport()
     .AddSchedulingSupport()
     .AddLuceneSupport()
-    .AddDmmSupport(builder.Configuration);
+    .AddDmmSupport(zileanConfiguration);
 
 var app = builder.Build();
 
-app.MapZileanEndpoints()
+app.MapZileanEndpoints(zileanConfiguration)
     .EnableSwagger();
 
-app.Services.SetupScheduling(app.Configuration);
+app.Services.SetupScheduling(zileanConfiguration);
 
 app.Run();

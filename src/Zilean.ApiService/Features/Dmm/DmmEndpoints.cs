@@ -1,3 +1,5 @@
+using Examine;
+
 namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmEndpoints
@@ -5,9 +7,9 @@ public static class DmmEndpoints
     private const string GroupName = "dmm";
     private const string Search = "/search";
 
-    public static WebApplication MapDmmEndpoints(this WebApplication app, IConfiguration configuration)
+    public static WebApplication MapDmmEndpoints(this WebApplication app, ZileanConfiguration configuration)
     {
-        if (DmmConfiguration.IsDmmEnabled(configuration))
+        if (configuration.Dmm.Enabled)
         {
             app.MapGroup(GroupName)
                 .WithTags(GroupName)
@@ -28,42 +30,34 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task<Results<Ok<List<ExtractedDmmEntry>>, ProblemHttpResult>> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
+    private static Results<Ok<IEnumerable<ExtractedDmmEntry>>, ProblemHttpResult> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
             if (dmmState.IsRunning)
             {
-                return TypedResults.Ok(new List<ExtractedDmmEntry>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(new List<ExtractedDmmEntry>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
             if (!examineManager.TryGetIndex("DMM", out var dmmIndexer))
             {
                 const string error = "Failed to get dmm lucene indexer, aborting...";
                 Serilog.Log.Error(error);
-                return TypedResults.Ok(new List<ExtractedDmmEntry>());
+                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
             }
 
-            return await Task.Run(() =>
-            {
-                var searcher = dmmIndexer.Searcher;
-                var query = searcher.CreateQuery();
+            var results = dmmIndexer.Searcher
+                .CreateQuery()
+                .Field("Filename", queryRequest.QueryText)
+                .Execute()
+                .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])));
 
-                var results = query
-                    .Field("Filename", queryRequest.QueryText)
-                    .Execute()
-                    .OrderByDescending(r => r.Score)
-                    .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])))
-                    .ToList();
-
-
-                return TypedResults.Ok(results);
-            });
+            return TypedResults.Ok(results);
         }
         catch (Exception e)
         {

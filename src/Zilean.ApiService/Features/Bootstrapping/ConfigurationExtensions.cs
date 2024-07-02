@@ -2,64 +2,30 @@ namespace Zilean.ApiService.Features.Bootstrapping;
 
 public static class ConfigurationExtensions
 {
-    private const string ConfigurationFolder = "data";
-    private const string LoggingConfig = "logging.json";
-    private const string SettingsConfig = "settings.json";
-
     public static IConfigurationBuilder AddConfigurationFiles(this IConfigurationBuilder configuration)
     {
-        EnsureConfigFilesExist();
+        var configurationFolderPath = Path.Combine(AppContext.BaseDirectory, Literals.ConfigurationFolder);
 
-        configuration.SetBasePath(Path.Combine(AppContext.BaseDirectory, ConfigurationFolder));
+        EnsureConfigurationDirectoryExists(configurationFolderPath);
 
-        configuration.AddJsonFile(LoggingConfig, false, true);
-        configuration.AddJsonFile(SettingsConfig, false, true);
+        ZileanConfiguration.EnsureExists();
 
+        configuration.SetBasePath(configurationFolderPath);
+        configuration.AddLoggingConfiguration(configurationFolderPath);
+        configuration.AddJsonFile(Literals.SettingsConfigFilename, false, false);
         configuration.AddEnvironmentVariables();
 
         return configuration;
     }
 
-    private static void EnsureConfigFilesExist()
-    {
-        var loggingPath = Path.Combine(AppContext.BaseDirectory, ConfigurationFolder, LoggingConfig);
-        if (!File.Exists(loggingPath))
-        {
-            File.WriteAllText(loggingPath, DefaultLoggingContents);
-        }
+    public static ZileanConfiguration GetZileanConfiguration(this IConfiguration configuration) =>
+        configuration.GetSection(Literals.MainSettingsSectionName).Get<ZileanConfiguration>();
 
-        var settingsPath = Path.Combine(AppContext.BaseDirectory, ConfigurationFolder, SettingsConfig);
-        if (!File.Exists(settingsPath))
+    private static void EnsureConfigurationDirectoryExists(string configurationFolderPath)
+    {
+        if (!Directory.Exists(configurationFolderPath))
         {
-            File.WriteAllText(settingsPath, DefaultSettingsContents);
+            Directory.CreateDirectory(configurationFolderPath);
         }
     }
-
-    private const string DefaultLoggingContents =
-        """
-        {
-          "Serilog": {
-            "MinimumLevel": {
-              "Default": "Information",
-              "Override": {
-                "Microsoft": "Warning",
-                "System": "Warning",
-                "System.Net.Http.HttpClient.Scraper.LogicalHandler": "Warning",
-                "System.Net.Http.HttpClient.Scraper.ClientHandler": "Warning"
-              }
-            }
-          }
-        }
-        """;
-
-    private const string DefaultSettingsContents =
-        """
-        {
-          "Zilean": {
-            "Dmm": {
-              "Enabled": true
-            }
-          }
-        }
-        """;
 }
