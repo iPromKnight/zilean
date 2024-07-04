@@ -20,11 +20,22 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddLuceneSupport(this IServiceCollection services) =>
-        services.AddExamine(new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "data", "lucene")));
-
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
+
+    public static IServiceCollection AddElasticSearchSupport(this IServiceCollection services)
+    {
+        services.AddSingleton<IElasticClient, ElasticClient>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddConfiguration(this IServiceCollection services, ZileanConfiguration configuration)
+    {
+        services.AddSingleton(configuration);
+
+        return services;
+    }
 
     public static IServiceCollection AddDmmSupport(this IServiceCollection services, ZileanConfiguration configuration)
     {
@@ -42,7 +53,6 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<DmmSyncJob>();
         services.AddSingleton<DmmSyncState>();
-        services.AddExamineLuceneIndex("DMM");
         services.AddHostedService<DmmRunOnStartupService>();
 
         return services;

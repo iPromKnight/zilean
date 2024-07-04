@@ -2,8 +2,8 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public partial class DmmSyncJob(
     ILogger<DmmSyncJob> logger,
-    IExamineManager examineManager,
     IDmmFileDownloader dmmFileDownloader,
+    IElasticClient elasticClient,
     DmmSyncState dmmState) : IInvocable,
     ICancellableInvocable
 {
@@ -27,12 +27,6 @@ public partial class DmmSyncJob(
 
         logger.LogInformation("Found {Files} files to parse", files.Length);
 
-        if (!examineManager.TryGetIndex("DMM", out var dmmIndexer))
-        {
-            logger.LogError("Failed to get dmm lucene indexer, aborting...");
-            return;
-        }
-
         var torrents = new List<ExtractedDmmEntry>();
 
         foreach (var file in files)
@@ -52,36 +46,17 @@ public partial class DmmSyncJob(
         logger.LogInformation("Indexing {Torrents} distinct new torrents", distinctTorrents.Count);
         logger.LogInformation("If this is the first run, This process takes a few minutes, please be patient...");
 
-        var valueSets = distinctTorrents.DistinctBy(x=>x.InfoHash).Select(torrent => new ValueSet(
-            torrent.InfoHash,
-            "Torrents",
-            new Dictionary<string, object>
-            {
-                ["Filename"] = torrent.Filename.Replace(".", " ", StringComparison.Ordinal),
-                ["Filesize"] = torrent.Filesize,
-            }));
+        var indexResult = await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticClient.DmmIndex);
 
-        SetupEventHandlerForIndexer(dmmIndexer, dmmState.SyncProcessResetEvent);
+        if (indexResult.Errors)
+        {
+            logger.LogError("Failed to index {Torrents} torrents", distinctTorrents.Count);
+        }
 
-        dmmIndexer.IndexItems(valueSets);
-
-        dmmState.SyncProcessResetEvent.Wait(CancellationToken);
+        logger.LogInformation("Indexed {Torrents} torrents", distinctTorrents.Count);
 
         await dmmState.SetFinished(CancellationToken);
     }
-
-    private void SetupEventHandlerForIndexer(IIndex dmmIndexer, ManualResetEventSlim resetEvent)
-    {
-        dmmIndexer.IndexOperationComplete -= IndexingOperationCompleteCallback(resetEvent);
-        dmmIndexer.IndexOperationComplete += IndexingOperationCompleteCallback(resetEvent);
-    }
-
-    private EventHandler<IndexOperationEventArgs> IndexingOperationCompleteCallback(ManualResetEventSlim resetEvent) =>
-        (_, args) =>
-        {
-            logger.LogInformation("Indexed {Items} items", args.ItemsIndexed);
-            resetEvent.Set();
-        };
 
     private async Task<List<ExtractedDmmEntry>> ExtractPageContents(string filePath, string filenameOnly)
     {

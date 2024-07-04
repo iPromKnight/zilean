@@ -1,7 +1,7 @@
 <Project>
   <ItemGroup>
     <PackageVersion Include="Coravel" Version="5.0.4" />
-    <PackageVersion Include="Examine" Version="4.0.0-beta.1" />
+    <PackageVersion Include="Elastic.Clients.Elasticsearch" Version="8.14.4" />
     <PackageVersion Include="LZStringCSharp" Version="1.4.0" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="8.6.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
