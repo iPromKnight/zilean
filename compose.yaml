@@ -14,8 +14,8 @@ services:
         - Zilean__ElasticSearch__Url=http://elasticsearch:9200
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
-      timeout: 10s
-      interval: 10s
+      timeout: 60s
+      interval: 30s
       retries: 10
     depends_on:
       elasticsearch:
