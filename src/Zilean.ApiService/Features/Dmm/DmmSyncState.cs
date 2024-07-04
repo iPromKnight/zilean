@@ -7,8 +7,6 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
     public bool IsRunning { get; private set; }
     public ConcurrentDictionary<string, object> ParsedPages { get; set; } = [];
 
-    public ManualResetEventSlim SyncProcessResetEvent { get; } = new();
-
     public void IncrementProcessedFilesCount() => ProcessedFilesCount++;
 
     public async Task SetRunning(CancellationToken cancellationToken)
@@ -16,17 +14,16 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
         IsRunning = true;
         ParsedPages = new ConcurrentDictionary<string, object>();
         ProcessedFilesCount = 0;
-        SyncProcessResetEvent.Reset();
         await LoadParsedPages(cancellationToken);
     }
 
     public async Task SetFinished(CancellationToken cancellationToken)
     {
         logger.LogInformation("Finished processing {Files} new files", ProcessedFilesCount);
+        await SaveParsedPages(cancellationToken);
         IsRunning = false;
         ParsedPages = new ConcurrentDictionary<string, object>();
         ProcessedFilesCount = 0;
-        await SaveParsedPages(cancellationToken);
     }
 
     private async Task LoadParsedPages(CancellationToken cancellationToken)

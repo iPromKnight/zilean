@@ -1,5 +1,3 @@
-using Examine;
-
 namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmEndpoints
@@ -30,34 +28,36 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static Results<Ok<IEnumerable<ExtractedDmmEntry>>, ProblemHttpResult> PerformSearch(HttpContext context, DmmSyncState dmmState, IExamineManager examineManager, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Results<Ok<List<ExtractedDmmEntry?>>, ProblemHttpResult>> PerformSearch(HttpContext context, IElasticClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
-            if (dmmState.IsRunning)
-            {
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
-            }
-
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(new List<ExtractedDmmEntry?>());
             }
 
-            if (!examineManager.TryGetIndex("DMM", out var dmmIndexer))
+            var results = await elasticClient
+                .GetClient()
+                .SearchAsync<ExtractedDmmEntry>(search =>
+                {
+                    search.Index(ElasticClient.DmmIndex)
+                        .From(0)
+                        .Size(1000)
+                        .Query(q =>
+                            q.Match(t =>
+                                t.Field(f => f.Filename)
+                                    .Query(queryRequest.QueryText)));
+                });
+
+            if (!results.IsValidResponse || results.Hits.Count == 0)
             {
-                const string error = "Failed to get dmm lucene indexer, aborting...";
-                Serilog.Log.Error(error);
-                return TypedResults.Ok(Enumerable.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(new List<ExtractedDmmEntry?>());
             }
 
-            var results = dmmIndexer.Searcher
-                .CreateQuery()
-                .Field("Filename", queryRequest.QueryText)
-                .Execute()
-                .Select(r => new ExtractedDmmEntry(r["Filename"], r.Id, long.Parse(r["Filesize"])));
+            var hits = results.Hits.Select(x => x.Source).ToList();
 
-            return TypedResults.Ok(results);
+            return TypedResults.Ok(hits);
         }
         catch (Exception e)
         {

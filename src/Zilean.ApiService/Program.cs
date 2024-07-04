@@ -7,9 +7,10 @@ var zileanConfiguration = builder.Configuration.GetZileanConfiguration();
 builder.AddOtlpServiceDefaults();
 
 builder.Services
+    .AddConfiguration(zileanConfiguration)
     .AddSwaggerSupport()
     .AddSchedulingSupport()
-    .AddLuceneSupport()
+    .AddElasticSearchSupport()
     .AddDmmSupport(zileanConfiguration);
 
 var app = builder.Build();
