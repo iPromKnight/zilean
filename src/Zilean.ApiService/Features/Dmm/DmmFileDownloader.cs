@@ -23,7 +23,7 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
     {
         logger.LogInformation("Downloading DMM Hashlists");
 
-        var response = await client.GetAsync(Filename, cancellationToken);
+        var response = await client.GetAsync(Filename, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
         var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
 
@@ -31,16 +31,15 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
 
         response.EnsureSuccessStatusCode();
 
-        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
-
-        // Save the stream to a temporary file
         var tempFilePath = Path.Combine(tempDirectory, "DMMHashlists.zip");
-        await SaveStreamToFile(stream, tempFilePath, cancellationToken);
+        await using (var stream = await response.Content.ReadAsStreamAsync(cancellationToken))
+        await using (var fileStream = new FileStream(tempFilePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+        {
+            await stream.CopyToAsync(fileStream, cancellationToken);
+        }
 
-        // Extract the temporary file
         ExtractZipFile(tempFilePath, tempDirectory);
 
-        // Delete the temporary file
         File.Delete(tempFilePath);
 
         foreach (var file in _filesToIgnore)
@@ -53,15 +52,10 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
         return tempDirectory;
     }
 
-    private static async Task SaveStreamToFile(Stream stream, string filePath, CancellationToken cancellationToken)
-    {
-        await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-        await stream.CopyToAsync(fileStream, cancellationToken);
-    }
-
     private static void ExtractZipFile(string zipFilePath, string extractPath)
     {
-        using var archive = ZipFile.OpenRead(zipFilePath);
+        using var fileStream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using var archive = new ZipArchive(fileStream, ZipArchiveMode.Read);
 
         foreach (var entry in archive.Entries)
         {
