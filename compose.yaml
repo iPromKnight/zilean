@@ -11,7 +11,7 @@ services:
     volumes:
       - zilean_data:/app/data
     environment:
-        - Zilean__ElasticSearch__Url=http://elasticsearch:9200
+        Zilean__ElasticSearch__Url: http://elasticsearch:9200
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
       timeout: 60s
@@ -27,7 +27,7 @@ services:
       ES_SETTING_DISCOVERY_TYPE: single-node
       ES_SETTING_XPACK_SECURITY_ENABLED: false
       ES_SETTING_BOOTSTRAP_MEMORY__LOCK: true
-      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
       - "9300:9300"
