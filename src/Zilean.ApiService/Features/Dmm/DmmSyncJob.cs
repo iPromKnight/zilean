@@ -66,11 +66,7 @@ public partial class DmmSyncJob(
                 ["Filesize"] = torrent.Filesize,
             }));
 
-        dmmIndexer.IndexOperationComplete += (sender, args) =>
-        {
-            logger.LogInformation("Indexed {Items} items", args.ItemsIndexed);
-            resetEvent.Set();
-        };
+        dmmIndexer.IndexOperationComplete += IndexingOperationCompleteCallback(resetEvent, dmmIndexer);
 
         dmmIndexer.IndexItems(valueSets);
 
@@ -82,6 +78,15 @@ public partial class DmmSyncJob(
 
         dmmSyncState.IsRunning = false;
     }
+
+    private EventHandler<IndexOperationEventArgs> IndexingOperationCompleteCallback(ManualResetEventSlim resetEvent,
+        IIndex dmmIndexer) =>
+        (sender, args) =>
+        {
+            logger.LogInformation("Indexed {Items} items", args.ItemsIndexed);
+            resetEvent.Set();
+            dmmIndexer.IndexOperationComplete -= IndexingOperationCompleteCallback(resetEvent, dmmIndexer);
+        };
 
     private async Task LoadParsedPages()
     {
