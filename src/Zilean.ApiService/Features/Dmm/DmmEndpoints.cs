@@ -22,19 +22,18 @@ public static class DmmEndpoints
     private static RouteGroupBuilder Dmm(this RouteGroupBuilder group)
     {
         group.MapPost(Search, PerformSearch)
-            .ProducesProblem(500)
-            .Produces<IReadOnlyCollection<string>>();
+            .Produces<ExtractedDmmEntry?[]>();
 
         return group;
     }
 
-    private static async Task<Results<Ok<List<ExtractedDmmEntry?>>, ProblemHttpResult>> PerformSearch(HttpContext context, IElasticClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Ok<ExtractedDmmEntry?[]>> PerformSearch(HttpContext context, IElasticClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(new List<ExtractedDmmEntry?>());
+                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>());
             }
 
             var results = await elasticClient
@@ -50,18 +49,13 @@ public static class DmmEndpoints
                                     .Query(queryRequest.QueryText)));
                 });
 
-            if (!results.IsValidResponse || results.Hits.Count == 0)
-            {
-                return TypedResults.Ok(new List<ExtractedDmmEntry?>());
-            }
-
-            var hits = results.Hits.Select(x => x.Source).ToList();
-
-            return TypedResults.Ok(hits);
+            return !results.IsValidResponse || results.Hits.Count == 0
+                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>())
+                : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
         }
-        catch (Exception e)
+        catch
         {
-            return TypedResults.Problem(e.Message);
+            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>());
         }
     }
 }
