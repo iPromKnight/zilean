@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV DOTNET_gcServer=1
-ENV DOTNET_GCConserveMemory=5
+ENV DOTNET_GCDynamicAdaptationMode=1
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8181
