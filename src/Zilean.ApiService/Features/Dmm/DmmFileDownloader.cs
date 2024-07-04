@@ -9,7 +9,7 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
 {
     private const string Filename = "main.zip";
 
-    private readonly IReadOnlyCollection<string> _filesToIgnore =
+    private static readonly IReadOnlyCollection<string> _filesToIgnore =
     [
         "index.html",
         "404.html",
@@ -34,7 +34,7 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
 
         // Save the stream to a temporary file
-        var tempFilePath = Path.Combine(Path.GetTempPath(), "DMMHashlists.zip");
+        var tempFilePath = Path.Combine(tempDirectory, "DMMHashlists.zip");
         await SaveStreamToFile(stream, tempFilePath, cancellationToken);
 
         // Extract the temporary file
