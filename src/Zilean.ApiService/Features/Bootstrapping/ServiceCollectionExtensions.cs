@@ -48,7 +48,8 @@ public static class ServiceCollectionExtensions
         {
             client.BaseAddress = new Uri("https://github.com/debridmediamanager/hashlists/zipball/main/");
             client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("curl");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("curl/7.54");
+            client.Timeout = TimeSpan.FromMinutes(10);
         });
 
         services.AddTransient<DmmSyncJob>();
