@@ -24,6 +24,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6", "k6", "{3F62995D-FA0F-
 		k6\performance_test.js = k6\performance_test.js
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{CF4C966D-25AC-4A2A-8C25-DBA4EB905E23}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\cicd.yaml = .github\workflows\cicd.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +46,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7C26F187-7FD3-45DE-A67B-59E5D21B3872} = {0639BF70-EA59-4820-B0AF-90E3EC23E084}
 		{3F62995D-FA0F-434F-B90A-5E59C5960A4A} = {49EC8AF3-9A9C-4291-A6DE-5BE594C50604}
+		{CF4C966D-25AC-4A2A-8C25-DBA4EB905E23} = {49EC8AF3-9A9C-4291-A6DE-5BE594C50604}
 	EndGlobalSection
 EndGlobal
