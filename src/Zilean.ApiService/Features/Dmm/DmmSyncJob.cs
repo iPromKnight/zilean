@@ -4,7 +4,7 @@ public partial class DmmSyncJob(
     ILogger<DmmSyncJob> logger,
     IExamineManager examineManager,
     IDmmFileDownloader dmmFileDownloader,
-    DmmSyncState dmmSyncState) : IInvocable,
+    DmmSyncState dmmState) : IInvocable,
     ICancellableInvocable
 {
     public CancellationToken CancellationToken { get; set; }
@@ -12,20 +12,17 @@ public partial class DmmSyncJob(
     [GeneratedRegex("""<iframe src="https:\/\/debridmediamanager.com\/hashlist#(.*)"></iframe>""")]
     private static partial Regex HashCollectionMatcher();
 
-    private readonly string _parsedPageFile = Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
-    private ConcurrentDictionary<string, object> _parsedPages = [];
-    private int _processedFilesCount;
-
     public async Task Invoke()
     {
-        dmmSyncState.IsRunning = true;
-
-        await LoadParsedPages();
+        if (!dmmState.IsRunning)
+        {
+            await dmmState.SetRunning(CancellationToken);
+        }
 
         var tempDirectory = await dmmFileDownloader.DownloadFileToTempPath(CancellationToken);
 
         var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
-            .Where(f => !_parsedPages.ContainsKey(Path.GetFileName(f)))
+            .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
             .ToArray();
 
         logger.LogInformation("Found {Files} files to parse", files.Length);
@@ -45,8 +42,8 @@ public partial class DmmSyncJob(
 
             torrents.AddRange(sanitizedTorrents);
 
-            _parsedPages.TryAdd(fileName, sanitizedTorrents.Count);
-            Interlocked.Increment(ref _processedFilesCount);
+            dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
+            dmmState.IncrementProcessedFilesCount();
         }
 
         var distinctTorrents = torrents.DistinctBy(x=>x.InfoHash).ToList();
@@ -54,8 +51,6 @@ public partial class DmmSyncJob(
         logger.LogInformation("Total torrents from files: {Torrents}", torrents.Count);
         logger.LogInformation("Indexing {Torrents} distinct new torrents", distinctTorrents.Count);
         logger.LogInformation("If this is the first run, This process takes a few minutes, please be patient...");
-
-        var resetEvent = new ManualResetEventSlim();
 
         var valueSets = distinctTorrents.DistinctBy(x=>x.InfoHash).Select(torrent => new ValueSet(
             torrent.InfoHash,
@@ -66,46 +61,31 @@ public partial class DmmSyncJob(
                 ["Filesize"] = torrent.Filesize,
             }));
 
-        dmmIndexer.IndexOperationComplete += IndexingOperationCompleteCallback(resetEvent, dmmIndexer);
+        SetupEventHandlerForIndexer(dmmIndexer, dmmState.SyncProcessResetEvent);
 
         dmmIndexer.IndexItems(valueSets);
 
-        resetEvent.Wait(CancellationToken);
+        dmmState.SyncProcessResetEvent.Wait(CancellationToken);
 
-        await SaveParsedPages();
-
-        logger.LogInformation("Finished processing {Files} new files", _processedFilesCount);
-
-        dmmSyncState.IsRunning = false;
+        await dmmState.SetFinished(CancellationToken);
     }
 
-    private EventHandler<IndexOperationEventArgs> IndexingOperationCompleteCallback(ManualResetEventSlim resetEvent,
-        IIndex dmmIndexer) =>
-        (sender, args) =>
+    private void SetupEventHandlerForIndexer(IIndex dmmIndexer, ManualResetEventSlim resetEvent)
+    {
+        dmmIndexer.IndexOperationComplete -= IndexingOperationCompleteCallback(resetEvent);
+        dmmIndexer.IndexOperationComplete += IndexingOperationCompleteCallback(resetEvent);
+    }
+
+    private EventHandler<IndexOperationEventArgs> IndexingOperationCompleteCallback(ManualResetEventSlim resetEvent) =>
+        (_, args) =>
         {
             logger.LogInformation("Indexed {Items} items", args.ItemsIndexed);
             resetEvent.Set();
-            dmmIndexer.IndexOperationComplete -= IndexingOperationCompleteCallback(resetEvent, dmmIndexer);
         };
-
-    private async Task LoadParsedPages()
-    {
-        if (File.Exists(_parsedPageFile))
-        {
-            using var reader = new StreamReader(_parsedPageFile);
-            _parsedPages = await JsonSerializer.DeserializeAsync<ConcurrentDictionary<string, object>>(reader.BaseStream, cancellationToken: CancellationToken);
-        }
-    }
-
-    private async Task SaveParsedPages()
-    {
-        await using var writer = new StreamWriter(_parsedPageFile);
-        await JsonSerializer.SerializeAsync(writer.BaseStream, _parsedPages, cancellationToken: CancellationToken);
-    }
 
     private async Task<List<ExtractedDmmEntry>> ExtractPageContents(string filePath, string filenameOnly)
     {
-        if (_parsedPages.TryGetValue(filenameOnly, out _) || !File.Exists(filePath))
+        if (dmmState.ParsedPages.TryGetValue(filenameOnly, out _) || !File.Exists(filePath))
         {
             return [];
         }
@@ -140,7 +120,7 @@ public partial class DmmSyncJob(
         if (torrents.Count == 0)
         {
             logger.LogWarning("No torrents found in {Name}", filenameOnly);
-            _parsedPages.TryAdd(filenameOnly, 0);
+            dmmState.ParsedPages.TryAdd(filenameOnly, 0);
             return [];
         }
 
