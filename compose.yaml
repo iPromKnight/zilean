@@ -11,7 +11,7 @@ services:
     volumes:
       - zilean_data:/app/data
     environment:
-        - ZILEAN__ELASTICSEARCH__URL=http://elasticsearch:9200
+        - Zilean__ElasticSearch__Url=http://elasticsearch:9200
     depends_on:
       elasticsearch:
         condition: service_healthy
