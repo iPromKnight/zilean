@@ -1,30 +1,19 @@
 // Global using directives
 
-global using System.Buffers;
-global using System.Collections.Concurrent;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
-global using System.IO.Compression;
-global using System.Reflection;
-global using System.Text;
-global using System.Text.Json;
-global using System.Text.Json.Serialization;
-global using System.Text.RegularExpressions;
 global using Coravel;
 global using Coravel.Invocable;
 global using Coravel.Scheduling.Schedule.Interfaces;
-global using Elastic.Clients.Elasticsearch;
-global using Elastic.Transport;
 global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using SimCube.Aspire.Features.Otlp;
-global using Zilean.ApiService.Extensions;
 global using Zilean.ApiService.Features.Bootstrapping;
 global using Zilean.ApiService.Features.Dmm;
 global using Zilean.ApiService.Features.HealthChecks;
-global using Zilean.ApiService.Features.Logging;
-global using Zilean.ApiService.Features.Shared;
-global using Zilean.ApiService.Features.ElasticSearch;
-global using Zilean.ApiService.Features.LzString;
+global using Zilean.Shared.Features.Configuration;
+global using Zilean.Shared.Features.Dmm;
+global using Zilean.Shared.Features.ElasticSearch;
+global using Zilean.Shared.Features.Otlp;
+global using Zilean.Shared.Features.Shell;

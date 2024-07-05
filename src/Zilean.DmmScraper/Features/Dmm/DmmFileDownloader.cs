@@ -1,4 +1,4 @@
-namespace Zilean.ApiService.Features.Dmm;
+namespace Zilean.DmmScraper.Features.Dmm;
 
 public interface IDmmFileDownloader
 {

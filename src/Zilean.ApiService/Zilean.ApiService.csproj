@@ -5,18 +5,21 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <UserSecretsId>54cad2ee-57df-4bb2-a192-d5d501448e1c</UserSecretsId>
+        <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+        <AssemblyName>zilean-api</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Coravel" />
-      <PackageReference Include="Elastic.Clients.Elasticsearch" />
       <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
       <PackageReference Include="Microsoft.Extensions.Hosting" />
       <PackageReference Include="Microsoft.Extensions.Http" />
       <PackageReference Include="Swashbuckle.AspNetCore" />
-      <PackageReference Include="SimCube.Aspire" />
       <PackageReference Include="System.Linq.Async" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
     </ItemGroup>
 
 </Project>

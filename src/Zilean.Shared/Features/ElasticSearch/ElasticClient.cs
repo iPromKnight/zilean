@@ -1,9 +1,9 @@
-namespace Zilean.ApiService.Features.ElasticSearch;
+namespace Zilean.Shared.Features.ElasticSearch;
 
 public interface IElasticClient
 {
     ElasticsearchClient GetClient();
-    Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, int batchSize = 5000) where T : class;
+    Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, CancellationToken cancellationToken, int batchSize = 5000) where T : class;
 }
 
 public class ElasticClient : IElasticClient
@@ -32,24 +32,36 @@ public class ElasticClient : IElasticClient
 
         _client = new ElasticsearchClient(settings);
 
+        _logger.LogInformation("Checking Elasticsearch connection to server {Server}", configuration.ElasticSearch.Url);
+
         var isOnline = _client.PingAsync().GetAwaiter().GetResult();
 
         if (!isOnline.IsSuccess())
         {
-            throw new InvalidOperationException("Elasticsearch is not online, or client ping failed...");
+            _logger.LogError("Elasticsearch connection to server {Server} is offline", configuration.ElasticSearch.Url);
+            Environment.Exit(1);
         }
+
+        _logger.LogInformation("Elasticsearch connection to server {Server} is online", configuration.ElasticSearch.Url);
     }
 
     public ElasticsearchClient GetClient() => _client;
 
-    public async Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, int batchSize = 5000) where T : class
+    public async Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, CancellationToken cancellationToken,
+        int batchSize = 5000) where T : class
     {
         List<BulkResponse> responses = [];
 
         for (int i = 0; i < documents.Count; i += batchSize)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Cancellation requested, stopping indexing");
+                break;
+            }
+
             var batch = documents.GetRange(i, Math.Min(batchSize, documents.Count - i));
-            var response = await BulkIndex(batch, index);
+            var response = await BulkIndex(batch, index, cancellationToken);
             responses.Add(response);
 
             if (!response.IsSuccess())
@@ -69,5 +81,5 @@ public class ElasticClient : IElasticClient
         };
     }
 
-    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index) where T : class => _client.IndexManyAsync(batch, index);
+    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index, CancellationToken cancellationToken) where T : class => _client.IndexManyAsync(batch, index, cancellationToken: cancellationToken);
 }

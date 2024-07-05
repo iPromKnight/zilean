@@ -1,4 +1,7 @@
-namespace Zilean.ApiService.Extensions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Zilean.Shared.Extensions;
 
 public static class JsonExtensions
 {
