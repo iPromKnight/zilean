@@ -1,4 +1,6 @@
-namespace Zilean.ApiService.Extensions;
+using System.Text.RegularExpressions;
+
+namespace Zilean.Shared.Extensions;
 
 public static partial class StringExtensions
 {

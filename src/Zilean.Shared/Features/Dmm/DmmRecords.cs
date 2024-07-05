@@ -1,4 +1,4 @@
-namespace Zilean.ApiService.Features.Dmm;
+namespace Zilean.Shared.Features.Dmm;
 
 public class ExtractedDmmEntry(string? infoHash, string? filename, long filesize)
 {

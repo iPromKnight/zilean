@@ -5,7 +5,10 @@ WORKDIR /build
 COPY . .
 WORKDIR /build/src/Zilean.ApiService
 RUN dotnet restore -a $TARGETARCH
-RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH /p:AssemblyName=zilean
+RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH
+WORKDIR /build/src/Zilean.DmmScraper
+RUN dotnet restore -a $TARGETARCH
+RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH
 
 # Run Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -22,4 +25,4 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8181
 VOLUME /app/data
 COPY --from=build /build/out .
-ENTRYPOINT ["./zilean"]
+ENTRYPOINT ["./zilean-api"]

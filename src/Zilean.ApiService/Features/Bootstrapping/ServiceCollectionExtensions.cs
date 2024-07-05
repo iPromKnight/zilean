@@ -23,37 +23,12 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
-    public static IServiceCollection AddElasticSearchSupport(this IServiceCollection services)
+    public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services, ZileanConfiguration configuration)
     {
-        services.AddSingleton<IElasticClient, ElasticClient>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddConfiguration(this IServiceCollection services, ZileanConfiguration configuration)
-    {
-        services.AddSingleton(configuration);
-
-        return services;
-    }
-
-    public static IServiceCollection AddDmmSupport(this IServiceCollection services, ZileanConfiguration configuration)
-    {
-        if (!configuration.Dmm.Enabled)
+        if (configuration.Dmm.EnableScraping)
         {
-            return services;
+            services.AddTransient<DmmSyncJob>();
         }
-
-        services.AddHttpClient<IDmmFileDownloader, DmmFileDownloader>(DmmFileDownloader.ClientName, client =>
-        {
-            client.BaseAddress = new Uri("https://github.com/debridmediamanager/hashlists/zipball/main/");
-            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("curl/7.54");
-            client.Timeout = TimeSpan.FromMinutes(10);
-        });
-
-        services.AddTransient<DmmSyncJob>();
-        services.AddSingleton<DmmSyncState>();
 
         return services;
     }
@@ -62,11 +37,16 @@ public static class ServiceCollectionExtensions
     {
         provider.UseScheduler(scheduler =>
             {
-                if (configuration.Dmm.Enabled)
+                if (configuration.Dmm.EnableScraping)
                 {
-                    scheduler.Schedule<DmmSyncJob>()
+                    var dmmSchedule = scheduler.Schedule<DmmSyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
                         .PreventOverlapping(nameof(DmmSyncJob));
+
+                    if (DmmSyncJob.ShouldRunOnStartup())
+                    {
+                        dmmSchedule.RunOnceAtStart();
+                    }
                 }
             })
             .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());

@@ -1,4 +1,6 @@
-﻿namespace Zilean.ApiService.Features.Shared;
+﻿using System.Text.Json;
+
+namespace Zilean.Shared.Features.Configuration;
 
 public class ZileanConfiguration
 {
@@ -13,7 +15,7 @@ public class ZileanConfiguration
 
     public static void EnsureExists()
     {
-        var settingsFilePath = Path.Combine(AppContext.BaseDirectory, Literals.ConfigurationFolder, Literals.SettingsConfigFilename);
+        var settingsFilePath = Path.Combine(AppContext.BaseDirectory, ConfigurationLiterals.ConfigurationFolder, ConfigurationLiterals.SettingsConfigFilename);
         if (!File.Exists(settingsFilePath))
         {
             File.WriteAllText(settingsFilePath, DefaultConfigurationContents());
@@ -24,7 +26,7 @@ public class ZileanConfiguration
     {
         var mainSettings = new Dictionary<string, object>
         {
-            [Literals.MainSettingsSectionName] = new ZileanConfiguration(),
+            [ConfigurationLiterals.MainSettingsSectionName] = new ZileanConfiguration(),
         };
 
         return JsonSerializer.Serialize(mainSettings, _jsonSerializerOptions);

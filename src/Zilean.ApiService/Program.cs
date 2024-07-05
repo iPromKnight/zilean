@@ -11,14 +11,17 @@ builder.Services
     .AddSwaggerSupport()
     .AddSchedulingSupport()
     .AddElasticSearchSupport()
-    .AddDmmSupport(zileanConfiguration)
-    .AddConditionallyRegisteredHostedServices(zileanConfiguration);
+    .AddShellExecutionService()
+    .ConditionallyRegisterDmmJob(zileanConfiguration);
 
 var app = builder.Build();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 app.MapZileanEndpoints(zileanConfiguration)
     .EnableSwagger();
 
 app.Services.SetupScheduling(zileanConfiguration);
 
+logger.LogInformation("Zilean API Service started");
 app.Run();

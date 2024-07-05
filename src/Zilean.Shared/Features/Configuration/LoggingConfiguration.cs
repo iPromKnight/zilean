@@ -1,4 +1,6 @@
-﻿namespace Zilean.ApiService.Features.Logging;
+﻿using Microsoft.Extensions.Configuration;
+
+namespace Zilean.Shared.Features.Configuration;
 
 public static class LoggingConfiguration
 {
@@ -12,7 +14,8 @@ public static class LoggingConfiguration
                 "Microsoft": "Warning",
                 "System": "Warning",
                 "System.Net.Http.HttpClient.Scraper.LogicalHandler": "Warning",
-                "System.Net.Http.HttpClient.Scraper.ClientHandler": "Warning"
+                "System.Net.Http.HttpClient.Scraper.ClientHandler": "Warning",
+                "Microsoft.AspNetCore.Hosting.Diagnostics": "Error",
               }
             }
           }
@@ -23,14 +26,14 @@ public static class LoggingConfiguration
     {
         EnsureExists(configurationFolderPath);
 
-        configuration.AddJsonFile(Literals.LoggingConfigFilename, false, false);
+        configuration.AddJsonFile(ConfigurationLiterals.LoggingConfigFilename, false, false);
 
         return configuration;
     }
 
     private static void EnsureExists(string configurationFolderPath)
     {
-        var loggingPath = Path.Combine(configurationFolderPath, Literals.LoggingConfigFilename);
+        var loggingPath = Path.Combine(configurationFolderPath, ConfigurationLiterals.LoggingConfigFilename);
         if (!File.Exists(loggingPath))
         {
             File.WriteAllText(loggingPath, DefaultLoggingContents);

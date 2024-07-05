@@ -7,7 +7,7 @@ public static class DmmEndpoints
 
     public static WebApplication MapDmmEndpoints(this WebApplication app, ZileanConfiguration configuration)
     {
-        if (configuration.Dmm.Enabled)
+        if (configuration.Dmm.EnableEndpoint)
         {
             app.MapGroup(GroupName)
                 .WithTags(GroupName)

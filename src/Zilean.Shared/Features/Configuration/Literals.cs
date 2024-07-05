@@ -1,6 +1,6 @@
-﻿namespace Zilean.ApiService.Features.Shared;
+﻿namespace Zilean.Shared.Features.Configuration;
 
-public static class Literals
+public static class ConfigurationLiterals
 {
     public const string ConfigurationFolder = "data";
     public const string SettingsConfigFilename = "settings.json";

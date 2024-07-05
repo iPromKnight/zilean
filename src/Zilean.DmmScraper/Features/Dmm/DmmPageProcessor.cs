@@ -1,8 +1,8 @@
-namespace Zilean.ApiService.Features.Dmm;
+namespace Zilean.DmmScraper.Features.Dmm;
 
 public partial class DmmPageProcessor(
     DmmSyncState state,
-    ILogger<DmmSyncJob> logger,
+    ILogger<DmmPageProcessor> logger,
     CancellationToken cancellationToken)
     : IDisposable
 {
@@ -40,7 +40,7 @@ public partial class DmmPageProcessor(
 
                 if (torrents.Count == 0)
                 {
-                    logger.LogWarning("No torrents found in {Name}", filenameOnly);
+                    logger.LogInformation("No torrents found in {Filename}", filenameOnly);
                     state.ParsedPages.TryAdd(filenameOnly, 0);
                     return [];
                 }
@@ -52,20 +52,18 @@ public partial class DmmPageProcessor(
                     .OfType<ExtractedDmmEntry>()
                     .ToList();
 
-                logger.LogInformation("Parsed {Torrents} torrents for {Name}", sanitizedTorrents.Count, filenameOnly);
+                logger.LogInformation("Parsed {Count} torrents for {Filename}", sanitizedTorrents.Count, filenameOnly);
 
                 return sanitizedTorrents;
             }
             finally
             {
                 ArrayPool<byte>.Shared.Return(byteArray);
-                GC.Collect();
             }
         }
         catch
         {
             state.ParsedPages.TryAdd(filenameOnly, 0);
-            GC.Collect();
             return [];
         }
     }

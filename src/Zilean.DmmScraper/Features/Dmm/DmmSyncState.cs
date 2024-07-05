@@ -1,4 +1,4 @@
-namespace Zilean.ApiService.Features.Dmm;
+namespace Zilean.DmmScraper.Features.Dmm;
 
 public class DmmSyncState(ILogger<DmmSyncState> logger)
 {
@@ -19,7 +19,7 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
 
     public async Task SetFinished(CancellationToken cancellationToken, DmmPageProcessor processor)
     {
-        logger.LogInformation("Finished processing {Files} new files", ProcessedFilesCount);
+        logger.LogInformation("Finished processing {Count} new files", ProcessedFilesCount);
         await SaveParsedPages(cancellationToken);
         IsRunning = false;
         ParsedPages = new ConcurrentDictionary<string, object>();
@@ -33,7 +33,7 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
         {
             using var reader = new StreamReader(_parsedPageFile);
             ParsedPages = await JsonSerializer.DeserializeAsync<ConcurrentDictionary<string, object>>(reader.BaseStream, cancellationToken: cancellationToken);
-            logger.LogInformation("Loaded {Files} parsed pages", ParsedPages.Count);
+            logger.LogInformation("Loaded {Count} parsed pages", ParsedPages.Count);
         }
     }
 
@@ -41,6 +41,6 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
     {
         await using var writer = new StreamWriter(_parsedPageFile);
         await JsonSerializer.SerializeAsync(writer.BaseStream, ParsedPages, cancellationToken: cancellationToken);
-        logger.LogInformation("Saved {Files} parsed pages", ParsedPages.Count);
+        logger.LogInformation("Saved {Count} parsed pages", ParsedPages.Count);
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -8,10 +9,11 @@ using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Sinks.OpenTelemetry;
-using Serilog.Sinks.SystemConsole.Themes;
+using Serilog.Sinks.Spectre;
+using SimCube.Aspire.Features.Otlp;
 using SimCube.Aspire.Features.Seq;
 
-namespace Zilean.ApiService.Features.Bootstrapping;
+namespace Zilean.Shared.Features.Otlp;
 
 public static class OtlpServiceExtensions
 {
@@ -34,43 +36,47 @@ public static class OtlpServiceExtensions
         });
     }
 
+    public static LoggerConfiguration GetLoggerConfiguration(this IConfiguration configuration)
+    {
+        var config = new LoggerConfiguration()
+            .ReadFrom.Configuration(configuration)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .Enrich.WithProcessId()
+            .Enrich.WithProcessName()
+            .Enrich.WithThreadId()
+            .Enrich.WithSpan()
+            .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
+                .WithDefaultDestructurers()
+                .WithDestructurers([ new DbUpdateExceptionDestructurer() ]))
+            .Enrich.WithProperty(nameof(OtlpLiterals.ServiceName), configuration[OtlpLiterals.ServiceName])
+            .WriteTo.Spectre(outputTemplate: ConsoleOutputFormat);
+
+        if (!string.IsNullOrEmpty(configuration[OtlpLiterals.Endpoint]))
+        {
+            config.WriteTo.OpenTelemetry(options =>
+            {
+                options.IncludedData = IncludedData.TraceIdField | IncludedData.SpanIdField;
+                options.Endpoint = configuration[OtlpLiterals.Endpoint];
+                AddHeaders(options.Headers, configuration[OtlpLiterals.Headers]);
+                AddResourceAttributes(options.ResourceAttributes, configuration[OtlpLiterals.ResourceAttributes]);
+                options.ResourceAttributes.Add("service.name", configuration[OtlpLiterals.ServiceName]);
+            });
+        }
+
+        if (!string.IsNullOrEmpty(configuration[SeqLiterals.SeqEndpoint]))
+        {
+            config.WriteTo.Seq(configuration[SeqLiterals.SeqEndpoint]);
+        }
+
+        return config;
+    }
+
     private static void ConfigureSerilog(this IHostApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
 
-        builder.Services.AddSerilog(config =>
-        {
-            config.ReadFrom.Configuration(builder.Configuration)
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .Enrich.WithProcessId()
-                .Enrich.WithProcessName()
-                .Enrich.WithThreadId()
-                .Enrich.WithSpan()
-                .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
-                    .WithDefaultDestructurers()
-                    .WithDestructurers([ new DbUpdateExceptionDestructurer() ]))
-                .Enrich.WithProperty(nameof(builder.Environment), builder.Environment.EnvironmentName)
-                .Enrich.WithProperty(nameof(OtlpLiterals.ServiceName), builder.Configuration[OtlpLiterals.ServiceName])
-                .WriteTo.Console(theme: AnsiConsoleTheme.Code, outputTemplate: ConsoleOutputFormat);
-
-            if (!string.IsNullOrEmpty(builder.Configuration[OtlpLiterals.Endpoint]))
-            {
-                config.WriteTo.OpenTelemetry(options =>
-                {
-                    options.IncludedData = IncludedData.TraceIdField | IncludedData.SpanIdField;
-                    options.Endpoint = builder.Configuration[OtlpLiterals.Endpoint];
-                    AddHeaders(options.Headers, builder.Configuration[OtlpLiterals.Headers]);
-                    AddResourceAttributes(options.ResourceAttributes, builder.Configuration[OtlpLiterals.ResourceAttributes]);
-                    options.ResourceAttributes.Add("service.name", builder.Configuration[OtlpLiterals.ServiceName]);
-                });
-            }
-
-            if (!string.IsNullOrEmpty(builder.Configuration[SeqLiterals.SeqEndpoint]))
-            {
-                config.WriteTo.Seq(builder.Configuration[SeqLiterals.SeqEndpoint]);
-            }
-        });
+        builder.Services.AddSerilog(builder.Configuration.GetLoggerConfiguration().CreateLogger(), true);
     }
 
     private static void ConfigureOpenTelemetryLogging(this IHostApplicationBuilder builder) =>

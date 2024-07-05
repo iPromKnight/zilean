@@ -1,4 +1,4 @@
-namespace Zilean.ApiService.Features.LzString;
+namespace Zilean.DmmScraper.Features.LzString;
 
 public class Decompressor
 {
