@@ -1,8 +1,6 @@
 namespace Zilean.ApiService.Features.Dmm;
 
 public partial class DmmPageProcessor(
-    string filePath,
-    string filenameOnly,
     DmmSyncState state,
     ILogger<DmmSyncJob> logger,
     CancellationToken cancellationToken)
@@ -11,7 +9,7 @@ public partial class DmmPageProcessor(
     [GeneratedRegex("""<iframe src="https:\/\/debridmediamanager.com\/hashlist#(.*)"></iframe>""")]
     private static partial Regex HashCollectionMatcher();
 
-    public async Task<List<ExtractedDmmEntry>> ProcessPageAsync()
+    public async Task<List<ExtractedDmmEntry>> ProcessPageAsync(string filePath, string filenameOnly)
     {
         if (state.ParsedPages.TryGetValue(filenameOnly, out _) || !File.Exists(filePath))
         {
@@ -48,8 +46,10 @@ public partial class DmmPageProcessor(
                 }
 
                 var sanitizedTorrents = torrents
+                    .Where(x=>x.InfoHash.Length == 40 && x.Filesize > 0)
                     .GroupBy(x => x.InfoHash)
-                    .Select(g => new ExtractedDmmEntry(g.First().Filename, g.Key, g.First().Filesize))
+                    .Select(group => group.FirstOrDefault())
+                    .OfType<ExtractedDmmEntry>()
                     .ToList();
 
                 logger.LogInformation("Parsed {Torrents} torrents for {Name}", sanitizedTorrents.Count, filenameOnly);
@@ -59,11 +59,13 @@ public partial class DmmPageProcessor(
             finally
             {
                 ArrayPool<byte>.Shared.Return(byteArray);
+                GC.Collect();
             }
         }
         catch
         {
             state.ParsedPages.TryAdd(filenameOnly, 0);
+            GC.Collect();
             return [];
         }
     }
@@ -72,8 +74,12 @@ public partial class DmmPageProcessor(
         item.TryGetProperty("filename", out var filenameElement) &&
         item.TryGetProperty("bytes", out var filesizeElement) &&
         item.TryGetProperty("hash", out var hashElement)
-            ? new ExtractedDmmEntry(filenameElement.GetString(), hashElement.GetString(), filesizeElement.GetInt64())
+            ? new ExtractedDmmEntry(hashElement.GetString(), filenameElement.GetString(), filesizeElement.GetInt64())
             : null;
 
-    public void Dispose() => GC.SuppressFinalize(this);
+    public void Dispose()
+    {
+        GC.Collect();
+        GC.SuppressFinalize(this);
+    }
 }

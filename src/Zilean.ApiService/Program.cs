@@ -11,7 +11,8 @@ builder.Services
     .AddSwaggerSupport()
     .AddSchedulingSupport()
     .AddElasticSearchSupport()
-    .AddDmmSupport(zileanConfiguration);
+    .AddDmmSupport(zileanConfiguration)
+    .AddConditionallyRegisteredHostedServices(zileanConfiguration);
 
 var app = builder.Build();
 

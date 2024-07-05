@@ -54,7 +54,6 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<DmmSyncJob>();
         services.AddSingleton<DmmSyncState>();
-        services.AddHostedService<DmmRunOnStartupService>();
 
         return services;
     }

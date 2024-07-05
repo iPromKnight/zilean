@@ -1,19 +1,24 @@
 namespace Zilean.ApiService.Features.Dmm;
 
-public class DmmRunOnStartupService(ILogger<DmmRunOnStartupService> logger, IServiceProvider serviceProvider) : IHostedService
-{
-    private readonly string _parsedPageFile = Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
+public interface IConditionallyRegisteredHostedService : IHostedService;
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+public class DmmRunOnStartupService(ILogger<DmmRunOnStartupService> logger, DmmSyncJob syncJob) : IConditionallyRegisteredHostedService
+{
+    public static void ConditionallyRegister(IServiceCollection services, ZileanConfiguration configuration)
     {
-        if (File.Exists(_parsedPageFile))
+        if (!configuration.Dmm.Enabled)
         {
-            logger.LogInformation("Parsed pages file exists, skipping initial run");
             return;
         }
 
-        await using var scope = serviceProvider.CreateAsyncScope();
-        var syncJob = scope.ServiceProvider.GetRequiredService<DmmSyncJob>();
+        if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json")))
+        {
+            services.AddHostedService<DmmRunOnStartupService>();
+        }
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
         syncJob.CancellationToken = cancellationToken;
         await syncJob.Invoke();
 

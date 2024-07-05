@@ -17,13 +17,14 @@ public class DmmSyncState(ILogger<DmmSyncState> logger)
         await LoadParsedPages(cancellationToken);
     }
 
-    public async Task SetFinished(CancellationToken cancellationToken)
+    public async Task SetFinished(CancellationToken cancellationToken, DmmPageProcessor processor)
     {
         logger.LogInformation("Finished processing {Files} new files", ProcessedFilesCount);
         await SaveParsedPages(cancellationToken);
         IsRunning = false;
         ParsedPages = new ConcurrentDictionary<string, object>();
         ProcessedFilesCount = 0;
+        processor.Dispose();
     }
 
     private async Task LoadParsedPages(CancellationToken cancellationToken)

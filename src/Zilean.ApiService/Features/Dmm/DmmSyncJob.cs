@@ -23,12 +23,13 @@ public class DmmSyncJob(
 
         logger.LogInformation("Found {Files} files to parse", files.Length);
 
+        var processor = new DmmPageProcessor(dmmState, logger, CancellationToken);
+
         foreach (var file in files)
         {
             var fileName = Path.GetFileName(file);
-            using var processor = new DmmPageProcessor(file, fileName, dmmState, logger, CancellationToken);
 
-            var sanitizedTorrents = await processor.ProcessPageAsync();
+            var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
 
             if (sanitizedTorrents.Count != 0)
             {
@@ -52,6 +53,6 @@ public class DmmSyncJob(
             dmmState.IncrementProcessedFilesCount();
         }
 
-        await dmmState.SetFinished(CancellationToken);
+        await dmmState.SetFinished(CancellationToken, processor);
     }
 }

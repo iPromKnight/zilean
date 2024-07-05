@@ -17,10 +17,7 @@ public class Decompressor
 
     public static string FromEncodedUriComponent(string input)
     {
-        if (input == null)
-        {
-            throw new ArgumentNullException(nameof(input));
-        }
+        ArgumentNullException.ThrowIfNull(input);
 
         input = input.Replace(" ", "+");
         return Decompress(input.Length, 32, index => _keyStrUriSafeDict[input[index]]);
@@ -31,7 +28,6 @@ public class Decompressor
         var dictionary = new List<Memory<char>>();
         var enlargeIn = 4;
         var numBits = 3;
-        Memory<char> entry;
         var result = StringBuilderCache.Acquire();
         int i;
         Memory<char> w;
@@ -191,6 +187,7 @@ public class Decompressor
                 numBits++;
             }
 
+            Memory<char> entry;
             if (dictionary.Count - 1 >= c2)
             {
                 entry = dictionary[c2];
@@ -222,41 +219,5 @@ public class Decompressor
                 numBits++;
             }
         }
-    }
-}
-
-public static class StringBuilderCache
-{
-    [ThreadStatic]
-    private static StringBuilder? _cachedInstance;
-
-    public static StringBuilder Acquire(int capacity = 16)
-    {
-        if (capacity <= 360)
-        {
-            StringBuilder? sb = _cachedInstance;
-            if (sb != null && capacity <= sb.Capacity)
-            {
-                _cachedInstance = null;
-                sb.Clear();
-                return sb;
-            }
-        }
-        return new StringBuilder(capacity);
-    }
-
-    public static void Release(StringBuilder sb)
-    {
-        if (sb.Capacity <= 360)
-        {
-            _cachedInstance = sb;
-        }
-    }
-
-    public static string GetStringAndRelease(StringBuilder sb)
-    {
-        string result = sb.ToString();
-        Release(sb);
-        return result;
     }
 }
