@@ -67,13 +67,13 @@ public class ElasticSearchClient : IElasticSearchClient
             .DefaultMappingFor<ExtractedDmmEntry>(ExtractedDmmEntryMapping)
             .EnableApiVersioningHeader();
 
-#if DEBUG
-        settings.EnableDebugMode(details =>
-        {
-            Console.WriteLine($"ES Request: {Encoding.UTF8.GetString(details.RequestBodyInBytes ?? [])}");
-            Console.WriteLine($"ES Response: {Encoding.UTF8.GetString(details.ResponseBodyInBytes ?? [])}");
-        });
-#endif
+// #if DEBUG
+//         settings.EnableDebugMode(details =>
+//         {
+//             Console.WriteLine($"ES Request: {Encoding.UTF8.GetString(details.RequestBodyInBytes ?? [])}");
+//             Console.WriteLine($"ES Response: {Encoding.UTF8.GetString(details.ResponseBodyInBytes ?? [])}");
+//         });
+// #endif
 
         return new ElasticClient(settings);
     }

@@ -72,7 +72,7 @@ public partial class DmmPageProcessor(
         item.TryGetProperty("filename", out var filenameElement) &&
         item.TryGetProperty("bytes", out var filesizeElement) &&
         item.TryGetProperty("hash", out var hashElement)
-            ? new ExtractedDmmEntry(hashElement.GetString(), filenameElement.GetString().Replace(".", " ", StringComparison.Ordinal), filesizeElement.GetInt64())
+            ? new ExtractedDmmEntry(hashElement.GetString(), filenameElement.GetString().Replace(".", " ", StringComparison.Ordinal), filesizeElement.GetInt64(), null)
             : null;
 
     public void Dispose()
