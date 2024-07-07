@@ -58,7 +58,7 @@ public static class DmmEndpoints
         }
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
+    private static async Task<Ok<ExtractedDmmEntry[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
     {
         try
         {
@@ -73,7 +73,7 @@ public static class DmmEndpoints
                 .SearchAsync<ExtractedDmmEntry>(s => s
                     .Index(ElasticSearchClient.DmmIndex)
                     .From(0)
-                    .Size(10000)
+                    .Size(configuration.Dmm.MaxFilteredResults)
                     .Query(DmmFilteredQueries.PerformElasticSearchFiltered(query, season, episode))
 
                 );
