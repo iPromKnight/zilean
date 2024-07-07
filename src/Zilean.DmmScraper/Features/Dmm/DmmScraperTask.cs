@@ -13,7 +13,7 @@ public class DmmScraperTask
             var dmmState = new DmmSyncState(loggerFactory.CreateLogger<DmmSyncState>());
             var dmmFileDownloader = new DmmFileDownloader(httpClient, loggerFactory.CreateLogger<DmmFileDownloader>());
             var elasticClient = new ElasticSearchClient(configuration, loggerFactory.CreateLogger<ElasticSearchClient>());
-            var rtnService = await CreateRtnService(loggerFactory, cancellationToken);
+            var rtnService = new RankTorrentNameService(loggerFactory.CreateLogger<RankTorrentNameService>());
 
             await dmmState.SetRunning(cancellationToken);
 
@@ -59,7 +59,7 @@ public class DmmScraperTask
             {
                 var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
 
-                ParseTorrentTitles(rtnService, distinctTorrents);
+                await rtnService.ParseAndPopulateAsync(distinctTorrents);
 
                 var indexResult =
                     await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticSearchClient.DmmIndex, cancellationToken);
@@ -90,33 +90,6 @@ public class DmmScraperTask
             logger.LogError(ex, "Error occurred during DMM Scraper Task");
             return 1;
         }
-    }
-
-    private static void ParseTorrentTitles(RankTorrentNameService rtnService, List<ExtractedDmmEntry> sanitizedTorrents)
-    {
-        var torrentsToParse = sanitizedTorrents.ToDictionary(x => x.InfoHash!, x => x.Filename);
-
-        var parsedResponses = rtnService.BatchParse([.. torrentsToParse.Values], trashGarbage: false);
-
-        var successfulResponses = parsedResponses
-            .Where(response => response is { Success: true })
-            .GroupBy(response => response.Response.RawTitle!)
-            .ToDictionary(group => group.Key, group => group.First());
-
-        foreach (var torrent in sanitizedTorrents)
-        {
-            if (successfulResponses.TryGetValue(torrent.Filename, out var response))
-            {
-                torrent.RtnResponse = response.Response;
-            }
-        }
-    }
-
-    private static async Task<RankTorrentNameService> CreateRtnService(ILoggerFactory loggerFactory, CancellationToken cancellationToken)
-    {
-        var pythonEngineService = new PythonEngineService(loggerFactory.CreateLogger<PythonEngineService>());
-        await pythonEngineService.InitializePythonEngine(cancellationToken);
-        return new RankTorrentNameService(pythonEngineService);
     }
 
     private static HttpClient CreateHttpClient()

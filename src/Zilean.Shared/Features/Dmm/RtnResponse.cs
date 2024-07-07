@@ -78,6 +78,6 @@ public class RtnResponse
     public bool Extended { get; set; }
 
     public bool IsMovie { get; set; }
-
+    
     public string ToJson() => this.AsJson();
 }
