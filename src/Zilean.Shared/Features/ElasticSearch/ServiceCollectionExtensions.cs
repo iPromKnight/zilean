@@ -4,7 +4,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddElasticSearchSupport(this IServiceCollection services)
     {
-        services.AddSingleton<IElasticClient, ElasticClient>();
+        services.AddSingleton<IElasticSearchClient, ElasticSearchClient>();
 
         return services;
     }

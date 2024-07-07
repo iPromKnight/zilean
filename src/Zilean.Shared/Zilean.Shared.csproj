@@ -13,7 +13,7 @@
   
   <ItemGroup>
     <PackageReference Include="CliWrap" />
-    <PackageReference Include="Elastic.Clients.Elasticsearch" />
+    <PackageReference Include="NEST" />
     <PackageReference Include="Serilog.Sinks.Spectre" />
     <PackageReference Include="SimCube.Aspire" />
   </ItemGroup>

@@ -27,35 +27,35 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task<Ok<ExtractedDmmEntry?[]>> PerformSearch(HttpContext context, IElasticClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>());
+                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
             }
 
-            var results = await elasticClient
-                .GetClient()
-                .SearchAsync<ExtractedDmmEntry>(search =>
-                {
-                    search.Index(ElasticClient.DmmIndex)
-                        .From(0)
-                        .Size(1000)
-                        .Query(q =>
-                            q.Match(t =>
-                                t.Field(f => f.Filename)
-                                    .Query(queryRequest.QueryText)));
-                });
+            var client = await elasticClient.GetClient();
 
-            return !results.IsValidResponse || results.Hits.Count == 0
-                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>())
+            var results = await client.SearchAsync<ExtractedDmmEntry>(search => CreateSearch(queryRequest, search));
+
+            return !results.IsValid || results.Hits.Count == 0
+                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
                 : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
         }
         catch
         {
-            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry?>());
+            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
         }
     }
+
+    private static ISearchRequest CreateSearch(DmmQueryRequest queryRequest, SearchDescriptor<ExtractedDmmEntry> search) =>
+        search.Index(ElasticSearchClient.DmmIndex)
+            .From(0)
+            .Size(1000)
+            .Query(q =>
+                q.Match(t =>
+                    t.Field(f => f.Filename)
+                        .Query(queryRequest.QueryText)));
 }

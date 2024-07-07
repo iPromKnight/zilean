@@ -33,6 +33,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zilean.DmmScraper", "src\Zi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zilean.Shared", "src\Zilean.Shared\Zilean.Shared.csproj", "{85F3D012-6CA4-43D3-A08F-0A93FA739F46}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "http", "http", "{D89858A7-4F68-46ED-83EA-0A19B116DA99}"
+	ProjectSection(SolutionItems) = preProject
+		eng\http\prowlarr-indexer.http = eng\http\prowlarr-indexer.http
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,5 +66,6 @@ Global
 		{CF4C966D-25AC-4A2A-8C25-DBA4EB905E23} = {49EC8AF3-9A9C-4291-A6DE-5BE594C50604}
 		{192B767E-7CFA-4F72-A9CA-35BE2CEE46FD} = {0639BF70-EA59-4820-B0AF-90E3EC23E084}
 		{85F3D012-6CA4-43D3-A08F-0A93FA739F46} = {0639BF70-EA59-4820-B0AF-90E3EC23E084}
+		{D89858A7-4F68-46ED-83EA-0A19B116DA99} = {49EC8AF3-9A9C-4291-A6DE-5BE594C50604}
 	EndGlobalSection
 EndGlobal

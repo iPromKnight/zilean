@@ -1,0 +1,25 @@
+### GET Stargate SG-1 Sesoan 2
+< {%
+    request.variables.set("query", "Stargate SG-1")
+    request.variables.set("season", "2")
+%}
+GET http://localhost:5000/prowlarr/indexer?query={{query}}&season={{season}}
+Accept: application/json
+
+### GET The Boys Season 4 Episode 1
+< {%
+    request.variables.set("query", "The Boys")
+    request.variables.set("season", "4")
+    request.variables.set("episode", "1")
+%}
+GET http://localhost:5000/prowlarr/indexer?query={{query}}&season={{season}}&episode={{episode}}
+Accept: application/json
+
+
+### GET The 100 Season 1
+< {%
+    request.variables.set("query", "The 100")
+    request.variables.set("season", "1")
+%}
+GET http://localhost:5000/prowlarr/indexer?query={{query}}&season={{season}}
+Accept: application/json

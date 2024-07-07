@@ -12,6 +12,7 @@ public class ZileanConfiguration
 
     public DmmConfiguration Dmm { get; set; } = new();
     public ElasticSearchConfiguration ElasticSearch { get; set; } = new();
+    public ProwlarrConfiguration Prowlarr { get; set; } = new();
 
     public static void EnsureExists()
     {
