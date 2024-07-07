@@ -9,6 +9,7 @@ global using Microsoft.AspNetCore.Http.HttpResults;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
+global using Nest;
 global using Zilean.ApiService.Features.Bootstrapping;
 global using Zilean.ApiService.Features.Dmm;
 global using Zilean.ApiService.Features.HealthChecks;

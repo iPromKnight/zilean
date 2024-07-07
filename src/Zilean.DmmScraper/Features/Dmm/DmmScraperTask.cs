@@ -12,7 +12,7 @@ public class DmmScraperTask
 
             var dmmState = new DmmSyncState(loggerFactory.CreateLogger<DmmSyncState>());
             var dmmFileDownloader = new DmmFileDownloader(httpClient, loggerFactory.CreateLogger<DmmFileDownloader>());
-            var elasticClient = new ElasticClient(configuration, loggerFactory.CreateLogger<ElasticClient>());
+            var elasticClient = new ElasticSearchClient(configuration, loggerFactory.CreateLogger<ElasticSearchClient>());
 
             await dmmState.SetRunning(cancellationToken);
 
@@ -47,7 +47,7 @@ public class DmmScraperTask
                         fileName);
 
                     var indexResult =
-                        await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticClient.DmmIndex, cancellationToken);
+                        await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticSearchClient.DmmIndex, cancellationToken);
 
                     if (indexResult.Errors)
                     {

@@ -1,13 +1,9 @@
 global using System.Diagnostics.CodeAnalysis;
-global using System.Text;
 global using CliWrap;
-global using CliWrap.Buffered;
-global using CliWrap.Builders;
-global using CliWrap.EventStream;
-global using Elastic.Clients.Elasticsearch;
-global using Elastic.Transport;
+global using Elasticsearch.Net;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;
 global using Microsoft.Extensions.Logging;
+global using Nest;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
