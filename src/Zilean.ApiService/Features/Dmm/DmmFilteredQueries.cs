@@ -1,13 +1,19 @@
-namespace Zilean.ApiService.Features.Prowlarr;
+namespace Zilean.ApiService.Features.Dmm;
 
-public static class ProwlarrQueries
+public static class DmmFilteredQueries
 {
-    public static Func<QueryContainerDescriptor<ExtractedDmmEntry>, QueryContainer> PerformElasticSearchForProwlarrEndpoint(string query, int? season, int? episode)
+    public static Func<QueryContainerDescriptor<ExtractedDmmEntry>, QueryContainer> PerformElasticSearchFiltered(string query, int? season, int? episode)
     {
         var matchQueries = BuildMatchQueries(query, season, episode);
 
         return q => q.Bool(b => b.Must(matchQueries));
     }
+
+    public static Func<QueryContainerDescriptor<ExtractedDmmEntry>, QueryContainer> PerformUnfilteredSearch(DmmQueryRequest queryRequest) =>
+        q => q.Match(t =>
+        t.Field(f => f.Filename)
+            .Query(queryRequest.QueryText));
+
 
     private static QueryContainer[] BuildMatchQueries(string query, int? season, int? episode)
     {

@@ -13,6 +13,5 @@ public static class WebApplicationExtensions
     public static WebApplication MapZileanEndpoints(this WebApplication app, ZileanConfiguration configuration) =>
         app
             .MapDmmEndpoints(configuration)
-            .MapProwlarrEndpoints(configuration)
             .MapHealthCheckEndpoints();
 }

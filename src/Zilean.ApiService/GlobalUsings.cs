@@ -13,7 +13,6 @@ global using Nest;
 global using Zilean.ApiService.Features.Bootstrapping;
 global using Zilean.ApiService.Features.Dmm;
 global using Zilean.ApiService.Features.HealthChecks;
-global using Zilean.ApiService.Features.Prowlarr;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
 global using Zilean.Shared.Features.ElasticSearch;
