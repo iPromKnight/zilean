@@ -27,12 +27,10 @@ public static class ProwlarrEndpoints
         return group;
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ILoggerFactory loggerFactory, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
+    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
     {
         try
         {
-            var logger = loggerFactory.CreateLogger("ProwlarrIndexer");
-
             if (string.IsNullOrEmpty(query))
             {
                 return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
@@ -48,13 +46,6 @@ public static class ProwlarrEndpoints
                 .Query(ProwlarrQueries.PerformElasticSearchForProwlarrEndpoint(query, season, episode))
 
             );
-
-            logger.LogInformation("Search Query: {query} | Season: {season} | Episode: {episode} | Results: {results}", query, season, episode, results.Hits.Count);
-
-            foreach (var hit in results.Hits)
-            {
-                logger.LogInformation("Hit: {Hit} | Score: {Score}", hit.Source.Filename, hit.Score);
-            }
 
             return !results.IsValid || results.Hits.Count == 0
                 ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
