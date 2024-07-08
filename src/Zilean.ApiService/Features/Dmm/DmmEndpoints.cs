@@ -45,7 +45,7 @@ public static class DmmEndpoints
             var results = await client.SearchAsync<ExtractedDmmEntry>(s => s
                 .Index(ElasticSearchClient.DmmIndex)
                 .From(0)
-                .Size(10000)
+                .Size(200)
                 .Query(DmmFilteredQueries.PerformUnfilteredSearch(queryRequest)));
 
             return !results.IsValid || results.Hits.Count == 0
