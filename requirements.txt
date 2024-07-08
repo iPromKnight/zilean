@@ -1,1 +1,2 @@
-rank-torrent-name==0.2.23
+parsett==0.2.4
+loguru

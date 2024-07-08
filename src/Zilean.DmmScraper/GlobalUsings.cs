@@ -13,7 +13,6 @@ global using Spectre.Console;
 global using Zilean.DmmScraper.Features.Dmm;
 global using Zilean.DmmScraper.Features.LzString;
 global using Zilean.DmmScraper.Features.Python;
-global using Zilean.DmmScraper.Features.Python.RTN;
 global using Zilean.Shared.Extensions;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;

@@ -2,6 +2,9 @@ namespace Zilean.DmmScraper.Features.Dmm;
 
 public class DmmScraperTask
 {
+    private const int MaxConcurrentTasks = 4;
+    private const int BatchSize = 200;
+
     public static async Task<int> Execute(ZileanConfiguration configuration, ILoggerFactory loggerFactory, CancellationToken cancellationToken)
     {
         var logger = loggerFactory.CreateLogger<DmmScraperTask>();
@@ -13,56 +16,45 @@ public class DmmScraperTask
             var dmmState = new DmmSyncState(loggerFactory.CreateLogger<DmmSyncState>());
             var dmmFileDownloader = new DmmFileDownloader(httpClient, loggerFactory.CreateLogger<DmmFileDownloader>());
             var elasticClient = new ElasticSearchClient(configuration, loggerFactory.CreateLogger<ElasticSearchClient>());
-            var rtnService = new RankTorrentNameService(loggerFactory.CreateLogger<RankTorrentNameService>());
+            var rtnService = new ParseTorrentNameService(loggerFactory.CreateLogger<ParseTorrentNameService>());
 
             await dmmState.SetRunning(cancellationToken);
 
             var tempDirectory = await dmmFileDownloader.DownloadFileToTempPath(cancellationToken);
-            //var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
 
             var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
                 .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
-                .ToArray();
+                .ToList();
 
-            logger.LogInformation("Found {Count} files to parse", files.Length);
+            logger.LogInformation("Found {Count} files to parse", files.Count);
 
             var processor = new DmmPageProcessor(dmmState, loggerFactory.CreateLogger<DmmPageProcessor>(), cancellationToken);
 
-            var torrents = new List<ExtractedDmmEntry>();
+            var torrents = new ConcurrentBag<ExtractedDmmEntry>();
 
-            foreach (var file in files)
+            var batchedFiles = BatchFiles(files, BatchSize).ToList();
+
+            var parallelOptions = new ParallelOptions
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    logger.LogInformation("Cancellation requested, stopping processing");
-                    break;
-                }
+                MaxDegreeOfParallelism = MaxConcurrentTasks,
+                CancellationToken = cancellationToken
+            };
 
-                var fileName = Path.GetFileName(file);
+            await Parallel.ForEachAsync(batchedFiles, parallelOptions, async (batch, ct) =>
+            {
+                await ProcessFileBatchAsync(batch, processor, torrents, dmmState, logger, ct);
+            });
 
-                var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
-
-                if (sanitizedTorrents.Count == 0)
-                {
-                    continue;
-                }
-
-                torrents.AddRange(sanitizedTorrents);
-
-                logger.LogInformation("Total torrents from file {FileName}: {Count}", fileName, sanitizedTorrents.Count);
-
-                dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
-                dmmState.IncrementProcessedFilesCount();
-            }
+            logger.LogInformation("All files processed");
 
             if (torrents.Count != 0)
             {
                 var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
 
-                await rtnService.ParseAndPopulateAsync(distinctTorrents);
+                var indexableTorrentInformation = await rtnService.ParseAndPopulateAsync(distinctTorrents);
 
                 var indexResult =
-                    await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticSearchClient.DmmIndex, cancellationToken);
+                    await elasticClient.IndexManyBatchedAsync(indexableTorrentInformation, ElasticSearchClient.DmmIndex, cancellationToken);
 
                 if (indexResult.Errors)
                 {
@@ -74,6 +66,7 @@ public class DmmScraperTask
             }
 
             await dmmState.SetFinished(cancellationToken, processor);
+            await rtnService.StopPythonEngine();
 
             return 0;
         }
@@ -103,5 +96,58 @@ public class DmmScraperTask
         httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("curl/7.54");
         return httpClient;
+    }
+
+    private static async Task ProcessFileBatchAsync(
+        List<string> batch,
+        DmmPageProcessor processor,
+        ConcurrentBag<ExtractedDmmEntry> torrents,
+        DmmSyncState dmmState,
+        ILogger<DmmScraperTask> logger,
+        CancellationToken cancellationToken)
+    {
+        var tasks = batch.Select(file => ProcessFileAsync(file, processor, torrents, dmmState, logger, cancellationToken)).ToList();
+        await Task.WhenAll(tasks);
+    }
+
+    private static async Task ProcessFileAsync(
+        string file,
+        DmmPageProcessor processor,
+        ConcurrentBag<ExtractedDmmEntry> torrents,
+        DmmSyncState dmmState,
+        ILogger<DmmScraperTask> logger,
+        CancellationToken cancellationToken)
+    {
+        if (cancellationToken.IsCancellationRequested)
+        {
+            logger.LogInformation("Cancellation requested, stopping processing");
+            return;
+        }
+
+        var fileName = Path.GetFileName(file);
+        var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
+
+        if (sanitizedTorrents.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var sanitizedTorrent in sanitizedTorrents)
+        {
+            torrents.Add(sanitizedTorrent);
+        }
+
+        logger.LogInformation("Total torrents from file {FileName}: {Count}", fileName, sanitizedTorrents.Count);
+
+        dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
+        dmmState.IncrementProcessedFilesCount();
+    }
+
+    private static IEnumerable<List<string>> BatchFiles(List<string> files, int batchSize)
+    {
+        for (int i = 0; i < files.Count; i += batchSize)
+        {
+            yield return files.GetRange(i, Math.Min(batchSize, files.Count - i));
+        }
     }
 }
