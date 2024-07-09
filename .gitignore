@@ -5,3 +5,5 @@ riderModule.iml
 /_ReSharper.Caches/
 .DS_Store
 .idea/
+
+src/Zilean.DmmScraper/python/

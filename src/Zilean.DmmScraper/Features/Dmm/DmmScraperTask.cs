@@ -1,3 +1,5 @@
+using Zilean.DmmScraper.Features.PythonSupport;
+
 namespace Zilean.DmmScraper.Features.Dmm;
 
 public class DmmScraperTask
@@ -13,6 +15,7 @@ public class DmmScraperTask
             var dmmState = new DmmSyncState(loggerFactory.CreateLogger<DmmSyncState>());
             var dmmFileDownloader = new DmmFileDownloader(httpClient, loggerFactory.CreateLogger<DmmFileDownloader>());
             var elasticClient = new ElasticSearchClient(configuration, loggerFactory.CreateLogger<ElasticSearchClient>());
+            var rtnService = new ParseTorrentNameService(loggerFactory.CreateLogger<ParseTorrentNameService>());
 
             await dmmState.SetRunning(cancellationToken);
 
@@ -20,50 +23,54 @@ public class DmmScraperTask
 
             var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
                 .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
-                .ToArray();
+                .ToList();
 
-            logger.LogInformation("Found {Count} files to parse", files.Length);
+            logger.LogInformation("Found {Count} files to parse", files.Count);
 
             var processor = new DmmPageProcessor(dmmState, loggerFactory.CreateLogger<DmmPageProcessor>(), cancellationToken);
 
-            foreach (var file in files)
+            var torrents = new ConcurrentBag<ExtractedDmmEntry>();
+
+            var batchedFiles = files.ToChunks(200);
+
+            var parallelOptions = new ParallelOptions
             {
-                if (cancellationToken.IsCancellationRequested)
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+                CancellationToken = cancellationToken
+            };
+
+            await Parallel.ForEachAsync(batchedFiles, parallelOptions, async (batch, ct) =>
+            {
+                await ProcessFileBatchAsync(batch, processor, torrents, dmmState, logger, ct);
+            });
+
+            logger.LogInformation("All files processed");
+
+            if (torrents.Count != 0)
+            {
+                var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
+
+                var indexableTorrentInformation = await rtnService.ParseAndPopulateAsync(distinctTorrents);
+
+                logger.LogInformation("Parsed {Count} torrents", indexableTorrentInformation.Count);
+
+                logger.LogInformation("Indexing {Count} torrents in ElasticSeach", distinctTorrents.Count);
+
+                var indexResult =
+                    await elasticClient.IndexManyBatchedAsync(indexableTorrentInformation, ElasticSearchClient.DmmIndex, cancellationToken);
+
+                if (indexResult.Errors)
                 {
-                    logger.LogInformation("Cancellation requested, stopping processing");
-                    break;
+                    logger.LogInformation("Failed to index {Count} torrents", distinctTorrents.Count);
+                    return 1;
                 }
 
-                var fileName = Path.GetFileName(file);
-
-                var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
-
-                if (sanitizedTorrents.Count != 0)
-                {
-                    var distinctTorrents = sanitizedTorrents.DistinctBy(x => x.InfoHash).ToList();
-
-                    logger.LogInformation("Total torrents from file {FileName}: {Count}", fileName, sanitizedTorrents.Count);
-                    logger.LogInformation("Indexing {Count} distinct new torrents from file {Filename}", distinctTorrents.Count,
-                        fileName);
-
-                    var indexResult =
-                        await elasticClient.IndexManyBatchedAsync(distinctTorrents, ElasticSearchClient.DmmIndex, cancellationToken);
-
-                    if (indexResult.Errors)
-                    {
-                        logger.LogInformation("Failed to index {Count} torrents from file {FileName}", distinctTorrents.Count,
-                            fileName);
-                        break;
-                    }
-
-                    logger.LogInformation("Indexed {Count} torrents from file {FileName}", distinctTorrents.Count, fileName);
-                }
-
-                dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
-                dmmState.IncrementProcessedFilesCount();
+                logger.LogInformation("Indexed {Count} torrents", distinctTorrents.Count);
             }
 
             await dmmState.SetFinished(cancellationToken, processor);
+
+            logger.LogInformation("DMM Internal Tasks Completed");
 
             return 0;
         }
@@ -93,5 +100,45 @@ public class DmmScraperTask
         httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("curl/7.54");
         return httpClient;
+    }
+
+    private static async Task ProcessFileBatchAsync(
+        List<string> batch,
+        DmmPageProcessor processor,
+        ConcurrentBag<ExtractedDmmEntry> torrents,
+        DmmSyncState dmmState,
+        ILogger<DmmScraperTask> logger,
+        CancellationToken cancellationToken)
+    {
+        var tasks = batch.Select(file => ProcessFileAsync(file, processor, torrents, dmmState, logger, cancellationToken)).ToList();
+        await Task.WhenAll(tasks);
+    }
+
+    private static async Task ProcessFileAsync(
+        string file,
+        DmmPageProcessor processor,
+        ConcurrentBag<ExtractedDmmEntry> torrents,
+        DmmSyncState dmmState,
+        ILogger<DmmScraperTask> logger,
+        CancellationToken cancellationToken)
+    {
+        if (cancellationToken.IsCancellationRequested)
+        {
+            logger.LogInformation("Cancellation requested, stopping processing");
+            return;
+        }
+
+        var fileName = Path.GetFileName(file);
+        var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
+
+        foreach (var sanitizedTorrent in sanitizedTorrents)
+        {
+            torrents.Add(sanitizedTorrent);
+        }
+
+        logger.LogInformation("Total torrents from file {FileName}: {Count}", fileName, sanitizedTorrents.Count);
+
+        dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
+        dmmState.IncrementProcessedFilesCount();
     }
 }

@@ -31,7 +31,7 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
@@ -42,15 +42,15 @@ public static class DmmEndpoints
 
             var client = await elasticClient.GetClient();
 
-            var results = await client.SearchAsync<ExtractedDmmEntry>(s => s
+            var results = await client.SearchAsync<TorrentInfo>(s => s
                 .Index(ElasticSearchClient.DmmIndex)
                 .From(0)
-                .Size(200)
+                .Size(configuration.Dmm.MaxFilteredResults)
                 .Query(DmmFilteredQueries.PerformUnfilteredSearch(queryRequest)));
 
             return !results.IsValid || results.Hits.Count == 0
                 ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
-                : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
+                : TypedResults.Ok(results.Hits.Where(x => x.Score >= configuration.Dmm.MinimumScoreMatch).Select(x => x.Source.ToExtractedDmmEntry()).ToArray());
         }
         catch
         {
@@ -58,33 +58,33 @@ public static class DmmEndpoints
         }
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
+    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [AsParameters] DmmFilteredRequest request)
     {
         try
         {
-            if (string.IsNullOrEmpty(query))
+            if (string.IsNullOrEmpty(request.Query))
             {
-                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(Array.Empty<TorrentInfo>());
             }
 
             var client = await elasticClient.GetClient();
 
             var results = await client
-                .SearchAsync<ExtractedDmmEntry>(s => s
+                .SearchAsync<TorrentInfo>(s => s
                     .Index(ElasticSearchClient.DmmIndex)
                     .From(0)
                     .Size(configuration.Dmm.MaxFilteredResults)
-                    .Query(DmmFilteredQueries.PerformElasticSearchFiltered(query, season, episode))
+                    .Query(DmmFilteredQueries.PerformElasticSearchFiltered(request))
 
                 );
 
             return !results.IsValid || results.Hits.Count == 0
-                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
-                : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
+                ? TypedResults.Ok(Array.Empty<TorrentInfo>())
+                : TypedResults.Ok(results.Hits.Where(x=> x.Score >= configuration.Dmm.MinimumScoreMatch).Select(x => x.Source).ToArray());
         }
         catch
         {
-            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+            return TypedResults.Ok(Array.Empty<TorrentInfo>());
         }
     }
 }

@@ -8,4 +8,6 @@ var loggerFactory = new LoggerFactory();
 var loggerConfiguration = configuration.GetLoggerConfiguration();
 loggerFactory.AddSerilog(loggerConfiguration.CreateLogger(), dispose: true);
 
-return await DmmScraperTask.Execute(zileanConfiguration, loggerFactory, CancellationToken.None);
+var result = await DmmScraperTask.Execute(zileanConfiguration, loggerFactory, CancellationToken.None);
+Environment.ExitCode = result;
+Process.GetCurrentProcess().Kill();
