@@ -2,16 +2,16 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmFilteredQueries
 {
-    public static Func<QueryContainerDescriptor<ExtractedDmmEntry>, QueryContainer> PerformElasticSearchFiltered(string query, int? season, int? episode)
+    public static Func<QueryContainerDescriptor<TorrentInfo>, QueryContainer> PerformElasticSearchFiltered(string query, int? season, int? episode)
     {
         var matchQueries = BuildMatchQueries(query, season, episode);
 
         return q => q.Bool(b => b.Must(matchQueries));
     }
 
-    public static Func<QueryContainerDescriptor<ExtractedDmmEntry>, QueryContainer> PerformUnfilteredSearch(DmmQueryRequest queryRequest) =>
+    public static Func<QueryContainerDescriptor<TorrentInfo>, QueryContainer> PerformUnfilteredSearch(DmmQueryRequest queryRequest) =>
         q => q.Match(t =>
-        t.Field(f => f.Filename)
+        t.Field(f => f.Title)
             .Query(queryRequest.QueryText));
 
 
@@ -36,8 +36,8 @@ public static class DmmFilteredQueries
     }
 
     private static QueryContainer MatchQueryAsPhrase(string qry, double boost) =>
-        new QueryContainerDescriptor<ExtractedDmmEntry>().MatchPhrase(mp => mp
-            .Field(f => f.Filename)
+        new QueryContainerDescriptor<TorrentInfo>().MatchPhrase(mp => mp
+            .Field(f => f.Title)
             .Query(qry)
             .Boost(boost));
 
@@ -47,18 +47,18 @@ public static class DmmFilteredQueries
         string seasonTextPattern = $"Season {season}";
         string seasonPatternWithHyphen = $"S{season:00}-";
 
-        return new QueryContainerDescriptor<ExtractedDmmEntry>().Bool(b => b
+        return new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
             .Should(
                 s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Filename)
+                    .Field(f => f.Title)
                     .Query(seasonPattern)
                     .Boost(boost)),
                 s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Filename)
+                    .Field(f => f.Title)
                     .Query(seasonTextPattern)
                     .Boost(boost)),
                 s => s.MatchPhrasePrefix(mpp => mpp
-                    .Field(f => f.Filename)
+                    .Field(f => f.Title)
                     .Query(seasonPatternWithHyphen)
                     .Boost(boost)))
             .MinimumShouldMatch(1));
@@ -68,10 +68,10 @@ public static class DmmFilteredQueries
     {
         string seasonAndEpisodePattern = $"S{season:00}E{episode:00}";
 
-        return new QueryContainerDescriptor<ExtractedDmmEntry>().Bool(b => b
+        return new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
             .Should(
                 s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Filename)
+                    .Field(f => f.Title)
                     .Query(seasonAndEpisodePattern)
                     .Boost(boost))));
     }

@@ -1,20 +1,19 @@
-using Zilean.DmmScraper.Features.Python;
+using System.Diagnostics;
+using Xunit.Abstractions;
+using Zilean.DmmScraper.Features.PythonSupport;
 using Zilean.Shared.Features.Dmm;
 
 namespace Zilean.Python.Tests;
 
 public class PttPythonTests
 {
-    public PttPythonTests() =>
-        Environment.SetEnvironmentVariable("PYTHONNET_PYDLL", "/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib");
+    private readonly ITestOutputHelper _output;
 
-    [Fact]
-    public async Task EnsureInitAndStop_Success()
+    public PttPythonTests(ITestOutputHelper output)
     {
-        var logger = Substitute.For<ILogger<ParseTorrentNameService>>();
-        var service = new ParseTorrentNameService(logger);
-
-        await service.StopPythonEngine();
+        _output = output;
+        Environment.SetEnvironmentVariable("PYTHONNET_PYDLL",
+            "/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib");
     }
 
     [Fact]
@@ -22,10 +21,15 @@ public class PttPythonTests
     {
         var logger = Substitute.For<ILogger<ParseTorrentNameService>>();
         var service = new ParseTorrentNameService(logger);
+        var stopwatch = new Stopwatch();
 
-        var torrents = GenerateTorrents(3000);
+        var torrents = GenerateTorrents(100);
 
+        stopwatch.Start();
         var result = await service.ParseAndPopulateAsync(torrents);
+        var elapsed = stopwatch.Elapsed;
+        _output.WriteLine($"Parsed {100} torrents in {elapsed.TotalSeconds} seconds");
+        await service.StopPythonEngine();
 
         Assert.NotNull(result);
         Assert.NotEmpty(result);

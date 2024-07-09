@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace Zilean.Shared.Features.ElasticSearch;
 
 public interface IElasticSearchClient
@@ -35,69 +33,86 @@ public class ElasticSearchClient : IElasticSearchClient
     {
         await _initializationTask;
 
-        BulkResponse response = null;
+        BulkResponse finalResponse = null;
+
         for (int i = 0; i < documents.Count; i += batchSize)
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                _logger.LogInformation("Cancellation requested, stopping indexing");
+                _logger.LogInformation("Cancellation requested, stopping indexing.");
                 break;
             }
 
             var batch = documents.GetRange(i, Math.Min(batchSize, documents.Count - i));
-            response = await BulkIndex(batch, index, cancellationToken);
+            _logger.LogInformation("Indexing batch of {BatchSize} documents.", batch.Count);
+
+            var response = await BulkIndex(batch, index, cancellationToken);
 
             if (!response.IsValid)
             {
-                _logger.LogError("Failed to index batch {Batch} of {Total} documents", i, documents.Count);
-                _logger.LogError("Error: {Error}", response.OriginalException.Message);
-                break;
+                _logger.LogError("Failed to index batch. Error: {Error}", response.OriginalException?.Message);
+                return response;
             }
+
+            finalResponse = response;
         }
 
-        return response;
+        return finalResponse;
     }
 
-    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index, CancellationToken cancellationToken) where T : class => _client.IndexManyAsync(batch, index, cancellationToken: cancellationToken);
+    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index, CancellationToken cancellationToken) where T : class =>
+        _client.IndexManyAsync(batch, index, cancellationToken: cancellationToken);
 
     private static ElasticClient CreateNewClient(ZileanConfiguration configuration)
     {
         var pool = new SingleNodeConnectionPool(new Uri(configuration.ElasticSearch.Url));
         var settings = new ConnectionSettings(pool)
-            .DefaultMappingFor<ExtractedDmmEntry>(ExtractedDmmEntryMapping)
+            .DefaultMappingFor<TorrentInfo>(TorrentInfo.TorrentInfoDefaultMapping)
             .EnableApiVersioningHeader();
-
-// #if DEBUG
-//         settings.EnableDebugMode(details =>
-//         {
-//             Console.WriteLine($"ES Request: {Encoding.UTF8.GetString(details.RequestBodyInBytes ?? [])}");
-//             Console.WriteLine($"ES Response: {Encoding.UTF8.GetString(details.ResponseBodyInBytes ?? [])}");
-//         });
-// #endif
 
         return new ElasticClient(settings);
     }
 
-    private static IClrTypeMapping<ExtractedDmmEntry> ExtractedDmmEntryMapping(ClrTypeMappingDescriptor<ExtractedDmmEntry> x)
+    private async Task CreateIndexForTorrentInfo()
     {
-        x.IndexName(DmmIndex);
-        x.IdProperty(p => p.InfoHash);
+        var indexExists = await _client.Indices.ExistsAsync(DmmIndex);
 
-        return x;
+        if (indexExists.Exists)
+        {
+            _logger.LogInformation("Index {Index} already exists. Skipping index creation.", DmmIndex);
+            return;
+        }
+
+        var createIndexResponse = await _client.Indices.CreateAsync(DmmIndex, c => c
+            .Map<TorrentInfo>(TorrentInfo.TorrentInfoIndexMapping)
+            .Settings(settings =>
+            {
+                settings.NumberOfReplicas(0);
+                settings.NumberOfShards(1);
+                return settings;
+            }));
+
+        if (!createIndexResponse.IsValid)
+        {
+            _logger.LogError("Failed to create index {Index}. Error: {Error}", DmmIndex, createIndexResponse.OriginalException?.Message);
+            Environment.Exit(1);
+        }
     }
 
     private async Task AsyncInitialization()
     {
-        _logger.LogInformation("Checking Elasticsearch connection to server {Server}", _configuration.ElasticSearch.Url);
+        _logger.LogInformation("Checking Elasticsearch connection to server {Server}.", _configuration.ElasticSearch.Url);
 
         var isOnline = await _client.PingAsync();
 
         if (!isOnline.IsValid)
         {
-            _logger.LogError("Elasticsearch connection to server {Server} is offline", _configuration.ElasticSearch.Url);
+            _logger.LogError("Elasticsearch connection to server {Server} is offline.", _configuration.ElasticSearch.Url);
             Environment.Exit(1);
         }
 
-        _logger.LogInformation("Elasticsearch connection to server {Server} is online", _configuration.ElasticSearch.Url);
+        _logger.LogInformation("Elasticsearch connection to server {Server} is online.", _configuration.ElasticSearch.Url);
+
+        await CreateIndexForTorrentInfo();
     }
 }

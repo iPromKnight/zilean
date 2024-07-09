@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.Python;
+namespace Zilean.DmmScraper.Features.PythonSupport;
 
 public static class PyObjectExtensions
 {

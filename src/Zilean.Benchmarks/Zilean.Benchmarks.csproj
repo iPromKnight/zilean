@@ -5,25 +5,19 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>dmmscraper</AssemblyName>
-        <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
         <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" />
+      <PackageReference Include="NSubstitute" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Zilean.DmmScraper\Zilean.DmmScraper.csproj" />
+    </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="pythonnet" />
-    <PackageReference Include="Spectre.Console" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Content Remove="python\**" />
     <None Include="python\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

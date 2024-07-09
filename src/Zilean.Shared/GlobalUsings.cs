@@ -9,3 +9,4 @@ global using Nest;
 global using Zilean.Shared.Extensions;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
+global using Zilean.Shared.Features.ElasticSearch;

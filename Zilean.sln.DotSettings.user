@@ -2,5 +2,6 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Python.Tests.PttPythonTests.ParseTorrent_Success&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Python.Tests.PttPythonTests.EnsureInitAndStop_Success&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

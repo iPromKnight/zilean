@@ -42,7 +42,7 @@ public static class DmmEndpoints
 
             var client = await elasticClient.GetClient();
 
-            var results = await client.SearchAsync<ExtractedDmmEntry>(s => s
+            var results = await client.SearchAsync<TorrentInfo>(s => s
                 .Index(ElasticSearchClient.DmmIndex)
                 .From(0)
                 .Size(200)
@@ -50,7 +50,7 @@ public static class DmmEndpoints
 
             return !results.IsValid || results.Hits.Count == 0
                 ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
-                : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
+                : TypedResults.Ok(results.Hits.Select(x => x.Source.ToExtractedDmmEntry()).ToArray());
         }
         catch
         {
@@ -58,19 +58,19 @@ public static class DmmEndpoints
         }
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
+    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromQuery] string query, [FromQuery] int? season = null, [FromQuery] int? episode = null)
     {
         try
         {
             if (string.IsNullOrEmpty(query))
             {
-                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(Array.Empty<TorrentInfo>());
             }
 
             var client = await elasticClient.GetClient();
 
             var results = await client
-                .SearchAsync<ExtractedDmmEntry>(s => s
+                .SearchAsync<TorrentInfo>(s => s
                     .Index(ElasticSearchClient.DmmIndex)
                     .From(0)
                     .Size(configuration.Dmm.MaxFilteredResults)
@@ -79,12 +79,12 @@ public static class DmmEndpoints
                 );
 
             return !results.IsValid || results.Hits.Count == 0
-                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
+                ? TypedResults.Ok(Array.Empty<TorrentInfo>())
                 : TypedResults.Ok(results.Hits.Select(x => x.Source).ToArray());
         }
         catch
         {
-            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+            return TypedResults.Ok(Array.Empty<TorrentInfo>());
         }
     }
 }

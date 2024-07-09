@@ -1,10 +1,9 @@
+using Zilean.DmmScraper.Features.PythonSupport;
+
 namespace Zilean.DmmScraper.Features.Dmm;
 
 public class DmmScraperTask
 {
-    private const int MaxConcurrentTasks = 4;
-    private const int BatchSize = 200;
-
     public static async Task<int> Execute(ZileanConfiguration configuration, ILoggerFactory loggerFactory, CancellationToken cancellationToken)
     {
         var logger = loggerFactory.CreateLogger<DmmScraperTask>();
@@ -32,11 +31,11 @@ public class DmmScraperTask
 
             var torrents = new ConcurrentBag<ExtractedDmmEntry>();
 
-            var batchedFiles = BatchFiles(files, BatchSize).ToList();
+            var batchedFiles = files.ToChunks(200);
 
             var parallelOptions = new ParallelOptions
             {
-                MaxDegreeOfParallelism = MaxConcurrentTasks,
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
                 CancellationToken = cancellationToken
             };
 
@@ -53,6 +52,10 @@ public class DmmScraperTask
 
                 var indexableTorrentInformation = await rtnService.ParseAndPopulateAsync(distinctTorrents);
 
+                logger.LogInformation("Parsed {Count} torrents", indexableTorrentInformation.Count);
+
+                logger.LogInformation("Indexing {Count} torrents in ElasticSeach", distinctTorrents.Count);
+
                 var indexResult =
                     await elasticClient.IndexManyBatchedAsync(indexableTorrentInformation, ElasticSearchClient.DmmIndex, cancellationToken);
 
@@ -66,7 +69,8 @@ public class DmmScraperTask
             }
 
             await dmmState.SetFinished(cancellationToken, processor);
-            await rtnService.StopPythonEngine();
+
+            logger.LogInformation("DMM Internal Tasks Completed");
 
             return 0;
         }
@@ -127,11 +131,6 @@ public class DmmScraperTask
         var fileName = Path.GetFileName(file);
         var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName);
 
-        if (sanitizedTorrents.Count == 0)
-        {
-            return;
-        }
-
         foreach (var sanitizedTorrent in sanitizedTorrents)
         {
             torrents.Add(sanitizedTorrent);
@@ -141,13 +140,5 @@ public class DmmScraperTask
 
         dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
         dmmState.IncrementProcessedFilesCount();
-    }
-
-    private static IEnumerable<List<string>> BatchFiles(List<string> files, int batchSize)
-    {
-        for (int i = 0; i < files.Count; i += batchSize)
-        {
-            yield return files.GetRange(i, Math.Min(batchSize, files.Count - i));
-        }
     }
 }

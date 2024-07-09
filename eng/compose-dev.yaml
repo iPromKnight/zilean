@@ -28,7 +28,7 @@ services:
       ES_SETTING_DISCOVERY_TYPE: single-node
       ES_SETTING_XPACK_SECURITY_ENABLED: false
       ES_SETTING_BOOTSTRAP_MEMORY__LOCK: true
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     ports:
       - "9200:9200"
       - "9300:9300"
