@@ -227,11 +227,30 @@ public class ParseTorrentNameService
 
         try
         {
-            var pythonDllEnv = Environment.GetEnvironmentVariable("PYTHONNET_PYDLL");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var pathToVirtualEnv = Environment.GetEnvironmentVariable("ZILEAN_PYTHON_VENV") ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(pathToVirtualEnv))
+                {
+                    _logger.LogWarning("`ZILEAN_PYTHON_VENV` env is not set. Exiting Application");
+                    Environment.Exit(1);
+                    return Task.CompletedTask;
+                }
+
+                var path = Environment.GetEnvironmentVariable("PATH").TrimEnd(';');
+                path = string.IsNullOrEmpty(path) ? pathToVirtualEnv : path + ";" + pathToVirtualEnv;
+                Environment.SetEnvironmentVariable("PATH", path, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PATH", pathToVirtualEnv, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PYTHONHOME", pathToVirtualEnv, EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("PYTHONPATH", $@"{pathToVirtualEnv}\Lib\site-packages;{pathToVirtualEnv}\Lib", EnvironmentVariableTarget.Process);
+                Environment.SetEnvironmentVariable("ZILEAN_PYTHON_PYLIB", $@"{pathToVirtualEnv}\python311.dll", EnvironmentVariableTarget.Process);
+            }
+
+            var pythonDllEnv = Environment.GetEnvironmentVariable("ZILEAN_PYTHON_PYLIB");
 
             if (string.IsNullOrWhiteSpace(pythonDllEnv))
             {
-                _logger.LogWarning("PYTHONNET_PYDLL env is not set. Exiting Application");
+                _logger.LogWarning("`ZILEAN_PYTHON_PYLIB` env is not set. Exiting Application");
                 Environment.Exit(1);
                 return Task.CompletedTask;
             }

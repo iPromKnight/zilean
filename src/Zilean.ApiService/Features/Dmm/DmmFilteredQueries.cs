@@ -2,37 +2,91 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmFilteredQueries
 {
-    public static Func<QueryContainerDescriptor<TorrentInfo>, QueryContainer> PerformElasticSearchFiltered(string query, int? season, int? episode)
+    public static Func<QueryContainerDescriptor<TorrentInfo>, QueryContainer> PerformElasticSearchFiltered(DmmFilteredRequest request)
     {
-        var matchQueries = BuildMatchQueries(query, season, episode);
+        var titleQueries = new List<QueryContainer>
+        {
+            MatchQueryAsPhrase(request.Query, 10.0),
+            MatchQueryAsFuzzy(request.Query)
+        };
 
-        return q => q.Bool(b => b.Must(matchQueries));
+        var mustQueries = new List<QueryContainer>
+        {
+            new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
+                .Should(titleQueries.ToArray())
+                .MinimumShouldMatch(1))
+        };
+
+        var shouldQueries = BuildShouldQueries(request);
+
+        return shouldQueries.Length > 0
+            ? (q => q.Bool(b => b
+                .Must(mustQueries.ToArray())
+                .Should(shouldQueries)
+                .MinimumShouldMatch(1)))
+            : (q => q.Bool(b => b.Must(mustQueries.ToArray())));
     }
 
     public static Func<QueryContainerDescriptor<TorrentInfo>, QueryContainer> PerformUnfilteredSearch(DmmQueryRequest queryRequest) =>
-        q => q.Match(t =>
-        t.Field(f => f.Title)
-            .Query(queryRequest.QueryText));
+        q => q.Bool(b => b
+            .Should(
+                MatchQueryAsPhrase(queryRequest.QueryText, 10.0),
+                MatchQueryAsFuzzy(queryRequest.QueryText))
+            .MinimumShouldMatch(1));
 
-
-    private static QueryContainer[] BuildMatchQueries(string query, int? season, int? episode)
+    private static QueryContainer[] BuildShouldQueries(DmmFilteredRequest request)
     {
-        var mustQueries = new List<QueryContainer>
-        {
-            MatchQueryAsPhrase(query, 10.0)
-        };
+        var shouldQueries = new List<QueryContainer>();
 
-        if (!episode.HasValue && season.HasValue)
+       HandleSeasonAndEpisode(request, shouldQueries);
+
+        if (request.Year.HasValue)
         {
-            mustQueries.Add(MatchExactSeasonOrHyphen(season.Value, 13.0));
+            shouldQueries.Add(MatchYearRange(request.Year.Value));
         }
 
-        if (episode.HasValue && season.HasValue)
+        if (!string.IsNullOrEmpty(request.Language))
         {
-            mustQueries.Add(MatchExactSeasonAndEpisode(season.Value, episode.Value, 13.0));
+            shouldQueries.Add(MatchLanguage(request.Language));
         }
 
-        return [.. mustQueries];
+        if (!string.IsNullOrEmpty(request.Resolution))
+        {
+            shouldQueries.Add(MatchResolution(request.Resolution));
+        }
+
+        return [.. shouldQueries];
+    }
+
+    private static void HandleSeasonAndEpisode(DmmFilteredRequest request, List<QueryContainer> shouldQueries)
+    {
+        if (request.Season.HasValue)
+        {
+            shouldQueries.Add(MatchSeason(request.Season.Value));
+
+            if (request.Episode.HasValue)
+            {
+                shouldQueries.Add(new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
+                    .Must(
+                        MatchSeason(request.Season.Value),
+                        MatchEpisode(request.Episode.Value)
+                    )));
+            }
+
+            return;
+        }
+
+        if (!request.Season.HasValue)
+        {
+            if (request.Episode.HasValue)
+            {
+                shouldQueries.Add(new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
+                    .Must(
+                        MatchSeason(0),
+                        MatchEpisode(request.Episode.Value)
+                    )));
+            }
+        }
     }
 
     private static QueryContainer MatchQueryAsPhrase(string qry, double boost) =>
@@ -41,38 +95,41 @@ public static class DmmFilteredQueries
             .Query(qry)
             .Boost(boost));
 
-    private static QueryContainer MatchExactSeasonOrHyphen(int season, double boost)
-    {
-        string seasonPattern = $"S{season:00}";
-        string seasonTextPattern = $"Season {season}";
-        string seasonPatternWithHyphen = $"S{season:00}-";
+    private static QueryContainer MatchQueryAsFuzzy(string qry) =>
+        new QueryContainerDescriptor<TorrentInfo>().Fuzzy(fz => fz
+            .Field(f => f.Title)
+            .Value(qry)
+            .Fuzziness(Fuzziness.Auto));
 
-        return new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
-            .Should(
-                s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Title)
-                    .Query(seasonPattern)
-                    .Boost(boost)),
-                s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Title)
-                    .Query(seasonTextPattern)
-                    .Boost(boost)),
-                s => s.MatchPhrasePrefix(mpp => mpp
-                    .Field(f => f.Title)
-                    .Query(seasonPatternWithHyphen)
-                    .Boost(boost)))
-            .MinimumShouldMatch(1));
-    }
+    private static QueryContainer MatchSeason(int season) =>
+        new QueryContainerDescriptor<TorrentInfo>().TermsSet(ts => ts
+            .Field(f => f.Seasons)
+            .Terms(season)
+            .MinimumShouldMatchScript(msm => msm
+                .Source("1")));
 
-    private static QueryContainer MatchExactSeasonAndEpisode(int season, int episode, double boost)
-    {
-        string seasonAndEpisodePattern = $"S{season:00}E{episode:00}";
+    private static QueryContainer MatchEpisode(int episode) =>
+        new QueryContainerDescriptor<TorrentInfo>().TermsSet(ts => ts
+            .Field(f => f.Episodes)
+            .Terms(episode)
+            .MinimumShouldMatchScript(msm => msm
+                .Source("1")));
 
-        return new QueryContainerDescriptor<TorrentInfo>().Bool(b => b
-            .Should(
-                s => s.MatchPhrase(mp => mp
-                    .Field(f => f.Title)
-                    .Query(seasonAndEpisodePattern)
-                    .Boost(boost))));
-    }
+    private static QueryContainer MatchYearRange(int year) =>
+        new QueryContainerDescriptor<TorrentInfo>().Range(r => r
+            .Field(f => f.Year)
+            .GreaterThanOrEquals(year - 1)
+            .LessThanOrEquals(year + 1));
+
+    private static QueryContainer MatchLanguage(string language) =>
+        new QueryContainerDescriptor<TorrentInfo>().TermsSet(t => t
+            .Field(f => f.Languages)
+            .Terms(language)
+            .MinimumShouldMatchScript(msm => msm
+                .Source("1")));
+
+    private static QueryContainer MatchResolution(string resolution) =>
+        new QueryContainerDescriptor<TorrentInfo>().Term(t => t
+            .Field(f => f.Resolution)
+            .Value(resolution));
 }

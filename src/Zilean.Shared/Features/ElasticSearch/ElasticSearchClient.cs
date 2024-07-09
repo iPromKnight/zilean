@@ -70,6 +70,10 @@ public class ElasticSearchClient : IElasticSearchClient
             .DefaultMappingFor<TorrentInfo>(TorrentInfo.TorrentInfoDefaultMapping)
             .EnableApiVersioningHeader();
 
+#if DEBUG
+        settings.SetupDebugMode();
+#endif
+
         return new ElasticClient(settings);
     }
 
