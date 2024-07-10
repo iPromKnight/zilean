@@ -16,5 +16,4 @@ global using Zilean.ApiService.Features.HealthChecks;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
 global using Zilean.Shared.Features.ElasticSearch;
-global using Zilean.Shared.Features.Otlp;
 global using Zilean.Shared.Features.Shell;

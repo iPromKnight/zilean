@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using SimCube.Aspire.Features.Otlp;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddConfigurationFiles();
 

@@ -25,4 +25,17 @@
       <ProjectReference Include="..\..\src\Zilean.DmmScraper\Zilean.DmmScraper.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageVersion Update="coverlet.collector" Version="6.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageVersion>
+      <PackageVersion Update="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+      <PackageVersion Update="xunit" Version="2.9.0" />
+      <PackageVersion Update="xunit.runner.visualstudio" Version="2.8.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageVersion>
+    </ItemGroup>
+
 </Project>
