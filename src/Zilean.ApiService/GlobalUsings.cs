@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
 global using Nest;
+global using SimCube.Aspire.Features.Otlp;
 global using Zilean.ApiService.Features.Bootstrapping;
 global using Zilean.ApiService.Features.Dmm;
 global using Zilean.ApiService.Features.HealthChecks;
