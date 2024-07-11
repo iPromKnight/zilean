@@ -24,5 +24,5 @@ app.MapZileanEndpoints(zileanConfiguration)
 
 app.Services.SetupScheduling(zileanConfiguration);
 
-logger.LogInformation("Zilean API Service started");
+logger.LogInformation("Zilean API Service started.");
 app.Run();
