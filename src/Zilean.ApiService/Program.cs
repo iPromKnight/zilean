@@ -1,6 +1,4 @@
-﻿using SimCube.Aspire.Features.Otlp;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddConfigurationFiles();
 
@@ -20,6 +18,7 @@ var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
+app.MapDefaultEndpoints();
 app.MapZileanEndpoints(zileanConfiguration)
     .EnableSwagger();
 
