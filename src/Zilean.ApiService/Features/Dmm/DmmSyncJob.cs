@@ -5,6 +5,7 @@ public class DmmSyncJob(IShellExecutionService shellExecutionService, ILogger<Dm
     private static readonly string _parsedPagesFile = Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
 
     public CancellationToken CancellationToken { get; set; }
+    public CancellationToken Token { get; set; }
 
     public async Task Invoke()
     {

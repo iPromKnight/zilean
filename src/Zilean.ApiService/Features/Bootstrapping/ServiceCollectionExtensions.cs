@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         if (configuration.Dmm.EnableScraping)
         {
             services.AddTransient<DmmSyncJob>();
+            services.AddSingleton<DmmSyncOnDemandState>();
         }
 
         return services;
