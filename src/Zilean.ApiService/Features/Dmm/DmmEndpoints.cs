@@ -5,6 +5,7 @@ public static class DmmEndpoints
     private const string GroupName = "dmm";
     private const string Search = "/search";
     private const string Filtered = "/filtered";
+    private const string Ingest = "/on-demand-scrape";
 
     public static WebApplication MapDmmEndpoints(this WebApplication app, ZileanConfiguration configuration)
     {
@@ -28,10 +29,44 @@ public static class DmmEndpoints
         group.MapGet(Filtered, PerformFilteredSearch)
             .Produces<ExtractedDmmEntry[]>();
 
+        group.MapGet(Ingest, PerformOnDemandScrape);
+
         return group;
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task PerformOnDemandScrape(HttpContext context, ILogger<GeneralInstance> logger, IShellExecutionService executionService, ILogger<DmmSyncJob> syncLogger, IMutex mutex, DmmSyncOnDemandState state)
+    {
+        if (state.IsRunning)
+        {
+            logger.LogWarning("On-demand scrape already running.");
+            return;
+        }
+
+        logger.LogInformation("Trying to schedule on-demand scrape with a 5 minute timeout on lock acquisition.");
+
+        bool available = mutex.TryGetLock(nameof(DmmSyncJob), 1);
+
+        if(available)
+        {
+            try
+            {
+                logger.LogInformation("On-demand scrape mutex lock acquired.");
+                state.IsRunning = true;
+                await new DmmSyncJob(executionService, syncLogger).Invoke();
+            }
+            finally
+            {
+                mutex.Release(nameof(DmmSyncJob));
+                state.IsRunning = false;
+            }
+
+            return;
+        }
+
+        logger.LogWarning("Failed to acquire lock for on-demand scrape.");
+    }
+
+    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, ILogger<DmmUnfilteredInstance> logger, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
@@ -40,6 +75,8 @@ public static class DmmEndpoints
                 return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
             }
 
+            logger.LogInformation("Performing unfiltered search for {QueryText}", queryRequest.QueryText);
+
             var client = await elasticClient.GetClient();
 
             var results = await client.SearchAsync<TorrentInfo>(s => s
@@ -47,6 +84,8 @@ public static class DmmEndpoints
                 .From(0)
                 .Size(configuration.Dmm.MaxFilteredResults)
                 .Query(DmmFilteredQueries.PerformUnfilteredSearch(queryRequest)));
+
+            logger.LogInformation("Unfiltered search for {QueryText} returned {Count} results", queryRequest.QueryText, results.Hits.Count);
 
             return !results.IsValid || results.Hits.Count == 0
                 ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
@@ -58,7 +97,7 @@ public static class DmmEndpoints
         }
     }
 
-    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, [AsParameters] DmmFilteredRequest request)
+    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, ILogger<DmmFilteredInstance> logger, [AsParameters] DmmFilteredRequest request)
     {
         try
         {
@@ -66,6 +105,8 @@ public static class DmmEndpoints
             {
                 return TypedResults.Ok(Array.Empty<TorrentInfo>());
             }
+
+            logger.LogInformation("Performing filtered search for {@Request}", request);
 
             var client = await elasticClient.GetClient();
 
@@ -75,8 +116,9 @@ public static class DmmEndpoints
                     .From(0)
                     .Size(configuration.Dmm.MaxFilteredResults)
                     .Query(DmmFilteredQueries.PerformElasticSearchFiltered(request))
-
                 );
+
+            logger.LogInformation("Filtered search for {QueryText} returned {Count} results", request.Query, results.Hits.Count);
 
             return !results.IsValid || results.Hits.Count == 0
                 ? TypedResults.Ok(Array.Empty<TorrentInfo>())
@@ -87,4 +129,8 @@ public static class DmmEndpoints
             return TypedResults.Ok(Array.Empty<TorrentInfo>());
         }
     }
+
+    private abstract class DmmUnfilteredInstance;
+    private abstract class DmmFilteredInstance;
+    private abstract class GeneralInstance;
 }
