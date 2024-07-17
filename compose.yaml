@@ -13,6 +13,7 @@ services:
       - zilean_data:/app/data
     environment:
         Zilean__ElasticSearch__Url: http://elasticsearch:9200
+        Zilean__Dmm__MinimumScoreMatch: 40
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
       timeout: 60s
