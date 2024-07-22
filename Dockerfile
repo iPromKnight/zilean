@@ -9,6 +9,9 @@ RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH
 WORKDIR /build/src/Zilean.DmmScraper
 RUN dotnet restore -a $TARGETARCH
 RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH
+WORKDIR /build/src/Zilean.ImdbLoader
+RUN dotnet restore -a $TARGETARCH
+RUN dotnet publish -c Release --no-restore -o /build/out -a $TARGETARCH
 
 # Run Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.19

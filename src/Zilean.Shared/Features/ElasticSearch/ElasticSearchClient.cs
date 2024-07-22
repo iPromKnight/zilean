@@ -9,6 +9,7 @@ public interface IElasticSearchClient
 public class ElasticSearchClient : IElasticSearchClient
 {
     public const string DmmIndex = "dmm-entries";
+    public const string ImdbMetadataIndex = "imdbmeta-entries";
 
     private readonly ZileanConfiguration _configuration;
     private readonly ILogger<ElasticSearchClient> _logger;
@@ -33,6 +34,8 @@ public class ElasticSearchClient : IElasticSearchClient
     {
         await _initializationTask;
 
+        _logger.LogInformation("Indexing {Count} documents to index {Index}.", documents.Count, index);
+
         BulkResponse finalResponse = null;
 
         for (int i = 0; i < documents.Count; i += batchSize)
@@ -44,7 +47,6 @@ public class ElasticSearchClient : IElasticSearchClient
             }
 
             var batch = documents.GetRange(i, Math.Min(batchSize, documents.Count - i));
-            _logger.LogInformation("Indexing batch of {BatchSize} documents.", batch.Count);
 
             var response = await BulkIndex(batch, index, cancellationToken);
 
@@ -68,6 +70,7 @@ public class ElasticSearchClient : IElasticSearchClient
         var pool = new SingleNodeConnectionPool(new Uri(configuration.ElasticSearch.Url));
         var settings = new ConnectionSettings(pool)
             .DefaultMappingFor<TorrentInfo>(TorrentInfo.TorrentInfoDefaultMapping)
+            .DefaultMappingFor<ImdbFile>(ImdbFile.ImdbFileDefaultMapping)
             .EnableApiVersioningHeader();
 
 #if DEBUG
@@ -103,6 +106,32 @@ public class ElasticSearchClient : IElasticSearchClient
         }
     }
 
+    public async Task CreateIndexForImdbMetadata()
+    {
+        var indexExists = await _client.Indices.ExistsAsync(ImdbMetadataIndex);
+
+        if (indexExists.Exists)
+        {
+            _logger.LogInformation("Index {Index} already exists. Skipping index creation.", ImdbMetadataIndex);
+            return;
+        }
+
+        var createIndexResponse = await _client.Indices.CreateAsync(ImdbMetadataIndex, c => c
+            .Map<ImdbFile>(ImdbFile.ImdbFileIndexMapping)
+            .Settings(settings =>
+            {
+                settings.NumberOfReplicas(0);
+                settings.NumberOfShards(1);
+                return settings;
+            }));
+
+        if (!createIndexResponse.IsValid)
+        {
+            _logger.LogError("Failed to create index {Index}. Error: {Error}", ImdbMetadataIndex, createIndexResponse.OriginalException?.Message);
+            Environment.Exit(1);
+        }
+    }
+
     private async Task AsyncInitialization()
     {
         _logger.LogInformation("Checking Elasticsearch connection to server {Server}.", _configuration.ElasticSearch.Url);
@@ -117,6 +146,14 @@ public class ElasticSearchClient : IElasticSearchClient
 
         _logger.LogInformation("Elasticsearch connection to server {Server} is online.", _configuration.ElasticSearch.Url);
 
-        await CreateIndexForTorrentInfo();
+        if (_configuration.Imdb.EnableScraping)
+        {
+            await CreateIndexForImdbMetadata();
+        }
+
+        if (_configuration.Dmm.EnableScraping)
+        {
+            await CreateIndexForTorrentInfo();
+        }
     }
 }

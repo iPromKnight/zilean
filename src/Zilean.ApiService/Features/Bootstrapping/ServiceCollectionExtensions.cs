@@ -23,12 +23,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
+    public static IServiceCollection AddDataBootStrapping(this IServiceCollection services) =>
+        services.AddHostedService<BootstrapIndexesService>();
+
     public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services, ZileanConfiguration configuration)
     {
         if (configuration.Dmm.EnableScraping)
         {
             services.AddTransient<DmmSyncJob>();
             services.AddSingleton<DmmSyncOnDemandState>();
+        }
+
+        if (configuration.Imdb.EnableScraping)
+        {
+            services.AddTransient<ImdbSyncJob>();
         }
 
         return services;
@@ -40,14 +48,16 @@ public static class ServiceCollectionExtensions
             {
                 if (configuration.Dmm.EnableScraping)
                 {
-                    var dmmSchedule = scheduler.Schedule<DmmSyncJob>()
+                    scheduler.Schedule<DmmSyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
                         .PreventOverlapping(nameof(DmmSyncJob));
+                }
 
-                    if (DmmSyncJob.ShouldRunOnStartup())
-                    {
-                        dmmSchedule.RunOnceAtStart();
-                    }
+                if (configuration.Imdb.EnableScraping)
+                {
+                    scheduler.Schedule<ImdbSyncJob>()
+                        .Cron(configuration.Imdb.ScrapeSchedule)
+                        .PreventOverlapping(nameof(ImdbSyncJob));
                 }
             })
             .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());
