@@ -5,7 +5,7 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>dmmscraper</AssemblyName>
+        <AssemblyName>imdbloader</AssemblyName>
         <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
         <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
     </PropertyGroup>
@@ -18,15 +18,15 @@
     <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="pythonnet" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <Content Remove="python\**" />
     <None Include="python\**">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" />
   </ItemGroup>
 
 </Project>

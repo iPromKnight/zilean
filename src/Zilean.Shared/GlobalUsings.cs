@@ -1,4 +1,5 @@
 global using System.Diagnostics.CodeAnalysis;
+global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using CliWrap;
 global using Elasticsearch.Net;
@@ -10,3 +11,4 @@ global using Zilean.Shared.Extensions;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
 global using Zilean.Shared.Features.ElasticSearch;
+global using Zilean.Shared.Features.Imdb;
