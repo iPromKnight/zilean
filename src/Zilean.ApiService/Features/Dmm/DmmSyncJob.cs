@@ -2,7 +2,7 @@ namespace Zilean.ApiService.Features.Dmm;
 
 public class DmmSyncJob(IShellExecutionService shellExecutionService, ILogger<DmmSyncJob> logger) : IInvocable, ICancellableInvocable
 {
-    private static readonly string _parsedPagesFile = Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
+    public static string ParsedPagesFile => Path.Combine(AppContext.BaseDirectory, "data", "parsedPages.json");
 
     public CancellationToken CancellationToken { get; set; }
     public CancellationToken Token { get; set; }
@@ -21,5 +21,5 @@ public class DmmSyncJob(IShellExecutionService shellExecutionService, ILogger<Dm
         logger.LogInformation("DmmSyncJob completed");
     }
 
-    public static bool ShouldRunOnStartup() => !File.Exists(_parsedPagesFile);
+    public static bool ShouldRunOnStartup() => !File.Exists(ParsedPagesFile);
 }

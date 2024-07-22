@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace Zilean.Shared.Features.Configuration;
+﻿namespace Zilean.Shared.Features.Configuration;
 
 public class ZileanConfiguration
 {
@@ -13,6 +11,7 @@ public class ZileanConfiguration
     public DmmConfiguration Dmm { get; set; } = new();
     public ElasticSearchConfiguration ElasticSearch { get; set; } = new();
     public ProwlarrConfiguration Prowlarr { get; set; } = new();
+    public ImdbConfiguration Imdb { get; set; } = new();
 
     public static void EnsureExists()
     {

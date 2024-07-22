@@ -12,7 +12,8 @@ builder.Services
     .AddSchedulingSupport()
     .AddElasticSearchSupport()
     .AddShellExecutionService()
-    .ConditionallyRegisterDmmJob(zileanConfiguration);
+    .ConditionallyRegisterDmmJob(zileanConfiguration)
+    .AddDataBootStrapping();
 
 var app = builder.Build();
 
