@@ -57,7 +57,7 @@ public class DmmScraperTask
                 logger.LogInformation("Indexing {Count} torrents in ElasticSeach", distinctTorrents.Count);
 
                 var indexResult =
-                    await elasticClient.IndexManyBatchedAsync(indexableTorrentInformation, ElasticSearchClient.DmmIndex, cancellationToken);
+                    await elasticClient.IndexManyBatchedAsync(indexableTorrentInformation, ElasticSearchClient.DmmIndex, cancellationToken: cancellationToken);
 
                 if (indexResult.Errors)
                 {
