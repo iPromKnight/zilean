@@ -2,7 +2,7 @@ namespace Zilean.Shared.Features.ElasticSearch;
 
 public interface IElasticSearchClient
 {
-    Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, CancellationToken cancellationToken, int batchSize = 5000) where T : class;
+    Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, int batchSize = 5000, string? pipeline = null, CancellationToken cancellationToken = default) where T : class;
     Task<ElasticClient> GetClient();
 }
 
@@ -30,7 +30,7 @@ public class ElasticSearchClient : IElasticSearchClient
         return _client;
     }
 
-    public async Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, CancellationToken cancellationToken, int batchSize = 5000) where T : class
+    public async Task<BulkResponse> IndexManyBatchedAsync<T>(List<T> documents, string index, int batchSize = 1000, string? pipeline = null, CancellationToken cancellationToken = default) where T : class
     {
         await _initializationTask;
 
@@ -48,7 +48,7 @@ public class ElasticSearchClient : IElasticSearchClient
 
             var batch = documents.GetRange(i, Math.Min(batchSize, documents.Count - i));
 
-            var response = await BulkIndex(batch, index, cancellationToken);
+            var response = await BulkIndex(batch, index, pipeline, cancellationToken);
 
             if (!response.IsValid)
             {
@@ -62,15 +62,26 @@ public class ElasticSearchClient : IElasticSearchClient
         return finalResponse;
     }
 
-    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index, CancellationToken cancellationToken) where T : class =>
-        _client.IndexManyAsync(batch, index, cancellationToken: cancellationToken);
+    private Task<BulkResponse> BulkIndex<T>(List<T> batch, string index, string pipeline, CancellationToken cancellationToken) where T : class =>
+        !string.IsNullOrEmpty(pipeline)
+            ? _client.BulkAsync(b => b
+                    .Index(index)
+                    .Pipeline(pipeline)
+                    .IndexMany(batch)
+                    .Refresh(Refresh.True)
+                , cancellationToken)
+            : _client.BulkAsync(b => b
+                    .Index(index)
+                    .IndexMany(batch)
+                    .Refresh(Refresh.True)
+                , cancellationToken);
 
     private static ElasticClient CreateNewClient(ZileanConfiguration configuration)
     {
         var pool = new SingleNodeConnectionPool(new Uri(configuration.ElasticSearch.Url));
         var settings = new ConnectionSettings(pool)
             .DefaultMappingFor<TorrentInfo>(TorrentInfo.TorrentInfoDefaultMapping)
-            .DefaultMappingFor<ImdbFile>(ImdbFile.ImdbFileDefaultMapping)
+            .DefaultMappingFor<ImdbFile>(ImdbIndexer.ImdbFileDefaultMapping)
             .EnableApiVersioningHeader();
 
 #if DEBUG
@@ -106,7 +117,7 @@ public class ElasticSearchClient : IElasticSearchClient
         }
     }
 
-    public async Task CreateIndexForImdbMetadata()
+    private async Task CreateIndexForImdbMetadata()
     {
         var indexExists = await _client.Indices.ExistsAsync(ImdbMetadataIndex);
 
@@ -116,20 +127,15 @@ public class ElasticSearchClient : IElasticSearchClient
             return;
         }
 
-        var createIndexResponse = await _client.Indices.CreateAsync(ImdbMetadataIndex, c => c
-            .Map<ImdbFile>(ImdbFile.ImdbFileIndexMapping)
-            .Settings(settings =>
-            {
-                settings.NumberOfReplicas(0);
-                settings.NumberOfShards(1);
-                return settings;
-            }));
+        var pipelineSetupSuccessfully = await ImdbIndexer.SetupImdbPipeline(_client, _logger);
 
-        if (!createIndexResponse.IsValid)
+        if (!pipelineSetupSuccessfully)
         {
-            _logger.LogError("Failed to create index {Index}. Error: {Error}", ImdbMetadataIndex, createIndexResponse.OriginalException?.Message);
+            _logger.LogError("Failed to setup imdb pipeline.");
             Environment.Exit(1);
         }
+
+        _logger.LogInformation("Successfully setup imdb processing pipeline.");
     }
 
     private async Task AsyncInitialization()

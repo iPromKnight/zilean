@@ -5,6 +5,8 @@ public class FileProcessor(
     ElasticSearchClient elasticClient,
     ImdbLoadState imdbLoadState)
 {
+    private static readonly List<string> _requiredCategories = ["movie", "tvMovie", "tvSeries"];
+
     public async Task Import(string fileName, int batchSize, CancellationToken cancellationToken)
     {
         logger.LogInformation("Importing Downloaded IMDB Basics data from {FilePath}", fileName);
@@ -67,7 +69,7 @@ public class FileProcessor(
     {
         if (batch.Count > 0)
         {
-            await elasticClient.IndexManyBatchedAsync(batch, ElasticSearchClient.ImdbMetadataIndex, cancellationToken);
+            await elasticClient.IndexManyBatchedAsync(batch, ElasticSearchClient.ImdbMetadataIndex, pipeline: ImdbIndexer.ImdbEnrichPipeline, cancellationToken: cancellationToken);
             imdbLoadState.IncrementProcessedRecordsCount(batch.Count);
             logger.LogInformation("Imported batch of {BatchSize} basics starting with ImdbId {FirstImdbId}", batch.Count,
                 batch.First().ImdbId);
@@ -88,6 +90,11 @@ public class FileProcessor(
                 Adult = isAdultSet && adult == 1,
                 Year = csv.GetField(5) == @"\N" ? 0 : int.Parse(csv.GetField(5)),
             };
+
+            if (!_requiredCategories.Contains(movieData.Category))
+            {
+                continue;
+            }
 
             if (cancellationToken.IsCancellationRequested)
             {

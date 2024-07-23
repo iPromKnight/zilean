@@ -12,6 +12,7 @@ public class TorrentInfo
     public List<int> Seasons { get; set; } = [];
     public List<string> Languages { get; set; } = [];
     public string? Title { get; set; }
+    public string? ImdbId { get; set; }
     public string? RawTitle { get; set; }
     public long Size { get; set; }
     public string? InfoHash { get; set; }
@@ -36,6 +37,7 @@ public class TorrentInfo
             prop.Text(s => s.Name(p => p.Source));
             prop.Text(s => s.Name(p => p.Codec));
             prop.Text(s => s.Name(p => p.Group));
+            prop.Text(s => s.Name(p => p.ImdbId));
             prop.Number(s => s.Name(p => p.Episodes).Type(NumberType.Integer));
             prop.Number(s => s.Name(p => p.Seasons).Type(NumberType.Integer));
             prop.Keyword(s => s.Name(p => p.Languages));
