@@ -6,5 +6,5 @@ public class DmmConfiguration
     public bool EnableEndpoint { get; set; } = true;
     public string ScrapeSchedule { get; set; } = "0 * * * *";
     public int MaxFilteredResults { get; set; } = 200;
-    public int MinimumScoreMatch { get; set; } = 40;
+    public double MinimumScoreMatch { get; set; } = 0.85;
 }

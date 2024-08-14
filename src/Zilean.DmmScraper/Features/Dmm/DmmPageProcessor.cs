@@ -1,15 +1,12 @@
 namespace Zilean.DmmScraper.Features.Dmm;
 
-public partial class DmmPageProcessor(
-    DmmSyncState state,
-    ILogger<DmmPageProcessor> logger,
-    CancellationToken cancellationToken)
+public partial class DmmPageProcessor(DmmSyncState state)
     : IDisposable
 {
     [GeneratedRegex("""<iframe src="https:\/\/debridmediamanager.com\/hashlist#(.*)"></iframe>""")]
     private static partial Regex HashCollectionMatcher();
 
-    public async Task<List<ExtractedDmmEntry>> ProcessPageAsync(string filePath, string filenameOnly)
+    public async Task<List<ExtractedDmmEntry>> ProcessPageAsync(string filePath, string filenameOnly, CancellationToken cancellationToken)
     {
         if (state.ParsedPages.TryGetValue(filenameOnly, out _) || !File.Exists(filePath))
         {
@@ -40,7 +37,6 @@ public partial class DmmPageProcessor(
 
                 if (torrents.Count == 0)
                 {
-                    logger.LogInformation("No torrents found in {Filename}", filenameOnly);
                     state.ParsedPages.TryAdd(filenameOnly, 0);
                     return [];
                 }
@@ -49,10 +45,9 @@ public partial class DmmPageProcessor(
                     .Where(x=>x.InfoHash.Length == 40 && x.Filesize > 0)
                     .GroupBy(x => x.InfoHash)
                     .Select(group => group.FirstOrDefault())
+                    .Where(x => !string.IsNullOrEmpty(x.Filename))
                     .OfType<ExtractedDmmEntry>()
                     .ToList();
-
-                logger.LogInformation("Parsed {Count} torrents for {Filename}", sanitizedTorrents.Count, filenameOnly);
 
                 return sanitizedTorrents;
             }

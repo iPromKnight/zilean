@@ -1,11 +1,6 @@
 namespace Zilean.DmmScraper.Features.Dmm;
 
-public interface IDmmFileDownloader
-{
-    Task<string> DownloadFileToTempPath(CancellationToken cancellationToken);
-}
-
-public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> logger) : IDmmFileDownloader
+public class DmmFileDownloader(ILogger<DmmFileDownloader> logger)
 {
     private const string Filename = "main.zip";
 
@@ -17,12 +12,11 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
         "CNAME",
     ];
 
-    public const string ClientName = "DmmFileDownloader";
-
     public async Task<string> DownloadFileToTempPath(CancellationToken cancellationToken)
     {
         logger.LogInformation("Downloading DMM Hashlists");
 
+        var client = CreateHttpClient();
         var response = await client.GetAsync(Filename, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
 
         var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
@@ -85,5 +79,18 @@ public class DmmFileDownloader(HttpClient client, ILogger<DmmFileDownloader> log
         }
 
         Directory.CreateDirectory(tempDirectory);
+    }
+
+    private static HttpClient CreateHttpClient()
+    {
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri("https://github.com/debridmediamanager/hashlists/zipball/main/"),
+            Timeout = TimeSpan.FromMinutes(10),
+        };
+
+        httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("curl/7.54");
+        return httpClient;
     }
 }

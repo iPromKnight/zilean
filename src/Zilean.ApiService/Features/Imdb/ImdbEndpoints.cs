@@ -1,3 +1,6 @@
+using Zilean.Database.Dtos;
+using Zilean.Database.Services;
+
 namespace Zilean.ApiService.Features.Imdb;
 
 public static class ImdbEndpoints
@@ -22,41 +25,33 @@ public static class ImdbEndpoints
     private static RouteGroupBuilder Imdb(this RouteGroupBuilder group)
     {
         group.MapPost(Search, PerformSearch)
-            .Produces<ImdbFile[]>();
+            .Produces<ImdbSearchResult[]>();
 
         return group;
     }
 
-    private static async Task<Ok<ImdbFile[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, ILogger<ImdbFilteredInstance> logger, [AsParameters] ImdbFilteredRequest request)
+    private static async Task<Ok<ImdbSearchResult[]>> PerformSearch(HttpContext context, IImdbFileService imdbFileService, ZileanConfiguration configuration, ILogger<ImdbFilteredInstance> logger, [AsParameters] ImdbFilteredRequest request)
     {
         try
         {
             if (string.IsNullOrEmpty(request.Query))
             {
-                return TypedResults.Ok(Array.Empty<ImdbFile>());
+                return TypedResults.Ok(Array.Empty<ImdbSearchResult>());
             }
 
             logger.LogInformation("Performing imdb search for {@Request}", request);
 
-            var client = await elasticClient.GetClient();
+            var results = await imdbFileService.SearchForImdbIdAsync(request.Query, request.Year, request.Category);
 
-            var results = await client
-                .SearchAsync<ImdbFile>(s => s
-                    .Index(ElasticSearchClient.ImdbMetadataIndex)
-                    .From(0)
-                    .Size(10)
-                    .Query(ImdbFilteredQueries.PerformElasticSearchFiltered(request))
-                );
+            logger.LogInformation("Filtered imdb search for {QueryText} returned {Count} results", request.Query, results.Length);
 
-            logger.LogInformation("Filtered imdb search for {QueryText} returned {Count} results", request.Query, results.Hits.Count);
-
-            return !results.IsValid || results.Hits.Count == 0
-                ? TypedResults.Ok(Array.Empty<ImdbFile>())
-                : TypedResults.Ok(results.Hits.Where(x=> x.Score >= configuration.Imdb.MinimumScoreMatch).Select(x => x.Source).ToArray());
+            return results.Length == 0
+                ? TypedResults.Ok(Array.Empty<ImdbSearchResult>())
+                : TypedResults.Ok(results);
         }
         catch
         {
-            return TypedResults.Ok(Array.Empty<ImdbFile>());
+            return TypedResults.Ok(Array.Empty<ImdbSearchResult>());
         }
     }
 
