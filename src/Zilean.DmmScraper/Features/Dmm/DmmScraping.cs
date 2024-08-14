@@ -19,7 +19,6 @@ public class DmmScraping(
 
             var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
                 .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
-                .Take(3)
                 .ToList();
 
             logger.LogInformation("Found {Count} files to parse", files.Count);
