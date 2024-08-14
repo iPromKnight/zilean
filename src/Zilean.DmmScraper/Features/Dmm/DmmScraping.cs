@@ -22,14 +22,6 @@ public class DmmScraping(
 
             logger.LogInformation("Found {Count} files to parse", files.Count);
 
-            var torrents = new ConcurrentBag<ExtractedDmmEntry>();
-
-            var parallelOptions = new ParallelOptions
-            {
-                MaxDegreeOfParallelism = Environment.ProcessorCount,
-                CancellationToken = cancellationToken
-            };
-
             await AnsiConsole.Progress()
                 .AutoClear(true)
                 .HideCompleted(true)
@@ -44,24 +36,31 @@ public class DmmScraping(
                     var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
                     var progress = new Progress<double>(value => task.Increment(value));
 
-                    await Parallel.ForEachAsync(files, parallelOptions, async (file, ct) =>
+                    foreach (var file in files)
                     {
-                        await ProcessFileAsync(file, processor, torrents, dmmState, logger, progress, files.Count, ct);
-                    });
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            break;
+                        }
+
+                        logger.LogInformation("Processing file {File}", file);
+
+                        var torrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, cancellationToken);
+
+                        if (torrents.Count != 0)
+                        {
+                            var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
+
+                            logger.LogInformation("Distinct torrents: {Count}", distinctTorrents.Count);
+
+                            var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+
+                            await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
+                        }
+                    }
                 });
 
             logger.LogInformation("All files processed");
-
-            if (torrents.Count != 0)
-            {
-                var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
-
-                var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
-
-                logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
-
-                await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
-            }
 
             await dmmState.SetFinished(cancellationToken, processor);
 
@@ -84,9 +83,8 @@ public class DmmScraping(
         }
     }
 
-    private static async Task ProcessFileAsync(string file,
+    private static async Task<List<ExtractedDmmEntry>> ProcessFileAsync(string file,
         DmmPageProcessor processor,
-        ConcurrentBag<ExtractedDmmEntry> torrents,
         DmmSyncState dmmState,
         ILogger<DmmScraping> logger,
         IProgress<double> progress,
@@ -96,19 +94,17 @@ public class DmmScraping(
         if (cancellationToken.IsCancellationRequested)
         {
             logger.LogInformation("Cancellation requested, stopping processing");
-            return;
+            return [];
         }
 
         var fileName = Path.GetFileName(file);
         var sanitizedTorrents = await processor.ProcessPageAsync(file, fileName, cancellationToken);
-
-        foreach (var sanitizedTorrent in sanitizedTorrents)
-        {
-            torrents.Add(sanitizedTorrent);
-        }
-
         dmmState.ParsedPages.TryAdd(fileName, sanitizedTorrents.Count);
         dmmState.IncrementProcessedFilesCount();
         progress.Report(100.0 / count);
+
+        logger.LogInformation("Processed {FileName} with {Count} torrents", fileName, sanitizedTorrents.Count);
+
+        return sanitizedTorrents;
     }
 }
