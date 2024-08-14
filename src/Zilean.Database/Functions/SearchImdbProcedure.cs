@@ -86,13 +86,23 @@ public static class SearchImdbProcedure
             LEFT JOIN
                 public."ImdbFiles" i ON t."ImdbId" = i."ImdbId"
             WHERE
-                (query IS NULL OR t."Title" % query)
-                AND (season IS NULL OR season = ANY(t."Seasons"))
-                AND (episode IS NULL OR episode = ANY(t."Episodes"))
-                AND (year IS NULL OR t."Year" BETWEEN year - 1 AND year + 1)
-                AND (language IS NULL OR language = ANY(t."Languages"))
-                AND (resolution IS NULL OR resolution = ANY(t."Resolution"))
-                AND (imdbId IS NULL OR imdbId = t."ImdbId")
+        -- Handle independent search conditions
+        (query IS NULL OR t."Title" % query)
+        AND (season IS NULL OR season = ANY(t."Seasons"))
+        AND (
+            (episode IS NULL AND season IS NOT NULL)
+            OR
+            (
+                episode IS NOT NULL AND
+                season IS NOT NULL AND
+                (episode = ANY(t."Episodes") OR t."Episodes" IS NULL OR t."Episodes" = '{}')
+            )
+            OR (season IS NULL AND episode IS NULL) -- Ensures episode search does not require season
+        )
+        AND (year IS NULL OR t."Year" BETWEEN year - 1 AND year + 1)
+        AND (language IS NULL OR language = ANY(t."Languages"))
+        AND (resolution IS NULL OR resolution = ANY(t."Resolution"))
+        AND (imdbId IS NULL OR t."ImdbId" = imdbId)
             ORDER BY
                 "Score" DESC
             LIMIT

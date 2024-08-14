@@ -98,11 +98,6 @@ public static class DmmEndpoints
 
         try
         {
-            if (string.IsNullOrEmpty(request.Query))
-            {
-                return TypedResults.Ok(Array.Empty<TorrentInfo>());
-            }
-
             logger.LogInformation("Performing filtered search for {@Request}", request);
 
             var results = await torrentInfoService.SearchForTorrentInfoFiltered(new TorrentInfoFilter
