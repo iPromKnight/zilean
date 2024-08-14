@@ -8,11 +8,15 @@ public class ServiceLifetime(ImdbMetadataLoader metadataLoader, DmmScraping dmmS
 
     public async Task StartingAsync(CancellationToken cancellationToken)
     {
+#if DEBUG
         logger.LogInformation("Applying Migrations...");
         await using var asyncScope = serviceProvider.CreateAsyncScope();
         var dbContext = asyncScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
         await dbContext.Database.MigrateAsync(cancellationToken);
         logger.LogInformation("Migrations Applied.");
+#else
+        await Task.Delay(1);
+#endif
     }
 
     public Task StoppedAsync(CancellationToken cancellationToken) => Task.CompletedTask;

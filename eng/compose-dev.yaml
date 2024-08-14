@@ -15,6 +15,7 @@ services:
     tty: true
     environment:
         Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
+        # Zilean__Dmm__ImportBatched: "true" # Uncomment to enable batched import - this is for low end systems.
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
       timeout: 60s
