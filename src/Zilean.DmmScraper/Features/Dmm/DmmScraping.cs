@@ -5,6 +5,7 @@ public class DmmScraping(
     DmmFileDownloader downloader,
     ParseTorrentNameService parseTorrentNameService,
     ITorrentInfoService torrentInfoService,
+    ZileanConfiguration configuration,
     DmmPageProcessor processor,
     ILogger<DmmScraping> logger)
 {
@@ -18,47 +19,25 @@ public class DmmScraping(
 
             var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
                 .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
+                .Take(3)
                 .ToList();
 
             logger.LogInformation("Found {Count} files to parse", files.Count);
 
-            await AnsiConsole.Progress()
-                .AutoClear(true)
-                .HideCompleted(true)
-                .Columns([
-                    new TaskDescriptionColumn(),
-                    new ProgressBarColumn(),
-                    new PercentageColumn(),
-                    new RemainingTimeColumn()
-                ])
-                .StartAsync(async ctx =>
-                {
-                    var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
-                    var progress = new Progress<double>(value => task.Increment(value));
+            if (files.Count == 0)
+            {
+                logger.LogInformation("No files to parse, exiting");
+                return 0;
+            }
 
-                    foreach (var file in files)
-                    {
-                        if (cancellationToken.IsCancellationRequested)
-                        {
-                            break;
-                        }
-
-                        logger.LogInformation("Processing file {File}", file);
-
-                        var torrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, cancellationToken);
-
-                        if (torrents.Count != 0)
-                        {
-                            var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
-
-                            logger.LogInformation("Distinct torrents: {Count}", distinctTorrents.Count);
-
-                            var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
-
-                            await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
-                        }
-                    }
-                });
+            if (configuration.Dmm.ImportBatched)
+            {
+                await ProcessBatched(files, cancellationToken);
+            }
+            else
+            {
+                await ProcessUnBatched(files, cancellationToken);
+            }
 
             logger.LogInformation("All files processed");
 
@@ -80,6 +59,93 @@ public class DmmScraping(
         {
             logger.LogError(ex, "Error occurred during DMM Scraper Task");
             return 1;
+        }
+    }
+
+    private async Task ProcessBatched(List<string> files, CancellationToken cancellationToken) => await AnsiConsole.Progress()
+            .AutoClear(true)
+            .HideCompleted(true)
+            .Columns([
+                new TaskDescriptionColumn(),
+                new ProgressBarColumn(),
+                new PercentageColumn(),
+                new RemainingTimeColumn()
+            ])
+            .StartAsync(async ctx =>
+            {
+                AnsiConsole.MarkupLine("[yellow]Batched processing enabled - This is for low end systems, and is expected to take a long time to run on the first run. A very long time indeed![/]");
+
+                var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
+                var progress = new Progress<double>(value => task.Increment(value));
+
+                foreach (var file in files.TakeWhile(_ => !cancellationToken.IsCancellationRequested))
+                {
+                    logger.LogInformation("Processing file {File}", file);
+
+                    var torrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, cancellationToken);
+
+                    if
+                        (torrents.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
+
+                    logger.LogInformation("Distinct torrents: {Count}", distinctTorrents.Count);
+
+                    var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+
+                    await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
+                }
+            });
+
+    private async Task ProcessUnBatched(List<string> files, CancellationToken cancellationToken)
+    {
+        var torrents = new ConcurrentBag<ExtractedDmmEntry>();
+
+        var parallelOptions = new ParallelOptions
+        {
+            MaxDegreeOfParallelism = Environment.ProcessorCount,
+            CancellationToken = cancellationToken
+        };
+
+        await AnsiConsole.Progress()
+            .AutoClear(true)
+            .HideCompleted(true)
+            .Columns([
+                new TaskDescriptionColumn(),
+                new ProgressBarColumn(),
+                new PercentageColumn(),
+                new RemainingTimeColumn()
+            ])
+            .StartAsync(async ctx =>
+            {
+                var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
+                var progress = new Progress<double>(value => task.Increment(value));
+
+                await Parallel.ForEachAsync(files, parallelOptions, async (file, ct) =>
+                {
+                    var sanitizedTorrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, ct);
+
+                    foreach (var torrent in sanitizedTorrents)
+                    {
+                        torrents.Add(torrent);
+                    }
+                });
+            });
+
+        logger.LogInformation("All files processed");
+
+        if (torrents.Count != 0)
+        {
+            var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
+
+            var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+
+            logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
+
+            await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
         }
     }
 

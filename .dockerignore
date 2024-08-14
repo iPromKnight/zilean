@@ -1,2 +1,84 @@
-﻿**/python/
-.idea/
+# Ignore bin and obj directories
+**/bin
+**/obj
+**/out
+**/Debug
+**/Release
+
+# Ignore .NET build artifacts
+*.dll
+*.exe
+*.pdb
+*.nuget
+*.nupkg
+*.snupkg
+*.log
+*.user
+*.csproj.user
+*.suo
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore build output
+**/build
+**/app
+*.publish
+
+# Ignore configuration files that shouldn't be copied
+*.config
+*.settings
+*.sln.cache
+
+# Ignore sensitive files
+**/secrets.json
+**/*.key
+**/*.cer
+**/*.pfx
+**/*.pem
+
+# Ignore IDE-specific files
+**/.vscode
+**/.idea
+*.sln.ide
+
+# Ignore other common unnecessary files
+*.tmp
+*.temp
+*.bak
+*.old
+
+# Ignore Python cache files (if any Python scripts are used)
+**/__pycache__
+**/*.py[cod]
+**/python
+
+# Ignore any generated files
+*.generated.*
+*.g.*
+
+# Ignore test results
+TestResults/
+*.trx
+*.coverage
+
+# Ignore node_modules if using any Node.js scripts
+node_modules/
+
+# Ignore logs
+logs/
+
+# Ignore git root
+**/.git
+
+# Ignore Docker files
+.dockerignore
+Dockerfile
+
+# Ignore github, k6 and scripts
+**/.github
+**/k6
+**/scripts
+**/.run
+**/eng
