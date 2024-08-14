@@ -7,4 +7,5 @@ public class DmmConfiguration
     public string ScrapeSchedule { get; set; } = "0 * * * *";
     public int MaxFilteredResults { get; set; } = 200;
     public double MinimumScoreMatch { get; set; } = 0.85;
+    public bool ImportBatched { get; set; } = false;
 }
