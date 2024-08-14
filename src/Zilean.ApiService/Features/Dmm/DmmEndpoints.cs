@@ -1,3 +1,5 @@
+using Zilean.Database.Services;
+
 namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmEndpoints
@@ -66,63 +68,54 @@ public static class DmmEndpoints
         logger.LogWarning("Failed to acquire lock for on-demand scrape.");
     }
 
-    private static async Task<Ok<ExtractedDmmEntry[]>> PerformSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, ILogger<DmmUnfilteredInstance> logger, [FromBody] DmmQueryRequest queryRequest)
+    private static async Task<Ok<ExtractedDmmEntryResponse[]>> PerformSearch(HttpContext context, ITorrentInfoService torrentInfoService, ZileanConfiguration configuration, ILogger<DmmUnfilteredInstance> logger, [FromBody] DmmQueryRequest queryRequest)
     {
         try
         {
             if (string.IsNullOrEmpty(queryRequest.QueryText))
             {
-                return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+                return TypedResults.Ok(Array.Empty<ExtractedDmmEntryResponse>());
             }
 
             logger.LogInformation("Performing unfiltered search for {QueryText}", queryRequest.QueryText);
 
-            var client = await elasticClient.GetClient();
+            var results = await torrentInfoService.SearchForTorrentInfoByOnlyTitle(queryRequest.QueryText);
 
-            var results = await client.SearchAsync<TorrentInfo>(s => s
-                .Index(ElasticSearchClient.DmmIndex)
-                .From(0)
-                .Size(configuration.Dmm.MaxFilteredResults)
-                .Query(DmmFilteredQueries.PerformUnfilteredSearch(queryRequest)));
+            logger.LogInformation("Unfiltered search for {QueryText} returned {Count} results", queryRequest.QueryText, results.Length);
 
-            logger.LogInformation("Unfiltered search for {QueryText} returned {Count} results", queryRequest.QueryText, results.Hits.Count);
-
-            return !results.IsValid || results.Hits.Count == 0
-                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntry>())
-                : TypedResults.Ok(results.Hits.Where(x => x.Score >= configuration.Dmm.MinimumScoreMatch).Select(x => x.Source.ToExtractedDmmEntry()).ToArray());
+            return results.Length == 0
+                ? TypedResults.Ok(Array.Empty<ExtractedDmmEntryResponse>())
+                : TypedResults.Ok(results);
         }
         catch
         {
-            return TypedResults.Ok(Array.Empty<ExtractedDmmEntry>());
+            return TypedResults.Ok(Array.Empty<ExtractedDmmEntryResponse>());
         }
     }
 
-    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, IElasticSearchClient elasticClient, ZileanConfiguration configuration, ILogger<DmmFilteredInstance> logger, [AsParameters] DmmFilteredRequest request)
+    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, ITorrentInfoService torrentInfoService, ZileanConfiguration configuration, ILogger<DmmFilteredInstance> logger, [AsParameters] DmmFilteredRequest request)
     {
+
         try
         {
-            if (string.IsNullOrEmpty(request.Query))
-            {
-                return TypedResults.Ok(Array.Empty<TorrentInfo>());
-            }
-
             logger.LogInformation("Performing filtered search for {@Request}", request);
 
-            var client = await elasticClient.GetClient();
+            var results = await torrentInfoService.SearchForTorrentInfoFiltered(new TorrentInfoFilter
+            {
+                Query = request.Query,
+                Season = request.Season,
+                Episode = request.Episode,
+                Year = request.Year,
+                Language = request.Language,
+                Resolution = request.Resolution,
+                ImdbId = request.ImdbId
+            });
 
-            var results = await client
-                .SearchAsync<TorrentInfo>(s => s
-                    .Index(ElasticSearchClient.DmmIndex)
-                    .From(0)
-                    .Size(configuration.Dmm.MaxFilteredResults)
-                    .Query(DmmFilteredQueries.PerformElasticSearchFiltered(request))
-                );
+            logger.LogInformation("Filtered search for {QueryText} returned {Count} results", request.Query, results.Length);
 
-            logger.LogInformation("Filtered search for {QueryText} returned {Count} results", request.Query, results.Hits.Count);
-
-            return !results.IsValid || results.Hits.Count == 0
+            return results.Length == 0
                 ? TypedResults.Ok(Array.Empty<TorrentInfo>())
-                : TypedResults.Ok(results.Hits.Where(x=> x.Score >= configuration.Dmm.MinimumScoreMatch).Select(x => x.Source).ToArray());
+                : TypedResults.Ok(results);
         }
         catch
         {

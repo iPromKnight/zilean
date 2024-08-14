@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using Zilean.Database.Bootstrapping;
+
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddConfigurationFiles();
 
@@ -10,9 +12,9 @@ builder.Services
     .AddConfiguration(zileanConfiguration)
     .AddSwaggerSupport()
     .AddSchedulingSupport()
-    .AddElasticSearchSupport()
     .AddShellExecutionService()
     .ConditionallyRegisterDmmJob(zileanConfiguration)
+    .AddZileanDataServices(zileanConfiguration)
     .AddDataBootStrapping();
 
 var app = builder.Build();

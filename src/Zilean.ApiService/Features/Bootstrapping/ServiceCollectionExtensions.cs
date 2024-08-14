@@ -1,3 +1,6 @@
+using Zilean.Database;
+using Zilean.Database.Services;
+
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 [ExcludeFromCodeCoverage]
@@ -34,11 +37,6 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<DmmSyncOnDemandState>();
         }
 
-        if (configuration.Imdb.EnableScraping)
-        {
-            services.AddTransient<ImdbSyncJob>();
-        }
-
         return services;
     }
 
@@ -51,13 +49,6 @@ public static class ServiceCollectionExtensions
                     scheduler.Schedule<DmmSyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
                         .PreventOverlapping(nameof(DmmSyncJob));
-                }
-
-                if (configuration.Imdb.EnableScraping)
-                {
-                    scheduler.Schedule<ImdbSyncJob>()
-                        .Cron(configuration.Imdb.ScrapeSchedule)
-                        .PreventOverlapping(nameof(ImdbSyncJob));
                 }
             })
             .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());

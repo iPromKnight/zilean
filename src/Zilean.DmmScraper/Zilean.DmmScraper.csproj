@@ -15,11 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Zilean.Database\Zilean.Database.csproj" />
     <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="pythonnet" />
+    <PackageReference Include="CsvHelper" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
@@ -28,5 +30,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
+  
 </Project>

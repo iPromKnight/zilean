@@ -8,4 +8,12 @@ public class ExtractedDmmEntry(string? infoHash, string? filename, long filesize
     public TorrentInfo? ParseResponse { get; set; } = parseResponse;
 }
 
+public class ExtractedDmmEntryResponse(TorrentInfo torrentInfo)
+{
+    public string? Filename { get; set; } = torrentInfo.RawTitle;
+    public string? InfoHash { get; set; } = torrentInfo.InfoHash;
+    public long Filesize { get; set; } = torrentInfo.Size;
+    public TorrentInfo ParseResponse { get; set; } = torrentInfo;
+}
+
 public record DmmQueryRequest(string QueryText);
