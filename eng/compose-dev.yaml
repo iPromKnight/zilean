@@ -4,24 +4,25 @@ volumes:
   pgadmin-data:
 
 services:
-#  zilean:
-#    build:
-#      context: ../
-#      dockerfile: ./Dockerfile
-#    ports:
-#      - "8181:8181"
-#    volumes:
-#      - zilean_data:/app/data
-#    environment:
-#        Zilean__Database_ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
-#    healthcheck:
-#      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
-#      timeout: 60s
-#      interval: 30s
-#      retries: 10
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
+  zilean:
+    build:
+      context: ../
+      dockerfile: ./Dockerfile
+    ports:
+      - "8181:8181"
+    volumes:
+      - zilean_data:/app/data
+    tty: true
+    environment:
+        Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
+    healthcheck:
+      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
+      timeout: 60s
+      interval: 30s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
     image: postgres:16.3-alpine3.20

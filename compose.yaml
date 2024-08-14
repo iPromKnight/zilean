@@ -8,6 +8,7 @@ services:
     image: ipromknight/zilean:latest
     restart: unless-stopped
     container_name: zilean
+    tty: true
     ports:
       - "8181:8181"
     volumes:

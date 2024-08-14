@@ -51,7 +51,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                 logger.LogInformation("All torrents stored.");
 
             },
-            "Storing torrents in the database. This will execute a post insert trigger to match imdb ids from imdb metadata, which could take a while (1 hour on initial)...");
+            "Storing torrents in the database...");
 
     public async Task<ExtractedDmmEntryResponse[]> SearchForTorrentInfoByOnlyTitle(string query) =>
         await ExecuteCommandAsync(async connection =>
