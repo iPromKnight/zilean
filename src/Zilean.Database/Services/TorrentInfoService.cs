@@ -70,6 +70,8 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             var parameters = new DynamicParameters();
 
             parameters.Add("@query", query);
+            parameters.Add("@category", null);
+            parameters.Add("@year", null);
 
             var result = await connection.QueryAsync<TorrentInfo>(sql, parameters);
 
