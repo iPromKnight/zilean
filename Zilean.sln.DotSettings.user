@@ -1,7 +1,21 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1182152c_002De1fa_002D4b35_002D8711_002D79eeef4fbfc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="VerifyShawshankMatches_WithoutThe_ShouldMatch" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Python.Tests.PttPythonTests.ParseTorrent_Success&lt;/TestId&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Python.Tests.PttPythonTests.EnsureInitAndStop_Success&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=78cae2e2_002D0b4c_002D410b_002D8d6b_002De16e6ad72a00/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="IsAMovie_ShouldValidate_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f4982ea5_002D6a9a_002D4974_002Dac2d_002D9c3d8b90ed5f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="IsAMovie_ShouldValidate_ReturnsTrue #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

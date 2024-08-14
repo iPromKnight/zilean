@@ -8,4 +8,5 @@ public class DmmFilteredRequest
     public int? Year { get; init; }
     public string? Language { get; init; }
     public string? Resolution { get; init; }
+    public string? ImdbId { get; init; }
 }

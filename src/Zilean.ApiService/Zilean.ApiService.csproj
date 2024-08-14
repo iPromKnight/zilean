@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Zilean.Database\Zilean.Database.csproj" />
       <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
     </ItemGroup>
 

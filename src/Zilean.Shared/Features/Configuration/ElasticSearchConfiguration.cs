@@ -1,6 +1,6 @@
 namespace Zilean.Shared.Features.Configuration;
 
-public class ElasticSearchConfiguration
+public class DatabaseConfiguration
 {
-    public string Url { get; set; } = "http://localhost:9200";
+    public string ConnectionString { get; set; } = "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true";
 }
