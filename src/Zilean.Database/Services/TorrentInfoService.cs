@@ -53,29 +53,25 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             },
             "Storing torrents in the database...");
 
-    public async Task<ExtractedDmmEntryResponse[]> SearchForTorrentInfoByOnlyTitle(string query) =>
+    public async Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query) =>
         await ExecuteCommandAsync(async connection =>
         {
-            const string sql =
+            var sql =
                 """
                 SELECT
-                    imdb_id as "ImdbId",
-                    title as "Title",
-                    year as "Year",
-                    score as "Score",
-                    category as "Category"
-                FROM search_imdb_meta(@query, @category, @year, 10)
+                    *
+                FROM "Torrents"
+                WHERE "Title" % @query
+                LIMIT 100;
                 """;
 
             var parameters = new DynamicParameters();
 
             parameters.Add("@query", query);
-            parameters.Add("@category", null);
-            parameters.Add("@year", null);
 
             var result = await connection.QueryAsync<TorrentInfo>(sql, parameters);
 
-            return result.Select(x => new ExtractedDmmEntryResponse(x)).ToArray();
+            return result.ToArray();
         }, "Error finding unfiltered dmm entries.");
 
     public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter) =>
