@@ -1,21 +1,25 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1182152c_002De1fa_002D4b35_002D8711_002D79eeef4fbfc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="VerifyShawshankMatches_WithoutThe_ShouldMatch" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ABulkConfig_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Fd6b09cbbbc4e7bf228e82618e4e0859c91be3b93407de754227ae1a771ea2a6_003FBulkConfig_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ADbContextBulkExtensions_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Fd1f8f68864fcaf754b3aefb6cb6777e56a17cfd9217db17992967674aa5cd1d_003FDbContextBulkExtensions_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ADbContextBulkTransaction_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003F1dfe90a67dda13ce28d4a1975cde7e7445f47ecbb8b4d73dd1bcc0c01acd88_003FDbContextBulkTransaction_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AExceptionDispatchInfo_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Fbd1d5c50194fea68ff3559c160230b0ab50f5acf4ce3061bffd6d62958e2182_003FExceptionDispatchInfo_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1182152c_002De1fa_002D4b35_002D8711_002D79eeef4fbfc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="VerifyShawshankMatches_WithoutThe_ShouldMatch" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=78cae2e2_002D0b4c_002D410b_002D8d6b_002De16e6ad72a00/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="IsAMovie_ShouldValidate_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=78cae2e2_002D0b4c_002D410b_002D8d6b_002De16e6ad72a00/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="IsAMovie_ShouldValidate_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f4982ea5_002D6a9a_002D4974_002Dac2d_002D9c3d8b90ed5f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="IsAMovie_ShouldValidate_ReturnsTrue #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f4982ea5_002D6a9a_002D4974_002Dac2d_002D9c3d8b90ed5f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="IsAMovie_ShouldValidate_ReturnsTrue #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
