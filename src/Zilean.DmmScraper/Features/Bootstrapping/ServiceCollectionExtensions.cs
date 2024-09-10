@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DmmPageProcessor>();
         services.AddSingleton<DmmFileDownloader>();
         services.AddSingleton<DmmScraping>();
+        services.AddTransient<DmmService>();
     }
 
     private static void AddImdbServices(this IServiceCollection services)

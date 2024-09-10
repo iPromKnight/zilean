@@ -1,6 +1,6 @@
 namespace Zilean.DmmScraper.Features.Dmm;
 
-public class DmmFileDownloader(ILogger<DmmFileDownloader> logger)
+public class DmmFileDownloader(ILogger<DmmFileDownloader> logger, ZileanConfiguration configuration)
 {
     private const string Filename = "main.zip";
 
@@ -12,14 +12,20 @@ public class DmmFileDownloader(ILogger<DmmFileDownloader> logger)
         "CNAME",
     ];
 
-    public async Task<string> DownloadFileToTempPath(CancellationToken cancellationToken)
+    public async Task<string> DownloadFileToTempPath(DmmLastImport? dmmLastImport, CancellationToken cancellationToken)
     {
         logger.LogInformation("Downloading DMM Hashlists");
 
         var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
 
-        //todo: Remove this.
-        return tempDirectory;
+        if (dmmLastImport is not null)
+        {
+            if (DateTime.UtcNow - dmmLastImport.OccuredAt < TimeSpan.FromMinutes(configuration.Dmm.MinimumReDownloadIntervalMinutes))
+            {
+                logger.LogInformation("DMM Hashlists download not required as last download was less than the configured {Minutes} minutes re-download interval set in DMM Configuration.", configuration.Dmm.MinimumReDownloadIntervalMinutes);
+                return tempDirectory;
+            }
+        }
 
         var client = CreateHttpClient();
         var response = await client.GetAsync(Filename, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

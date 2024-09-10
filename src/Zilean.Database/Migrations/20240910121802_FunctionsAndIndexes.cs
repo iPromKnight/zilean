@@ -7,7 +7,7 @@ using Zilean.Database.Indexes;
 namespace Zilean.Database.Migrations;
 
 /// <inheritdoc />
-public partial class FunctionsIndexes : Migration
+public partial class FunctionsAndIndexes : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)

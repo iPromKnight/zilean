@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -23,6 +24,30 @@ public partial class RtnRelease : Migration
             constraints: table =>
             {
                 table.PrimaryKey("PK_ImdbFiles", x => x.ImdbId);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "ImportMetadata",
+            columns: table => new
+            {
+                Key = table.Column<string>(type: "text", nullable: false),
+                Value = table.Column<JsonDocument>(type: "jsonb", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_ImportMetadata", x => x.Key);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "ParsedPages",
+            columns: table => new
+            {
+                Page = table.Column<string>(type: "text", nullable: false),
+                EntryCount = table.Column<int>(type: "integer", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_ParsedPages", x => x.Page);
             });
 
         migrationBuilder.CreateTable(
@@ -108,6 +133,12 @@ public partial class RtnRelease : Migration
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
+        migrationBuilder.DropTable(
+            name: "ImportMetadata");
+
+        migrationBuilder.DropTable(
+            name: "ParsedPages");
+
         migrationBuilder.DropTable(
             name: "Torrents");
 
