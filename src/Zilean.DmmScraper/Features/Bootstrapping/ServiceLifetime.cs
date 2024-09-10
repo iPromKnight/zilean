@@ -1,6 +1,6 @@
 namespace Zilean.DmmScraper.Features.Bootstrapping;
 
-public class ServiceLifetime(ImdbMetadataLoader metadataLoader, DmmScraping dmmScraper, IServiceProvider serviceProvider, ILogger<ServiceLifetime> logger) : IHostedLifecycleService
+public class ServiceLifetime(ImdbMetadataLoader metadataLoader, DmmScraping dmmScraper, IServiceProvider serviceProvider, ILogger<ServiceLifetime> logger, ZileanConfiguration configuration) : IHostedLifecycleService
 {
     public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
@@ -25,13 +25,16 @@ public class ServiceLifetime(ImdbMetadataLoader metadataLoader, DmmScraping dmmS
 
     public async Task StartedAsync(CancellationToken cancellationToken)
     {
-        var imdbLoadedResult = await metadataLoader.Execute(cancellationToken);
-
-        if (imdbLoadedResult == 1)
+        if (configuration.Imdb.EnableImportMatching)
         {
-            Environment.ExitCode = 1;
-            Process.GetCurrentProcess().Kill();
-            return;
+            var imdbLoadedResult = await metadataLoader.Execute(cancellationToken);
+
+            if (imdbLoadedResult == 1)
+            {
+                Environment.ExitCode = 1;
+                Process.GetCurrentProcess().Kill();
+                return;
+            }
         }
 
         var dmmScrapedResult = await dmmScraper.Execute(cancellationToken);

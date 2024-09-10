@@ -1,5 +1,3 @@
-using Zilean.Database.ModelConfiguration;
-
 namespace Zilean.Database;
 
 public class ZileanDbContext : DbContext
@@ -16,9 +14,8 @@ public class ZileanDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=zilean;Username=postgres;Password=postgres");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=zilean;Username=postgres;Password=postgres;CommandTimeout=0;Include Error Detail=true;");
         }
-
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -28,8 +25,12 @@ public class ZileanDbContext : DbContext
 
         modelBuilder.ApplyConfiguration(new TorrentInfoConfiguration());
         modelBuilder.ApplyConfiguration(new ImdbFileConfiguration());
+        modelBuilder.ApplyConfiguration(new ParsedPagesConfiguration());
     }
 
     public DbSet<TorrentInfo> Torrents => Set<TorrentInfo>();
     public DbSet<ImdbFile> ImdbFiles => Set<ImdbFile>();
+    public DbSet<ParsedPages> ParsedPages => Set<ParsedPages>();
+
+    public DbSet<ImportMetadata> ImportMetadata => Set<ImportMetadata>();
 }

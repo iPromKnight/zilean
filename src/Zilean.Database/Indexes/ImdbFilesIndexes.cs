@@ -8,7 +8,8 @@ public static class ImdbFilesIndexes
         CREATE INDEX idx_imdb_metadata_category ON public."ImdbFiles"("Category");
         CREATE INDEX idx_imdb_metadata_year ON public."ImdbFiles"("Year");
         CREATE INDEX title_gin ON public."ImdbFiles" USING gin("Title" gin_trgm_ops);
-        CREATE INDEX torrents_title_gin ON public."Torrents" USING gin("Title" gin_trgm_ops);
+        CREATE INDEX torrents_title_gin ON public."Torrents" USING gin("ParsedTitle" gin_trgm_ops);
+        CREATE INDEX idx_torrents_infohash ON public."Torrents"("InfoHash");
         """;
 
     internal const string RemoveIndexes =
@@ -18,6 +19,7 @@ public static class ImdbFilesIndexes
         DROP INDEX IF EXISTS idx_imdb_metadata_year;
         DROP INDEX IF EXISTS title_gin;
         DROP INDEX IF EXISTS torrents_title_gin;
+        DROP INDEX IF EXISTS idx_torrents_infohash;
         """;
 
 }

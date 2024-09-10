@@ -1,57 +1,57 @@
 namespace Zilean.Database.Services;
 
-public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfiguration configuration)
+public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfiguration configuration, IServiceProvider serviceProvider)
     : BaseDapperService(logger, configuration), ITorrentInfoService
 {
-    public Task StoreTorrentInfo(IEnumerable<TorrentInfo> torrents) =>
-        ExecuteCommandAsync(
-            async connection =>
+    private readonly ConcurrentDictionary<string, string?> _imdbCache = [];
+
+    public async Task StoreTorrentInfo(List<TorrentInfo> torrents, int batchSize = 5000)
+    {
+        if (torrents.Count == 0)
+        {
+            logger.LogInformation("No torrents to store.");
+            return;
+        }
+
+        logger.LogInformation("Storing {Count} torrents", torrents.Count);
+
+        await using var serviceScope = serviceProvider.CreateAsyncScope();
+        await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
+        await using var connection = new NpgsqlConnection(Configuration.Database.ConnectionString);
+
+        var bulkConfig = new BulkConfig
+        {
+            SetOutputIdentity = false,
+            BatchSize = batchSize,
+            PropertiesToIncludeOnUpdate = [string.Empty],
+            UpdateByProperties = ["InfoHash"],
+            BulkCopyTimeout = 0,
+            NotifyAfter = 250,
+            TrackingEntities = false,
+        };
+
+        dbContext.Database.SetCommandTimeout(0);
+
+        var chunks = torrents.Chunk(batchSize).ToList();
+
+        logger.LogInformation("Storing {Count} torrents in {BatchSize} batches", torrents.Count, chunks.Count);
+        var currentBatch = 0;
+        foreach (var batch in chunks)
+        {
+            currentBatch++;
+
+            bulkConfig.NotifyAfter = (int)Math.Ceiling(batch.Length * 0.05);
+
+            if (Configuration.Imdb.EnableImportMatching)
             {
-                await connection.ExecuteAsync("CREATE TEMP TABLE temp_torrents AS TABLE public.\"Torrents\" WITH NO DATA;");
+                logger.LogInformation("Fetching IMDb IDs for batch {CurrentBatch} of {TotalBatches}", currentBatch, chunks.Count);
+                await FetchImdbIdsForBatchAsync(batch, connection);
+            }
 
-                const string copySql =
-                    """
-                        COPY temp_torrents ("InfoHash", "Codec", "Episodes", "Category", "Languages", "RawTitle", "Remastered", "Resolution", "Seasons", "Size", "Title", "Year")
-                        FROM STDIN (FORMAT BINARY);
-                    """;
-
-                await using (var writer = await connection.BeginBinaryImportAsync(copySql))
-                {
-                    foreach (var entry in torrents)
-                    {
-                        await writer.StartRowAsync();
-                        await writer.WriteAsync(entry.InfoHash, NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Codec, NpgsqlDbType.Array | NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Episodes, NpgsqlDbType.Array | NpgsqlDbType.Integer);
-                        await writer.WriteAsync(entry.Category, NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Languages, NpgsqlDbType.Array | NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.RawTitle, NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Remastered, NpgsqlDbType.Boolean);
-                        await writer.WriteAsync(entry.Resolution, NpgsqlDbType.Array | NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Seasons, NpgsqlDbType.Array | NpgsqlDbType.Integer);
-                        await writer.WriteAsync(entry.Size, NpgsqlDbType.Bigint);
-                        await writer.WriteAsync(entry.Title, NpgsqlDbType.Text);
-                        await writer.WriteAsync(entry.Year, NpgsqlDbType.Integer);
-                    }
-
-                    await writer.CompleteAsync();
-                }
-
-                const string insertFromTempSql =
-                    """
-                     INSERT INTO public."Torrents" ("InfoHash", "Codec", "Episodes", "Category", "Languages", "RawTitle", "Remastered", "Resolution", "Seasons", "Size", "Title", "Year")
-                     SELECT "InfoHash", "Codec", "Episodes", "Category", "Languages", "RawTitle", "Remastered", "Resolution", "Seasons", "Size", "Title", "Year"
-                     FROM temp_torrents
-                     ON CONFLICT ("InfoHash") DO NOTHING;
-                    """;
-
-                await connection.ExecuteAsync(insertFromTempSql, commandTimeout: 0);
-                await connection.ExecuteAsync("DROP TABLE IF EXISTS temp_torrents;");
-
-                logger.LogInformation("All torrents stored.");
-
-            },
-            "Storing torrents in the database...");
+            logger.LogInformation("Storing batch {CurrentBatch} of {TotalBatches}", currentBatch, chunks.Count);
+            await dbContext.BulkInsertOrUpdateAsync(batch, bulkConfig, WriteProgress);
+        }
+    }
 
     public async Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query) =>
         await ExecuteCommandAsync(async connection =>
@@ -61,7 +61,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                 SELECT
                     *
                 FROM "Torrents"
-                WHERE "Title" % @query
+                WHERE "ParsedTitle" % @query
                 LIMIT 100;
                 """;
 
@@ -107,33 +107,86 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
 
             var results = await connection.QueryAsync<TorrentInfoResult>(sql, parameters);
 
-            return results.Select(result => new TorrentInfo
-            {
-                InfoHash = result.InfoHash,
-                Resolution = result.Resolution,
-                Year = result.Year,
-                Remastered = result.Remastered,
-                Codec = result.Codec,
-                Audio = result.Audio,
-                Quality = result.Quality,
-                Episodes = result.Episodes,
-                Seasons = result.Seasons,
-                Languages = result.Languages,
-                Title = result.Title,
-                RawTitle = result.RawTitle,
-                Size = result.Size,
-                Category = result.Category,
-                ImdbId = result.ImdbId,
-                Imdb = result.ImdbId != null
-                    ? new ImdbFile
-                    {
-                        ImdbId = result.ImdbId,
-                        Category = result.ImdbCategory,
-                        Title = result.ImdbTitle,
-                        Year = result.ImdbYear ?? 0,
-                        Adult = result.ImdbAdult
-                    }
-                    : null
-            }).ToArray();
+            // assign imdb to torrent info
+            return results.Select(MapImdbDataToTorrentInfo).ToArray();
         }, "Error finding unfiltered dmm entries.");
+
+    private static Func<TorrentInfoResult, TorrentInfoResult> MapImdbDataToTorrentInfo =>
+        torrentInfo =>
+        {
+            if (torrentInfo.ImdbId != null)
+            {
+                torrentInfo.Imdb = new ImdbFile
+                {
+                    ImdbId = torrentInfo.ImdbId,
+                    Category = torrentInfo.ImdbCategory,
+                    Title = torrentInfo.ImdbTitle,
+                    Year = torrentInfo.ImdbYear ?? 0,
+                    Adult = torrentInfo.ImdbAdult
+                };
+            }
+
+            return torrentInfo;
+        };
+
+    private async Task FetchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch, NpgsqlConnection connection)
+    {
+        foreach (var torrent in batch)
+        {
+            if (_imdbCache.TryGetValue(torrent.CacheKey(), out var imdbId))
+            {
+                torrent.ImdbId = imdbId;
+                continue;
+            }
+
+            torrent.ImdbId = await FetchImdbIdAsync(connection, torrent);
+
+            if (torrent.ImdbId is null)
+            {
+                logger.LogWarning("No matching IMDb record found for title: {Title}, category: {Category}, year: {Year}", torrent.ParsedTitle, torrent.Category, torrent.Year);
+                continue;
+            }
+
+            logger.LogInformation("Found IMDb Id: {ImdbId} for title: {Title}, category: {Category}, year: {Year}", torrent.ImdbId, torrent.ParsedTitle, torrent.Category, torrent.Year);
+        }
+    }
+
+    private async Task<string?> FetchImdbIdAsync(NpgsqlConnection connection, TorrentInfo torrent)
+    {
+        var sqlQuery =
+            $"""
+              SELECT
+                imdb_id as "ImdbId",
+                title as "Title",
+                year as "Year",
+                score as "Score",
+                category as "Category"
+               FROM search_imdb_meta(
+                   @Title,
+                   @Category,
+                   @Year,
+                   1,
+                   {Configuration.Imdb.MinimumScoreMatch}
+               );
+            """;
+
+        var parameters = new DynamicParameters();
+
+        parameters.Add("@Title", torrent.ParsedTitle);
+        parameters.Add("@Category", torrent.Category);
+        parameters.Add("@Year", torrent.Year);
+
+        if (connection.State == ConnectionState.Closed)
+        {
+            await connection.OpenAsync();
+        }
+
+        var imdbRecord = await connection.QueryFirstOrDefaultAsync<ImdbSearchResult>(sqlQuery, parameters);
+
+        _imdbCache[torrent.CacheKey()] = imdbRecord?.ImdbId ?? null;
+
+        return imdbRecord?.ImdbId;
+    }
+
+    private void WriteProgress(decimal @decimal) => logger.LogInformation("Storing torrent info: {Percentage:P}", @decimal);
 }

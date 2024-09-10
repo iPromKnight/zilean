@@ -8,12 +8,11 @@ public class ParseTorrentNameService
     private bool _isInitialized;
     private dynamic? _sys;
     private dynamic? _runProcessBatches;
-    private dynamic? _runTitleMatch;
     private readonly ILogger<ParseTorrentNameService> _logger;
 
     private const string ParserScript =
         """
-        from RTN import parse, title_match
+        from RTN import parse
         import asyncio
         from rich.progress import Progress, TaskID
         from loguru import logger
@@ -54,25 +53,14 @@ public class ParseTorrentNameService
         async def process_batches(info_batches, max_concurrent_tasks):
             results = []
             total_batches = len(info_batches)
-
             with Progress() as progress:
                 task_id = progress.add_task("[green]Processing batches...", total=total_batches)
-
                 for batch_number, infos in enumerate(info_batches, start=1):
                     batch_results = await parse_torrents(infos, max_concurrent_tasks)
                     results.extend(batch_results)
                     progress.update(task_id, advance=1)
-
                 progress.remove_task(task_id)
-
             return results
-
-        def run_title_match(title1, title2):
-            try:
-                return title_match(title1, title2)
-            except Exception as e:
-                logger.error(f"Failed to match titles: {title1}, {title2}, Error: {e}")
-                return False
 
         def run_process_batches(info_batches, max_concurrent_tasks):
             return asyncio.run(process_batches(info_batches, max_concurrent_tasks))
@@ -91,7 +79,6 @@ public class ParseTorrentNameService
         await _initAsync;
 
         _runProcessBatches.Dispose();
-        _runTitleMatch.Dispose();
         _sys.Dispose();
 
         PythonEngine.Shutdown();
@@ -134,7 +121,7 @@ public class ParseTorrentNameService
                 if (parsedResponse.Success)
                 {
                     parsedResponse.Response.InfoHash = torrent.InfoHash;
-                    parsedResponse.Response.Size = torrent.Filesize;
+                    parsedResponse.Response.Size = torrent.Filesize.ToString();
                     parsedResponse.Response.RawTitle = torrent.Filename;
                     torrent.ParseResponse = parsedResponse.Response;
                 }
@@ -146,24 +133,6 @@ public class ParseTorrentNameService
         return torrents.Select(x => x.ParseResponse)
             .OfType<TorrentInfo>()
             .ToList();
-    }
-
-    public async Task<bool> TitleMatch(string title1, string title2)
-    {
-        await _initAsync;
-
-        using (Py.GIL())
-        {
-            try
-            {
-                return _runTitleMatch(title1, title2).As<bool>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while running title match");
-                return false;
-            }
-        }
     }
 
     private ParseTorrentTitleResponse ParseResult(dynamic? result)
@@ -268,6 +237,5 @@ public class ParseTorrentNameService
         scope.Exec(ParserScript);
 
         _runProcessBatches = scope.Get("run_process_batches");
-        _runTitleMatch = scope.Get("run_title_match");
     }
 }

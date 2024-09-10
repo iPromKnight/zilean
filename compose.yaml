@@ -15,9 +15,12 @@ services:
       - zilean_data:/app/data
     environment:
         Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
-      # Zilean__Dmm__ImportBatched: "true"         Allows enabling batched import - this is for low-end systems.
-      # Zilean__Dmm__MaxFilteredResults: 200       Allows changing the maximum number of filtered results returned by the DMM API. 200 is the default.
-      # Zilean__Dmm__MinimumScoreMatch: 0.85       Allows changing the minimum score match for the DMM API. 0.85 is the default. Values between 0 and 1 are accepted.
+      # Zilean__Dmm__ImportBatched: "true"                    Allows enabling batched import - this is for low-end systems.
+      # Zilean__Dmm__MaxFilteredResults: 200                  Allows changing the maximum number of filtered results returned by the DMM API. 200 is the default.
+      # Zilean__Dmm__MinimumScoreMatch: 0.85                  Allows changing the minimum score match for the DMM API. 0.85 is the default. Values between 0 and 1 are accepted.
+      # Zilean__Imdb__MinimumScoreMatch: 0.85                 Allows changing the minimum score match for Imdb Matching API. 0.85 is the default. Values between 0 and 1 are accepted.
+      # Zilean__Dmm__MinimumReDownloadIntervalMinutes: 30     Minimum number of minutes between downloads from the DMM Repo - defaults to `30`
+      # Zilean__Imdb__EnableImportMatching: true              Should IMDB functionality be enabled, true/false, defaults to `true`. Disabling will lead to drastically improved import speed on initial run however you will have no internal imdb matching within zilean, so its up to the upstream project utilising zilean to implement that.
     healthcheck:
       test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
       timeout: 60s

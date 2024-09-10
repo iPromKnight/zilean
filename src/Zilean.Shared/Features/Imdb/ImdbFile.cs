@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Zilean.Shared.Features.Imdb;
 
 public class ImdbFile
