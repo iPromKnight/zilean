@@ -7,19 +7,21 @@ public class DmmScraping(
     ITorrentInfoService torrentInfoService,
     ZileanConfiguration configuration,
     DmmPageProcessor processor,
-    ILogger<DmmScraping> logger)
+    ILogger<DmmScraping> logger,
+    DmmService dmmService)
 {
     public async Task<int> Execute(CancellationToken cancellationToken)
     {
         try
         {
+            var dmmLastImport = await dmmService.GetDmmLastImportAsync(cancellationToken);
+
             await dmmState.SetRunning(cancellationToken);
 
-            var tempDirectory = await downloader.DownloadFileToTempPath(cancellationToken);
+            var tempDirectory = await downloader.DownloadFileToTempPath(dmmLastImport, cancellationToken);
 
             var files = Directory.GetFiles(tempDirectory, "*.html", SearchOption.AllDirectories)
-                .Where(f => !dmmState.ParsedPages.ContainsKey(Path.GetFileName(f)))
-                .Take(10)
+                .Where(f => !dmmState.ExistingPages.ContainsKey(Path.GetFileName(f)))
                 .ToList();
 
             logger.LogInformation("Found {Count} files to parse", files.Count);
@@ -40,6 +42,15 @@ public class DmmScraping(
             }
 
             logger.LogInformation("All files processed");
+
+            dmmLastImport ??= new DmmLastImport();
+
+            dmmLastImport.OccuredAt = DateTime.UtcNow;
+            dmmLastImport.PageCount = dmmState.ParsedPages.Count;
+            dmmLastImport.EntryCount = dmmState.ParsedPages.Sum(x => x.Value);
+            dmmLastImport.Status = ImportStatus.Complete;
+
+            await dmmService.SetDmmImportAsync(dmmLastImport);
 
             await dmmState.SetFinished(cancellationToken, processor);
 

@@ -25,8 +25,12 @@ public class ZileanDbContext : DbContext
 
         modelBuilder.ApplyConfiguration(new TorrentInfoConfiguration());
         modelBuilder.ApplyConfiguration(new ImdbFileConfiguration());
+        modelBuilder.ApplyConfiguration(new ParsedPagesConfiguration());
     }
 
     public DbSet<TorrentInfo> Torrents => Set<TorrentInfo>();
     public DbSet<ImdbFile> ImdbFiles => Set<ImdbFile>();
+    public DbSet<ParsedPages> ParsedPages => Set<ParsedPages>();
+
+    public DbSet<ImportMetadata> ImportMetadata => Set<ImportMetadata>();
 }
