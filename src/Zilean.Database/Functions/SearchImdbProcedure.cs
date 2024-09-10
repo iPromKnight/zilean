@@ -36,25 +36,53 @@ public static class SearchImdbProcedure
         )
         RETURNS TABLE(
             "InfoHash" TEXT,
-            "Resolution" TEXT[],
+            "Resolution" TEXT,
             "Year" INT,
             "Remastered" BOOLEAN,
-            "Codec" TEXT[],
+            "Codec" TEXT,
             "Audio" TEXT[],
-            "Quality" TEXT[],
+            "Quality" TEXT,
             "Episodes" INT[],
             "Seasons" INT[],
             "Languages" TEXT[],
-            "Title" TEXT,
+            "ParsedTitle" TEXT,
+            "NormalizedTitle" TEXT,
             "RawTitle" TEXT,
-            "Size" BIGINT,
+            "Size" TEXT,
             "Category" TEXT,
-            "Score" REAL,
+            "Complete" BOOLEAN,
+            "Volumes" INT[],
+            "Hdr" TEXT[],
+            "Channels" TEXT[],
+            "Dubbed" BOOLEAN,
+            "Subbed" BOOLEAN,
+            "Edition" TEXT,
+            "BitDepth" TEXT,
+            "Bitrate" TEXT,
+            "Network" TEXT,
+            "Extended" BOOLEAN,
+            "Converted" BOOLEAN,
+            "Hardcoded" BOOLEAN,
+            "Region" TEXT,
+            "Ppv" BOOLEAN,
+            "Is3d" BOOLEAN,
+            "Site" TEXT,
+            "Proper" BOOLEAN,
+            "Repack" BOOLEAN,
+            "Retail" BOOLEAN,
+            "Upscaled" BOOLEAN,
+            "Unrated" BOOLEAN,
+            "Documentary" BOOLEAN,
+            "EpisodeCode" TEXT,
+            "Country" TEXT,
+            "Container" TEXT,
+            "Extension" TEXT,
+            "Torrent" BOOLEAN,
             "ImdbId" TEXT,
-            "ImdbCategory" TEXT, -- Renamed to avoid conflict
-            "ImdbTitle" TEXT,    -- Renamed to avoid conflict
-            "ImdbYear" INT,      -- Renamed to avoid conflict
-            "ImdbAdult" BOOLEAN  -- Renamed to avoid conflict
+            "ImdbCategory" TEXT,
+            "ImdbTitle" TEXT,
+            "ImdbYear" INT,
+            "ImdbAdult" BOOLEAN
         ) AS $$
         BEGIN
             EXECUTE format('SET pg_trgm.similarity_threshold = %L', similarity_threshold);
@@ -71,38 +99,66 @@ public static class SearchImdbProcedure
                 t."Episodes",
                 t."Seasons",
                 t."Languages",
-                t."Title",
+                t."ParsedTitle",
+                t."NormalizedTitle",
                 t."RawTitle",
                 t."Size",
                 t."Category",
-                similarity(t."Title", query) AS "Score",
+                t."Complete",
+                t."Volumes",
+                t."Hdr",
+                t."Channels",
+                t."Dubbed",
+                t."Subbed",
+                t."Edition",
+                t."BitDepth",
+                t."Bitrate",
+                t."Network",
+                t."Extended",
+                t."Converted",
+                t."Hardcoded",
+                t."Region",
+                t."Ppv",
+                t."Is3d",
+                t."Site",
+                t."Proper",
+                t."Repack",
+                t."Retail",
+                t."Upscaled",
+                t."Unrated",
+                t."Documentary",
+                t."EpisodeCode",
+                t."Country",
+                t."Container",
+                t."Extension",
+                t."Torrent",
                 t."ImdbId",
-                i."Category" AS "ImdbCategory",  -- Aliased to avoid conflict
-                i."Title" AS "ImdbTitle",        -- Aliased to avoid conflict
-                i."Year" AS "ImdbYear",          -- Aliased to avoid conflict
-                i."Adult" AS "ImdbAdult"         -- Aliased to avoid conflict
+                similarity(t."ParsedTitle", query) AS "Score",
+                i."Category" AS "ImdbCategory",
+                i."Title" AS "ImdbTitle",
+                i."Year" AS "ImdbYear",
+                i."Adult" AS "ImdbAdult"
             FROM
                 public."Torrents" t
             LEFT JOIN
                 public."ImdbFiles" i ON t."ImdbId" = i."ImdbId"
             WHERE
-        -- Handle independent search conditions
-        (query IS NULL OR t."Title" % query)
-        AND (season IS NULL OR season = ANY(t."Seasons"))
-        AND (
-            (episode IS NULL AND season IS NOT NULL)
-            OR
-            (
-                episode IS NOT NULL AND
-                season IS NOT NULL AND
-                (episode = ANY(t."Episodes") OR t."Episodes" IS NULL OR t."Episodes" = '{}')
+                (query IS NULL OR t."ParsedTitle" % query)
+            AND (season IS NULL OR season = ANY(t."Seasons"))
+            AND (
+                (episode IS NULL AND season IS NOT NULL)
+                OR
+                (
+                    episode IS NOT NULL AND
+                    season IS NOT NULL AND
+                    (episode = ANY(t."Episodes") OR t."Episodes" IS NULL OR t."Episodes" = '{}')
+                )
+                OR (season IS NULL AND episode IS NULL)
             )
-            OR (season IS NULL AND episode IS NULL) -- Ensures episode search does not require season
-        )
-        AND (year IS NULL OR t."Year" BETWEEN year - 1 AND year + 1)
-        AND (language IS NULL OR language = ANY(t."Languages"))
-        AND (resolution IS NULL OR resolution = ANY(t."Resolution"))
-        AND (imdbId IS NULL OR t."ImdbId" = imdbId)
+            AND (year IS NULL OR t."Year" BETWEEN year - 1 AND year + 1)
+            AND (language IS NULL OR language = ANY(t."Languages"))
+            AND (resolution IS NULL OR resolution = t."Resolution")
+            AND (imdbId IS NULL OR t."ImdbId" = imdbId)
             ORDER BY
                 "Score" DESC
             LIMIT

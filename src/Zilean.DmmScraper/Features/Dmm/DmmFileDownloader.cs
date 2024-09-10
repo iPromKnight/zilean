@@ -16,10 +16,13 @@ public class DmmFileDownloader(ILogger<DmmFileDownloader> logger)
     {
         logger.LogInformation("Downloading DMM Hashlists");
 
+        var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
+
+        //todo: Remove this.
+        return tempDirectory;
+
         var client = CreateHttpClient();
         var response = await client.GetAsync(Filename, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-
-        var tempDirectory = Path.Combine(Path.GetTempPath(), "DMMHashlists");
 
         EnsureDirectoryIsClean(tempDirectory);
 

@@ -2,7 +2,7 @@ namespace Zilean.Database.Services;
 
 public interface ITorrentInfoService
 {
-    Task StoreTorrentInfo(IEnumerable<TorrentInfo> torrents);
+    Task StoreTorrentInfo(List<TorrentInfo> torrents, int batchSize = 10000);
     Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query);
     Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter);
 }
