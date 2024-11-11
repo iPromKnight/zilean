@@ -33,7 +33,9 @@ public partial class DmmPageProcessor(DmmSyncState state)
                 using var memoryStream = new MemoryStream(byteArray, 0, byteCount);
                 using var json = await JsonDocument.ParseAsync(memoryStream, cancellationToken: cancellationToken);
 
-                var torrents = json.RootElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList();
+                var torrents = json.RootElement.TryGetProperty("torrents", out var torrentsElement) && torrentsElement.ValueKind == JsonValueKind.Array
+                    ? torrentsElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList()
+                    : json.RootElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList();
 
                 if (torrents.Count == 0)
                 {
