@@ -33,7 +33,7 @@ public partial class DmmPageProcessor(DmmSyncState state)
                 using var memoryStream = new MemoryStream(byteArray, 0, byteCount);
                 using var json = await JsonDocument.ParseAsync(memoryStream, cancellationToken: cancellationToken);
 
-                var torrents = json.RootElement.TryGetProperty("torrents", out var torrentsElement) && torrentsElement.ValueKind == JsonValueKind.Array
+                var torrents = json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty("torrents", out var torrentsElement)
                     ? torrentsElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList()
                     : json.RootElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList();
 
@@ -44,7 +44,7 @@ public partial class DmmPageProcessor(DmmSyncState state)
                 }
 
                 var sanitizedTorrents = torrents
-                    .Where(x=>x.InfoHash.Length == 40 && x.Filesize > 0)
+                    .Where(x=> x.Filesize > 0)
                     .GroupBy(x => x.InfoHash)
                     .Select(group => group.FirstOrDefault())
                     .Where(x => !string.IsNullOrEmpty(x.Filename))
@@ -65,12 +65,25 @@ public partial class DmmPageProcessor(DmmSyncState state)
         }
     }
 
-    private static ExtractedDmmEntry? ParsePageContent(JsonElement item) =>
-        item.TryGetProperty("filename", out var filenameElement) &&
-        item.TryGetProperty("bytes", out var filesizeElement) &&
-        item.TryGetProperty("hash", out var hashElement)
-            ? new ExtractedDmmEntry(hashElement.GetString(), filenameElement.GetString().Replace(".", " ", StringComparison.Ordinal), filesizeElement.GetInt64(), null)
-            : null;
+    private static ExtractedDmmEntry? ParsePageContent(JsonElement item)
+    {
+        var filename = item.TryGetProperty("filename", out var filenameElement);
+        var filesize = item.TryGetProperty("bytes", out var filesizeElement);
+        var hash = item.TryGetProperty("hash", out var hashElement);
+
+        if (!filename || !filesize || !hash)
+        {
+            return null;
+        }
+
+        var fileText = filenameElement.GetString();
+        var fileSize = filesizeElement.GetInt64();
+        var hashText = hashElement.GetString();
+
+        var entry = new ExtractedDmmEntry(hashText, fileText.Replace(".", " ", StringComparison.Ordinal), fileSize, null);
+
+        return entry;
+    }
 
     public void Dispose()
     {

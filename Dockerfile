@@ -12,9 +12,9 @@ RUN dotnet publish -c Release --no-restore -a $TARGETARCH -o /app/out
 # Run Stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.19
 RUN apk add --update --no-cache \
-    python3=3.11.9-r1 \
-    py3-pip=23.3.1-r0 \
-    curl=8.9.1-r0 \
+    python3=~3.11 \
+    py3-pip=~23.3 \
+    curl=~8.9 \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV DOTNET_gcServer=1
