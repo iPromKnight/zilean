@@ -62,6 +62,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                     *
                 FROM "Torrents"
                 WHERE "ParsedTitle" % @query
+                AND Length("InfoHash") = 40
                 LIMIT 100;
                 """;
 
