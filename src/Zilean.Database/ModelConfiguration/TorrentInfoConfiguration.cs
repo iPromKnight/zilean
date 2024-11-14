@@ -225,6 +225,12 @@ public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
             .WithMany()
             .HasForeignKey(t => t.ImdbId);
 
+        builder.Property(t => t.IngestedAt)
+            .IsRequired()
+            .HasColumnType("timestamp with time zone")
+            .HasDefaultValueSql("now() at time zone 'utc'")
+            .HasAnnotation("Relational:JsonPropertyName", "ingested_at");
+
         builder.HasIndex(t => t.ImdbId);
 
         builder.HasIndex(t => t.InfoHash)

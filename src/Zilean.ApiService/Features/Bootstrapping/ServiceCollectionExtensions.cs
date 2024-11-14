@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
                         .PreventOverlapping(nameof(DmmSyncJob));
                 }
             })
-            .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());
+            .LogScheduledTaskProgress();
 
         return provider;
     }
