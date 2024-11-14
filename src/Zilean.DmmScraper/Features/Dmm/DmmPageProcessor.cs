@@ -14,7 +14,6 @@ public partial class DmmPageProcessor(DmmSyncState state)
         }
 
         var pageSource = await File.ReadAllTextAsync(filePath, cancellationToken);
-
         var match = HashCollectionMatcher().Match(pageSource);
 
         if (!match.Success)
@@ -30,12 +29,22 @@ public partial class DmmPageProcessor(DmmSyncState state)
             try
             {
                 var byteCount = Encoding.UTF8.GetBytes(decodedJson, byteArray);
-                using var memoryStream = new MemoryStream(byteArray, 0, byteCount);
-                using var json = await JsonDocument.ParseAsync(memoryStream, cancellationToken: cancellationToken);
+                var span = new ReadOnlySpan<byte>(byteArray, 0, byteCount);
+                var reader = new Utf8JsonReader(span);
 
-                var torrents = json.RootElement.ValueKind == JsonValueKind.Object && json.RootElement.TryGetProperty("torrents", out var torrentsElement)
-                    ? torrentsElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList()
-                    : json.RootElement.EnumerateArray().Select(ParsePageContent).OfType<ExtractedDmmEntry>().ToList();
+                var torrents = new List<ExtractedDmmEntry>();
+
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.StartObject)
+                    {
+                        var entry = ParsePageContent(ref reader);
+                        if (entry != null)
+                        {
+                            torrents.Add(entry);
+                        }
+                    }
+                }
 
                 if (torrents.Count == 0)
                 {
@@ -44,7 +53,7 @@ public partial class DmmPageProcessor(DmmSyncState state)
                 }
 
                 var sanitizedTorrents = torrents
-                    .Where(x=> x.Filesize > 0)
+                    .Where(x => x.Filesize > 0)
                     .GroupBy(x => x.InfoHash)
                     .Select(group => group.FirstOrDefault())
                     .Where(x => !string.IsNullOrEmpty(x.Filename))
@@ -65,23 +74,45 @@ public partial class DmmPageProcessor(DmmSyncState state)
         }
     }
 
-    private static ExtractedDmmEntry? ParsePageContent(JsonElement item)
+    private static ExtractedDmmEntry? ParsePageContent(ref Utf8JsonReader reader)
     {
-        var filename = item.TryGetProperty("filename", out var filenameElement);
-        var filesize = item.TryGetProperty("bytes", out var filesizeElement);
-        var hash = item.TryGetProperty("hash", out var hashElement);
+        string? filename = null;
+        long filesize = 0;
+        string? hash = null;
 
-        if (!filename || !filesize || !hash)
+        while (reader.Read())
+        {
+            if (reader.TokenType == JsonTokenType.EndObject)
+            {
+                break;
+            }
+
+            if (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                var propertyName = reader.GetString();
+                reader.Read();
+
+                switch (propertyName)
+                {
+                    case "filename":
+                        filename = reader.GetString();
+                        break;
+                    case "bytes":
+                        filesize = reader.GetInt64();
+                        break;
+                    case "hash":
+                        hash = reader.GetString();
+                        break;
+                }
+            }
+        }
+
+        if (filename == null || hash == null)
         {
             return null;
         }
 
-        var fileText = filenameElement.GetString();
-        var fileSize = filesizeElement.GetInt64();
-        var hashText = hashElement.GetString();
-
-        var entry = new ExtractedDmmEntry(hashText, fileText.Replace(".", " ", StringComparison.Ordinal), fileSize, null);
-
+        var entry = new ExtractedDmmEntry(hash, filename.Replace(".", " ", StringComparison.Ordinal), filesize, null);
         return entry;
     }
 

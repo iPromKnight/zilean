@@ -73,18 +73,15 @@ public class DmmScraping(
         }
     }
 
-    private async Task ProcessBatched(List<string> files, CancellationToken cancellationToken) => await AnsiConsole.Progress()
+    private async Task ProcessBatched(List<string> files, CancellationToken cancellationToken) =>
+        await AnsiConsole.Progress()
             .AutoClear(true)
             .HideCompleted(true)
-            .Columns([
-                new TaskDescriptionColumn(),
-                new ProgressBarColumn(),
-                new PercentageColumn(),
-                new RemainingTimeColumn()
-            ])
+            .Columns(new TaskDescriptionColumn(), new ProgressBarColumn(), new PercentageColumn(), new RemainingTimeColumn())
             .StartAsync(async ctx =>
             {
-                AnsiConsole.MarkupLine("[yellow]Batched processing enabled - This is for low end systems, and is expected to take a long time to run on the first run. A very long time indeed![/]");
+                AnsiConsole.MarkupLine(
+                    "[yellow]Batched processing enabled - This is for low end systems, and is expected to take a long time to run on the first run. A very long time indeed![/]");
 
                 var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
                 var progress = new Progress<double>(value => task.Increment(value));
@@ -93,10 +90,15 @@ public class DmmScraping(
                 {
                     logger.LogInformation("Processing file {File}", file);
 
-                    var torrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, cancellationToken);
+                    var torrents = new List<ExtractedDmmEntry>();
 
-                    if
-                        (torrents.Count == 0)
+                    await foreach (var torrent in ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count,
+                                       cancellationToken))
+                    {
+                        torrents.Add(torrent);
+                    }
+
+                    if (torrents.Count == 0)
                     {
                         continue;
                     }
@@ -113,7 +115,7 @@ public class DmmScraping(
 
     private async Task ProcessUnBatched(List<string> files, CancellationToken cancellationToken)
     {
-        var torrents = new ConcurrentBag<ExtractedDmmEntry>();
+        var torrents = new List<ExtractedDmmEntry>();
 
         var parallelOptions = new ParallelOptions
         {
@@ -124,12 +126,7 @@ public class DmmScraping(
         await AnsiConsole.Progress()
             .AutoClear(true)
             .HideCompleted(true)
-            .Columns([
-                new TaskDescriptionColumn(),
-                new ProgressBarColumn(),
-                new PercentageColumn(),
-                new RemainingTimeColumn()
-            ])
+            .Columns(new TaskDescriptionColumn(), new ProgressBarColumn(), new PercentageColumn(), new RemainingTimeColumn())
             .StartAsync(async ctx =>
             {
                 var task = ctx.AddTask("[green]Processing DMM Hashlists[/]");
@@ -137,11 +134,12 @@ public class DmmScraping(
 
                 await Parallel.ForEachAsync(files, parallelOptions, async (file, ct) =>
                 {
-                    var sanitizedTorrents = await ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, ct);
-
-                    foreach (var torrent in sanitizedTorrents)
+                    await foreach (var torrent in ProcessFileAsync(file, processor, dmmState, logger, progress, files.Count, ct))
                     {
-                        torrents.Add(torrent);
+                        lock (torrents)
+                        {
+                            torrents.Add(torrent);
+                        }
                     }
                 });
             });
@@ -160,18 +158,18 @@ public class DmmScraping(
         }
     }
 
-    private static async Task<List<ExtractedDmmEntry>> ProcessFileAsync(string file,
+    private static async IAsyncEnumerable<ExtractedDmmEntry> ProcessFileAsync(string file,
         DmmPageProcessor processor,
         DmmSyncState dmmState,
         ILogger<DmmScraping> logger,
         IProgress<double> progress,
         int count,
-        CancellationToken cancellationToken)
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
             logger.LogInformation("Cancellation requested, stopping processing");
-            return [];
+            yield break;
         }
 
         var fileName = Path.GetFileName(file);
@@ -182,6 +180,9 @@ public class DmmScraping(
 
         logger.LogInformation("Processed {FileName} with {Count} torrents", fileName, sanitizedTorrents.Count);
 
-        return sanitizedTorrents;
+        foreach (var torrent in sanitizedTorrents)
+        {
+            yield return torrent;
+        }
     }
 }
