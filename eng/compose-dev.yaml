@@ -1,30 +1,4 @@
-volumes:
-  zilean_data:
-  pg-data:
-  pgadmin-data:
-
 services:
-  zilean:
-    build:
-      context: ../
-      dockerfile: ./Dockerfile
-    ports:
-      - "8181:8181"
-    volumes:
-      - zilean_data:/app/data
-    tty: true
-    environment:
-        Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
-        # Zilean__Dmm__ImportBatched: "true" # Uncomment to enable batched import - this is for low end systems.
-    healthcheck:
-      test: curl --connect-timeout 10 --silent --show-error --fail http://localhost:8181/healthchecks/ping
-      timeout: 60s
-      interval: 30s
-      retries: 10
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   postgres:
     image: postgres:16.3-alpine3.20
     container_name: postgres
@@ -36,50 +10,8 @@ services:
       POSTGRES_DB: postgres
     ports:
       - "5432:5432"
-    volumes:
-      - pg-data:/var/lib/postgresql/data/pgdata
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  pgadmin:
-    image: dpage/pgadmin4
-    ports:
-      - 6001:80
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=postgres@example.com
-      - PGADMIN_DEFAULT_PASSWORD=postgres
-      - PGADMIN_CONFIG_SERVER_MODE=False
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=False
-    entrypoint: /bin/sh -c "chmod 600 /pgpass; /entrypoint.sh;"
-    user: root
-    configs:
-      - source: pgadmin_servers.json
-        target: /pgadmin4/servers.json
-      - source: pgadmin_pgpass
-        target: /pgpass
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-configs:
-  pgadmin_pgpass:
-    content: postgres:5432:*:postgres:postgres
-  pgadmin_servers.json:
-    content: |
-      {
-        "Servers": {
-        "1": {
-            "Group": "Servers",
-            "Name": "Zilean Database",
-            "Host": "postgres",
-            "Port": 5432,
-            "MaintenanceDB": "zilean",
-            "Username": "postgres",
-            "PassFile": "/pgpass",
-            "SSLMode": "prefer"
-          }
-        }
-      }
