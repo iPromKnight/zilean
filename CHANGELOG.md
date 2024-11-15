@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.0](https://github.com/iPromKnight/zilean/compare/v2.0.2...v2.1.0) (2024-11-15)
+
+
+### 🚀 New Features
+
+* Add Torznab API support and enhance search capabilities ([d41abaf](https://github.com/iPromKnight/zilean/commit/d41abaf105fd3efe4e6e93e3e0fd0211cce66d33))
+* torznab support started ([709be25](https://github.com/iPromKnight/zilean/commit/709be255de892677fa3155decb61eb81018e3991))
+
+
+### ⌨️ Code Refactoring
+
+* Updated to .net 9 ([709be25](https://github.com/iPromKnight/zilean/commit/709be255de892677fa3155decb61eb81018e3991))
+
 ## [2.0.2](https://github.com/iPromKnight/zilean/compare/v2.0.1...v2.0.2) (2024-11-12)
 
 
