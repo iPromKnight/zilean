@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/iPromKnight/zilean/compare/v2.1.0...v2.1.1) (2024-11-15)
+
+
+### 🔥 Bug Fixes
+
+* Ensure culture libs are included in the container for .net to use. ([4a7a3ba](https://github.com/iPromKnight/zilean/commit/4a7a3ba46ba97f181d3fb8353d8db412e7bd2f06))
+
 ## [2.1.0](https://github.com/iPromKnight/zilean/compare/v2.0.2...v2.1.0) (2024-11-15)
 
 
