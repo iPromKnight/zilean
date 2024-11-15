@@ -18,10 +18,10 @@ public static class TorznabCapabilities
         MovieSearch.Year,
     ];
 
-    public static int LimitsMax { get; } = 2000;
+    public static int LimitsMax { get; } = 5000;
     public static int LimitsDefault { get; } = 100;
     public static bool SearchAvailable { get; } = true;
-    public static bool SupportsRawSearch { get; } = true;
+    public static bool SupportsRawSearch { get; } = false;
     public static bool TvSearchAvailable => TvSearchParams.Count > 0;
     public static bool TvSearchSeasonAvailable => TvSearchParams.Contains(TvSearch.Season);
     public static bool TvSearchEpAvailable => TvSearchParams.Contains(TvSearch.Ep);

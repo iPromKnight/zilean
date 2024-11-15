@@ -4,23 +4,8 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003ADbContextBulkTransaction_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003F1dfe90a67dda13ce28d4a1975cde7e7445f47ecbb8b4d73dd1bcc0c01acd88_003FDbContextBulkTransaction_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AExceptionDispatchInfo_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FSourcesCache_003Fbd1d5c50194fea68ff3559c160230b0ab50f5acf4ce3061bffd6d62958e2182_003FExceptionDispatchInfo_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AJsonSerializer_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003F_002E_002E_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E2_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003F5148e388a7db4994ad2ab3750386454116e910_003F72_003Fc63c4ed4_003FJsonSerializer_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1182152c_002De1fa_002D4b35_002D8711_002D79eeef4fbfc0/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="VerifyShawshankMatches_WithoutThe_ShouldMatch" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=78cae2e2_002D0b4c_002D410b_002D8d6b_002De16e6ad72a00/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="IsAMovie_ShouldValidate_ReturnsTrue" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=96946a3d_002D7265_002D4ac9_002D82b3_002De9a2bd463785/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="EnsureInitAndStopSuccessfully" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f4982ea5_002D6a9a_002D4974_002Dac2d_002D9c3d8b90ed5f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="IsAMovie_ShouldValidate_ReturnsTrue #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;xUnit::3F8985A4-7E1C-48A0-89A5-47790470023E::net8.0::Zilean.Tests.Tests.PttPythonTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
-&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AOpenApiServiceCollectionExtensions_002Ecs_002Fl_003AC_0021_003FUsers_003FProm3theu5_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fba408bbefe5c813576b4417369c21d24248b94d040ec72a9753bc546f9308190_003FOpenApiServiceCollectionExtensions_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	
+	
+	
+	</wpf:ResourceDictionary>

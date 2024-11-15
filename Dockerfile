@@ -1,5 +1,5 @@
 # Build Stage
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS base
 ARG TARGETARCH
 WORKDIR /build
 COPY . .
@@ -10,15 +10,16 @@ WORKDIR /build/src/Zilean.DmmScraper
 RUN dotnet publish -c Release --no-restore -a $TARGETARCH -o /app/out
 
 # Run Stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.19
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
+RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" > /etc/apk/repositories && \
+    echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories && \
+    apk update
 RUN apk add --update --no-cache \
     python3=~3.11 \
-    py3-pip=~23.3 \
+    py3-pip=~23.1 \
     curl=~8.9 \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV DOTNET_gcServer=1
-ENV DOTNET_GCDynamicAdaptationMode=1
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
 ENV PYTHONUNBUFFERED=1
 ENV ZILEAN_PYTHON_PYLIB=/usr/lib/libpython3.11.so.1.0
