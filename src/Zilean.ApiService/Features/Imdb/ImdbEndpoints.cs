@@ -1,5 +1,4 @@
 using Zilean.Database.Dtos;
-using Zilean.Database.Services;
 
 namespace Zilean.ApiService.Features.Imdb;
 

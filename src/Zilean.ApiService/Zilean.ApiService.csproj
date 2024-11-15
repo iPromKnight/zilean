@@ -13,17 +13,15 @@
       <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
       <PackageReference Include="Microsoft.Extensions.Hosting" />
       <PackageReference Include="Microsoft.Extensions.Http" />
-      <PackageReference Include="Swashbuckle.AspNetCore" />
+      <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+      <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
+      <PackageReference Include="Scalar.AspNetCore" />
       <PackageReference Include="System.Linq.Async" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Zilean.Database\Zilean.Database.csproj" />
       <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Features\Torznab\" />
     </ItemGroup>
 
 </Project>

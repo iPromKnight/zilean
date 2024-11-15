@@ -1,27 +1,12 @@
 using Zilean.Database;
-using Zilean.Database.Services;
 
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSwaggerSupport(this IServiceCollection services)
-    {
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(
-            options =>
-            {
-                options.SwaggerDoc("v1", new()
-                {
-                    Version = "v1",
-                    Title = "Zilean API",
-                    Description = "Arrless Searching for Riven",
-                });
-            });
-
-        return services;
-    }
+    public static IServiceCollection AddSwaggerSupport(this IServiceCollection services) =>
+        services.AddOpenApi("v2");
 
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();

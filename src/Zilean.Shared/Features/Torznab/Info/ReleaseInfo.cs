@@ -6,7 +6,7 @@ public class ReleaseInfo() : ICloneable
     public const long Peers = 999;
     public const string Origin = "Zilean";
     public string? Title { get; set; }
-    public Uri? Guid { get; set; }
+    public Guid? Guid { get; set; }
     public Uri? Magnet { get; set; }
     public Uri? Details { get; set; }
     public DateTime PublishDate { get; set; }

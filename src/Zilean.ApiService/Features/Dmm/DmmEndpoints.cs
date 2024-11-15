@@ -1,5 +1,3 @@
-using Zilean.Database.Services;
-
 namespace Zilean.ApiService.Features.Dmm;
 
 public static class DmmEndpoints

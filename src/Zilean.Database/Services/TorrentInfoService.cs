@@ -75,7 +75,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             return result.ToArray();
         }, "Error finding unfiltered dmm entries.");
 
-    public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter) =>
+    public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null) =>
         await ExecuteCommandAsync(async connection =>
         {
             const string sql =
@@ -103,7 +103,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             parameters.Add("@Language", filter.Language);
             parameters.Add("@Resolution", filter.Resolution);
             parameters.Add("@ImdbId", filter.ImdbId);
-            parameters.Add("@Limit", Configuration.Dmm.MaxFilteredResults);
+            parameters.Add("@Limit", limit ?? Configuration.Dmm.MaxFilteredResults);
             parameters.Add("@SimilarityThreshold", (float)Configuration.Dmm.MinimumScoreMatch);
 
             var results = await connection.QueryAsync<TorrentInfoResult>(sql, parameters);
