@@ -18,9 +18,10 @@ RUN apk add --update --no-cache \
     python3=~3.11 \
     py3-pip=~23.1 \
     curl=~8.9 \
+    icu-libs \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 ENV PYTHONUNBUFFERED=1
 ENV ZILEAN_PYTHON_PYLIB=/usr/lib/libpython3.11.so.1.0
 ENV ASPNETCORE_URLS=http://+:8181
