@@ -2,9 +2,11 @@
 
 public class ChannelInfo
 {
-    public string? Title { get; set; }
-    public string? Description { get; set; }
-    public Uri? Link { get; set; }
-    public string Language { get; set; } = "en-US";
-    public string Category { get; set; } = "search";
+    public const string GitHubRepo = "https://github.com/iPromKnight/zilean";
+    public const string Title = "Zilean Indexer";
+    public const string Description = "DMM Cached RD Indexer";
+    public const string Language = "en-US";
+    public const string Category = "search";
+    public static Uri Link => new(GitHubRepo);
+    public static ChannelInfo ZileanIndexer => new();
 }

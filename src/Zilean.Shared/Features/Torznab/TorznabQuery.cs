@@ -18,7 +18,7 @@ public partial class TorznabQuery
     public string? ImdbID { get; set; }
     public string[]? QueryStringParts { get; set; }
     public int? Season { get; set; }
-    public string? Episode { get; set; }
+    public int? Episode { get; set; }
     public string? SearchTerm { get; set; }
     public int? Year { get; set; }
     public bool IsTest { get; set; } = false;
@@ -37,10 +37,10 @@ public partial class TorznabQuery
         !IsIdSearch;
 
     public bool IsIdSearch =>
-        !Episode.IsNullOrWhiteSpace() ||
-        Season > 0 ||
+        Episode.GetValueOrDefault() > 0 ||
+        Season.GetValueOrDefault() > 0 ||
         IsImdbQuery ||
-        Year.HasValue;
+        Year.GetValueOrDefault() > 0;
 
     public bool HasSpecifiedCategories => Categories is { Length: > 0 };
 
@@ -169,7 +169,7 @@ public partial class TorznabQuery
         {
             episodeString = showDate.ToString("yyyy.MM.dd", CultureInfo.InvariantCulture);
         }
-        else if (Episode.IsNullOrWhiteSpace())
+        else if (!Episode.HasValue)
         {
             episodeString = $"S{Season:00}";
         }
@@ -177,7 +177,7 @@ public partial class TorznabQuery
         {
             try
             {
-                episodeString = $"S{Season:00}E{Parsing.CoerceInt(Episode):00}";
+                episodeString = $"S{Season:00}E{Parsing.CoerceInt(Episode.GetValueOrDefault().ToString()):00}";
             }
             catch (FormatException) // e.g. seaching for S01E01A
             {

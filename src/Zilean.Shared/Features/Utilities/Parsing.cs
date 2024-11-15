@@ -1,4 +1,6 @@
-﻿namespace Zilean.Shared.Features.Utilities;
+﻿using System.Security.Cryptography;
+
+namespace Zilean.Shared.Features.Utilities;
 
 public static partial class Parsing
 {
@@ -45,6 +47,22 @@ public static partial class Parsing
 
         return valStr;
     }
+
+    public static Uri? GetMagnetLink(string? infohash) =>
+        string.IsNullOrWhiteSpace(infohash) ? null : new Uri($"magnet:?xt=urn:btih:{infohash}");
+
+    public static Guid CreateGuidFromInfohash(string? infohash)
+    {
+        if (string.IsNullOrEmpty(infohash) || infohash.Length != 40)
+        {
+            throw new ArgumentException("Infohash must be a 40-character hexadecimal string.", nameof(infohash));
+        }
+
+        using var hasher = SHA256.Create();
+        byte[] hash = hasher.ComputeHash(Encoding.UTF8.GetBytes(infohash));
+        return new Guid(new Span<byte>(hash, 0, 16));
+    }
+
 
     public static string RemoveInvalidXmlChars(string text) =>
         string.IsNullOrEmpty(text) ? "" : InvalidXmlChars().Replace(text, "");

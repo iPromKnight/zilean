@@ -1,5 +1,6 @@
 volumes:
   zilean_data:
+  zilean_tmp:
   pg-data:
   pgadmin-data:
 
@@ -13,6 +14,7 @@ services:
       - "8181:8181"
     volumes:
       - zilean_data:/app/data
+      - zilean_tmp:/tmp
     environment:
         Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
       # Zilean__Dmm__ImportBatched: "true"                    Allows enabling batched import - this is for low-end systems.

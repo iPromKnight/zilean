@@ -32,6 +32,9 @@ The DMM import reruns on missing pages every hour.
       "EnableImportMatching": false,
       "EnableEndpoint": true,
       "MinimumScoreMatch": 0.85
+    },
+    "Torznab": {
+      "EnableEndpoint": true
     }
   }
 }
@@ -53,7 +56,15 @@ A breakdown of all configuration options:
 - `Zilean__Imdb__EnableImportMatching`: Whether to enable the IMDB import matching service. Defaults to true. Disabling this will improve import speed at the cost of not having IMDB data.
 - `Zilean__Imdb__EnableEndpoint`: Whether to enable the IMDB search endpoint.
 - `Zilean__Imdb__MinimumScoreMatch`: The minimum score required for a search result to be returned. Values between 0 and 1. Defaults to 0.85.
+- `Zilean__Torznab__EnableEndpoint`: Whether to enable the Torznab endpoints.
 ---
 
 ## Compose Example
 See the file [compose.yaml](https://github.com/iPromKnight/zilean/blob/main/compose.yaml) for an example of how to run Zilean.
+
+---
+
+## API
+
+The Api can be accessed at `http://localhost:8181/scalar/v2` by default, which allows you to execute
+any of the available endpoints directly in a [Scalar](https://github.com/ScalaR/ScalaR) dashboard.

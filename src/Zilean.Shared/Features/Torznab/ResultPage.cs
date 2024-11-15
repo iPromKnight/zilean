@@ -1,12 +1,11 @@
 namespace Zilean.Shared.Features.Torznab;
 
-public partial class ResultPage(ChannelInfo channelInfo)
+public partial class ResultPage
 {
     [GeneratedRegex(@"(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\uFEFF\uFFFE\uFFFF]", RegexOptions.Compiled)]
     private static partial Regex InvalidXmlChars();
     private static XNamespace AtomNs => "http://www.w3.org/2005/Atom";
     private static XNamespace TorznabNs => "http://torznab.com/schemas/2015/feed";
-    private ChannelInfo ChannelInfo { get; } = channelInfo;
     public IEnumerable<ReleaseInfo> Releases { get; set; } = [];
     private static string RemoveInvalidXmlChars(string? text) =>
         string.IsNullOrEmpty(text) ? null : InvalidXmlChars().Replace(text, "");
@@ -43,13 +42,11 @@ public partial class ResultPage(ChannelInfo channelInfo)
                     from r in Releases
                     select new XElement("item",
                         new XElement("title", RemoveInvalidXmlChars(r.Title)),
-                        new XElement("guid", r.Guid.AbsoluteUri),
-                        new XElement("zileanindexer", new XAttribute("id", ReleaseInfo.Origin), ReleaseInfo.Origin),
+                        new XElement("guid", Parsing.CreateGuidFromInfohash(r.InfoHash)),
                         new XElement("type", ReleaseInfo.Origin),
                         r.Details == null ? null : new XElement("comments", r.Details.AbsoluteUri),
                         r.PublishDate == DateTime.MinValue ? new XElement("pubDate", XmlDateFormat(DateTime.Now)) : new XElement("pubDate", XmlDateFormat(r.PublishDate)),
                         r.Size == null ? null : new XElement("size", r.Size ?? 0),
-                        new XElement("description", RemoveInvalidXmlChars(r.Description)),
                         new XElement("link", r.Magnet?.AbsoluteUri ?? string.Empty),
                         r.Category == null ? null : from c in r.Category select new XElement("category", c),
                         new XElement(
