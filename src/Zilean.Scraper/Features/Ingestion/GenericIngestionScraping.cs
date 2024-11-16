@@ -59,7 +59,7 @@ public class GenericIngestionScraping(
             urlsToProcess.AddRange(configuration.Ingestion.ZileanInstances.Select(url => new GenericEndpoint
             {
                 EndpointType = GenericEndpointType.Zilean,
-                Url = url,
+                Url = url.Url,
             }));
         }
     }
@@ -72,7 +72,7 @@ public class GenericIngestionScraping(
             urlsToProcess.AddRange(configuration.Ingestion.ZurgInstances.Select(url => new GenericEndpoint
             {
                 EndpointType = GenericEndpointType.Zurg,
-                Url = url,
+                Url = url.Url,
             }));
         }
     }

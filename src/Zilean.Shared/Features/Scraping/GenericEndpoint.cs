@@ -2,6 +2,6 @@
 
 public class GenericEndpoint
 {
-    public required string Url { get; set; }
-    public required GenericEndpointType EndpointType { get; set; }
+    public string? Url { get; set; }
+    public GenericEndpointType? EndpointType { get; set; }
 }

@@ -2,8 +2,8 @@
 
 public class IngestionConfiguration
 {
-    public List<string> ZurgInstances { get; set; } = [];
-    public List<string> ZileanInstances { get; set; } = [];
+    public List<GenericEndpoint> ZurgInstances { get; set; } = [];
+    public List<GenericEndpoint> ZileanInstances { get; set; } = [];
     public bool EnableScraping { get; set; } = false;
     public KubernetesConfiguration Kubernetes { get; set; } = new();
     public int BatchSize { get; set; } = 500;

@@ -3,6 +3,6 @@
 public class KubernetesConfiguration
 {
     public bool EnableServiceDiscovery { get; set; } = false;
-    public List<KubernetesSelector> KubernetesSelectors { get; set; } = [new()];
+    public List<KubernetesSelector> KubernetesSelectors { get; set; } = [];
     public string KubeConfigFile { get; set; } = "/$HOME/.kube/config";
 }
