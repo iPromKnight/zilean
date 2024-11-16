@@ -15,7 +15,7 @@ builder.Services
     .AddShellExecutionService()
     .ConditionallyRegisterDmmJob(zileanConfiguration)
     .AddZileanDataServices(zileanConfiguration)
-    .AddDataBootStrapping();
+    .AddStartupHostedService();
 
 var app = builder.Build();
 

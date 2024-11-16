@@ -20,13 +20,13 @@ public class GenericIngestionScraping(
             urlsToProcess.AddRange(urls);
         }
 
-        if (configuration.Ingestion.EnableZurgIngestion)
+        if (configuration.Ingestion.ZurgInstances.Count > 0)
         {
             logger.LogInformation("Adding Zurg instances to the list of URLs to process");
             urlsToProcess.AddRange(configuration.Ingestion.ZurgInstances);
         }
 
-        if (configuration.Ingestion.EnableZileanIngestion)
+        if (configuration.Ingestion.ZileanInstances.Count > 0)
         {
             logger.LogInformation("Adding Zilean instances to the list of URLs to process");
             urlsToProcess.AddRange(configuration.Ingestion.ZileanInstances);
