@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.3](https://github.com/iPromKnight/zilean/compare/v2.1.2...v2.1.3) (2024-11-16)
+
+
+### 🔥 Bug Fixes
+
+* also handle xx ([09c70fb](https://github.com/iPromKnight/zilean/commit/09c70fbf0ed34e4f314c9928bbce8d13a89a9176))
+
 ## [2.1.2](https://github.com/iPromKnight/zilean/compare/v2.1.1...v2.1.2) (2024-11-16)
 
 
