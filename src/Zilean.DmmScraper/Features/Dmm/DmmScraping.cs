@@ -107,7 +107,9 @@ public class DmmScraping(
 
                     logger.LogInformation("Distinct torrents: {Count}", distinctTorrents.Count);
 
-                    var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+                    var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+
+                    var finalizedTorrents = parsedTorrents.Where(WipeSomeTissue).ToList();
 
                     await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
                 }
@@ -150,7 +152,9 @@ public class DmmScraping(
         {
             var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
 
-            var finalizedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+            var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
+
+            var finalizedTorrents = parsedTorrents.Where(WipeSomeTissue).ToList();
 
             logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
 
@@ -185,4 +189,8 @@ public class DmmScraping(
             yield return torrent;
         }
     }
+
+    private static bool WipeSomeTissue(TorrentInfo torrent) =>
+        torrent.RawTitle.Contains(" XXX ", StringComparison.OrdinalIgnoreCase) &&
+        !torrent.ParsedTitle.Contains("XXX", StringComparison.OrdinalIgnoreCase);
 }
