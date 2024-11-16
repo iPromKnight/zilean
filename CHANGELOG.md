@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.2.0](https://github.com/iPromKnight/zilean/compare/v2.1.3...v2.2.0) (2024-11-16)
+
+
+### 🚀 New Features
+
+* completed generic ingestion with service discovery ([0db28ba](https://github.com/iPromKnight/zilean/commit/0db28bad3c60308beb1942f18884b1c816518b55))
+* Implement cli to allow choice of sync process to run ([6402511](https://github.com/iPromKnight/zilean/commit/6402511c44d9fe00f53785e597956c182a77221b))
+* service discovery and manual config ([b39b6a3](https://github.com/iPromKnight/zilean/commit/b39b6a36b57df5be350cdf3905492f64a93a3626))
+* Streaming endpoint ([79e12e1](https://github.com/iPromKnight/zilean/commit/79e12e155eec9fb2f541dbe841689eb02e477b0c))
+
+
+### ⌨️ Code Refactoring
+
+* collection of selectors in case they dont all match ([3bce11e](https://github.com/iPromKnight/zilean/commit/3bce11ec8bedd34eae66dc6c8f381485a0fcffc5))
+* rename scraper ([88af4fd](https://github.com/iPromKnight/zilean/commit/88af4fd2ab652f34b129e13b2748327892679af5))
+* started before scraper expansion ([1673841](https://github.com/iPromKnight/zilean/commit/16738410743b6e689aaf03c136d60c578cbabfc3))
+* wire up secondary service, with separate schedule ([dceb6cb](https://github.com/iPromKnight/zilean/commit/dceb6cba9d205eb82ed8a680e1eac3d5e73159a5))
+
 ## [2.1.3](https://github.com/iPromKnight/zilean/compare/v2.1.2...v2.1.3) (2024-11-16)
 
 
