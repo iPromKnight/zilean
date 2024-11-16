@@ -4,7 +4,7 @@ builder.Configuration.AddConfigurationFiles();
 
 builder.AddOtlpServiceDefaults();
 
-builder.Services.AddDmmScraper(builder.Configuration);
+builder.Services.AddScrapers(builder.Configuration);
 
 var scraper = builder.Build();
 

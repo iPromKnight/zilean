@@ -1,6 +1,4 @@
-using Zilean.Scraper.Features.LzString;
-
-namespace Zilean.Scraper.Features.Dmm;
+namespace Zilean.Scraper.Features.Ingestion;
 
 public partial class DmmPageProcessor(DmmSyncState state)
     : IDisposable

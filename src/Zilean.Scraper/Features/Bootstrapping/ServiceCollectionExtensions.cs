@@ -1,18 +1,15 @@
-using Zilean.Scraper.Features.Dmm;
-using Zilean.Scraper.Features.Imdb;
-using Zilean.Scraper.Features.PythonSupport;
-
 namespace Zilean.Scraper.Features.Bootstrapping;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddDmmScraper(this IServiceCollection services, IConfiguration configuration)
+    public static void AddScrapers(this IServiceCollection services, IConfiguration configuration)
     {
         var zileanConfiguration = configuration.GetZileanConfiguration();
 
         services.AddSingleton(zileanConfiguration);
         services.AddImdbServices();
         services.AddDmmServices();
+        services.AddGenericServices();
         services.AddZileanDataServices(zileanConfiguration);
         services.AddSingleton<ParseTorrentNameService>();
         services.AddHostedService<ServiceLifetime>();
@@ -25,6 +22,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<DmmFileDownloader>();
         services.AddSingleton<DmmScraping>();
         services.AddTransient<DmmService>();
+    }
+
+    private static void AddGenericServices(this IServiceCollection services)
+    {
+        services.AddSingleton<GenericIngestionScraping>();
+        services.AddSingleton<GenericIngestionProcessor>();
+        services.AddSingleton<KubernetesServiceDiscovery>();
     }
 
     private static void AddImdbServices(this IServiceCollection services)

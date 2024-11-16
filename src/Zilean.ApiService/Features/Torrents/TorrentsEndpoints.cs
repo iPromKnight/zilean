@@ -3,7 +3,7 @@ namespace Zilean.ApiService.Features.Torrents;
 public static class TorrentsEndpoints
 {
     private const string GroupName = "torrents";
-    private const string Scrape = "/scrape";
+    private const string Scrape = "/all";
 
     public static WebApplication MapTorrentsEndpoints(this WebApplication app, ZileanConfiguration configuration)
     {

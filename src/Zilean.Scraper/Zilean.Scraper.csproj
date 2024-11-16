@@ -21,6 +21,7 @@
   <ItemGroup>
     <PackageReference Include="pythonnet" />
     <PackageReference Include="CsvHelper" />
+    <PackageReference Include="KubernetesClient" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">

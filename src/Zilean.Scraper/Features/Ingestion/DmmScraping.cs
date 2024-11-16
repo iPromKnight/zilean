@@ -1,6 +1,4 @@
-using Zilean.Scraper.Features.PythonSupport;
-
-namespace Zilean.Scraper.Features.Dmm;
+namespace Zilean.Scraper.Features.Ingestion;
 
 public class DmmScraping(
     DmmSyncState dmmState,
@@ -111,7 +109,7 @@ public class DmmScraping(
 
                     var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
 
-                    var finalizedTorrents = parsedTorrents.Where(WipeSomeTissue).ToList();
+                    var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
 
                     await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
                 }
@@ -156,7 +154,7 @@ public class DmmScraping(
 
             var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
 
-            var finalizedTorrents = parsedTorrents.Where(WipeSomeTissue).ToList();
+            var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
 
             logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
 
@@ -191,9 +189,4 @@ public class DmmScraping(
             yield return torrent;
         }
     }
-
-    private static bool WipeSomeTissue(TorrentInfo torrent) =>
-        !((torrent.RawTitle.Contains(" xxx ", StringComparison.OrdinalIgnoreCase) ||
-           torrent.RawTitle.Contains(" xx ", StringComparison.OrdinalIgnoreCase)) &&
-          !torrent.ParsedTitle.Contains("XXX", StringComparison.OrdinalIgnoreCase));
 }
