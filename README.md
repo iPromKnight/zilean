@@ -68,3 +68,206 @@ See the file [compose.yaml](https://github.com/iPromKnight/zilean/blob/main/comp
 
 The Api can be accessed at `http://localhost:8181/scalar/v2` by default, which allows you to execute
 any of the available endpoints directly in a [Scalar](https://github.com/ScalaR/ScalaR) dashboard.
+
+---
+
+
+# Generic Ingestion Setup
+
+Zilean now has new **Generic Ingestion** functionality added. This setup provides a flexible mechanism to discover and process torrent data from multiple endpoints, including Kubernetes services and direct zurg and other zilean endpoint URLs.
+
+---
+
+## Ingestion Configuration
+
+The `Ingestion` section in the JSON configuration defines the behavior and options for the generic ingestion process.
+
+### Example Configuration
+
+```json
+"Ingestion": {
+  "ZurgInstances": [],
+  "ZileanInstances": [],
+  "EnableScraping": false,
+  "Kubernetes": {
+    "EnableServiceDiscovery": false,
+    "KubernetesSelectors": [
+      {
+        "UrlTemplate": "http://zurg.{0}:9999",
+        "LabelSelector": "app.elfhosted.com/name=zurg",
+        "EndpointType": 1
+      }
+    ],
+    "KubeConfigFile": "/$HOME/.kube/config"
+  },
+  "BatchSize": 500,
+  "MaxChannelSize": 5000,
+  "ScrapeSchedule": "0 * * * *",
+  "ZurgEndpointSuffix": "/debug/torrents",
+  "ZileanEndpointSuffix": "/torrents/all"
+}
+```
+
+---
+
+## Key Fields
+
+### `ZurgInstances`
+- **Type**: `GenericEndpoint[]`
+- **Description**: A list of direct endpoints for Zurg instances.
+- **Structure**:
+  ```json
+  {
+    "Url": "http://zurg.example.com:19999",
+    "EndpointType": 1
+  }
+  ```
+- **Example**:
+  ```json
+  "ZurgInstances": [
+    {
+      "Url": "http://zurg.prod.cluster.local:19999",
+      "EndpointType": 1
+    }
+  ]
+  ```
+
+### `ZileanInstances`
+- **Type**: `GenericEndpoint[]`
+- **Description**: A list of direct endpoints for Zilean instances.
+- **Structure**:
+  ```json
+  {
+    "Url": "http://zilean.example.com:8181",
+    "EndpointType": 0
+  }
+  ```
+- **Example**:
+  ```json
+  "ZileanInstances": [
+    {
+      "Url": "http://zilean.prod.cluster.local:8181",
+      "EndpointType": 0
+    }
+  ]
+  ```
+
+### `EnableScraping`
+- **Type**: `bool`
+- **Description**: Enables or disables automated scraping functionality for ingestion.
+
+### `Kubernetes`
+- **Type**: `object`
+- **Description**: Configuration for Kubernetes-based service discovery.
+- **Fields**:
+    - **`EnableServiceDiscovery`**: Enables Kubernetes service discovery.
+    - **`KubernetesSelectors`**:
+        - **`UrlTemplate`**: Template for constructing URLs from Kubernetes service metadata.
+        - **`LabelSelector`**: Label selector to filter Kubernetes services.
+        - **`EndpointType`**: Indicates the type of endpoint (0 = Zilean, 1 = Zurg).
+    - **`KubeConfigFile`**: Path to the Kubernetes configuration file.
+
+### `BatchSize`
+- **Type**: `int`
+- **Description**: Number of torrents to process in a single batch.
+
+### `MaxChannelSize`
+- **Type**: `int`
+- **Description**: Maximum number of items to buffer in memory during ingestion.
+
+### `ScrapeSchedule`
+- **Type**: `string` (CRON format)
+- **Description**: Schedule for automated scraping tasks.
+
+### `ZurgEndpointSuffix`
+- **Type**: `string`
+- **Description**: Default suffix appended to Zurg instance URLs for ingestion.
+
+### `ZileanEndpointSuffix`
+- **Type**: `string`
+- **Description**: Default suffix appended to Zilean instance URLs for ingestion.
+
+---
+
+## `GenericEndpoint` and `GenericEndpointType`
+
+### `GenericEndpoint`
+Represents a generic endpoint configuration.
+
+```csharp
+public class GenericEndpoint
+{
+    public required string Url { get; set; }
+    public required GenericEndpointType EndpointType { get; set; }
+}
+```
+
+### `GenericEndpointType`
+Defines the type of an endpoint.
+
+```csharp
+public enum GenericEndpointType
+{
+    Zilean = 0,
+    Zurg = 1
+}
+```
+
+---
+
+## New Torrents Configuration
+
+### Example
+
+```json
+"Torrents": {
+  "EnableEndpoint": false
+}
+```
+
+- **`EnableEndpoint`**:
+    - **Type**: `bool`
+    - **Description**: Enables or disables the Torrents API endpoint `/torrents/all` which allows this zilean instance to be scraped by another.
+
+---
+
+## Kubernetes Service Discovery
+
+If `EnableServiceDiscovery` is set to `true` in the Kubernetes section, the application will use the Kubernetes API to discover services matching the provided `LabelSelector`. The discovered services will be processed using the specified `UrlTemplate` and their `EndpointType`.
+
+### Example Service Discovery Configuration
+
+```json
+"Kubernetes": {
+  "EnableServiceDiscovery": true,
+  "KubernetesSelectors": [
+    {
+      "UrlTemplate": "http://zurg.{0}:9999",
+      "LabelSelector": "app.elfhosted.com/name=zurg",
+      "EndpointType": 1
+    }
+  ],
+  "KubeConfigFile": "/$HOME/.kube/config"
+}
+```
+
+### Behavior
+1. The application uses the Kubernetes client to list services matching the `LabelSelector`.
+2. It generates service URLs using the `UrlTemplate`, where `{0}` is replaced by the namespace.
+3. These URLs are passed to the ingestion pipeline for processing.
+
+---
+
+## Integration with Ingestion Pipeline
+
+The ingestion pipeline combines direct endpoints (`ZurgInstances` and `ZileanInstances`) and Kubernetes-discovered services (if enabled) to create a unified list of URLs. These URLs are then processed in batches, filtering out torrents already stored in the database.
+
+---
+
+## Logging and Monitoring
+
+Key events in the ingestion process are logged:
+- Discovered URLs.
+- Filtered torrents (existing in the database).
+- Processed torrents (new and valid).
+- Errors during processing or service discovery.
