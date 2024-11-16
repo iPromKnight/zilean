@@ -1,8 +1,10 @@
 // Global using directives
 
+global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
 global using System.Reflection;
+global using System.Text.Json;
 global using System.Xml.Serialization;
 global using Coravel;
 global using Coravel.Invocable;
@@ -16,13 +18,17 @@ global using Microsoft.IO;
 global using Scalar.AspNetCore;
 global using SimCube.Aspire.Features.Otlp;
 global using Zilean.ApiService.Features.Bootstrapping;
-global using Zilean.ApiService.Features.Dmm;
 global using Zilean.ApiService.Features.HealthChecks;
 global using Zilean.ApiService.Features.Imdb;
+global using Zilean.ApiService.Features.Search;
+global using Zilean.ApiService.Features.Sync;
+global using Zilean.ApiService.Features.Torrents;
 global using Zilean.ApiService.Features.Torznab;
+global using Zilean.Database;
 global using Zilean.Database.Services;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
+global using Zilean.Shared.Features.Scraping;
 global using Zilean.Shared.Features.Shell;
 global using Zilean.Shared.Features.Torznab;
 global using Zilean.Shared.Features.Torznab.Categories;

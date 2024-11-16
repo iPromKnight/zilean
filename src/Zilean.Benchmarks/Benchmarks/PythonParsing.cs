@@ -1,4 +1,4 @@
-using Zilean.DmmScraper.Features.PythonSupport;
+using Zilean.Scraper.Features.PythonSupport;
 
 namespace Zilean.Benchmarks.Benchmarks;
 

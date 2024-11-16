@@ -15,5 +15,6 @@ public static class WebApplicationExtensions
             .MapDmmEndpoints(configuration)
             .MapImdbEndpoints(configuration)
             .MapTorznabEndpoints(configuration)
+            .MapTorrentsEndpoints(configuration)
             .MapHealthCheckEndpoints();
 }

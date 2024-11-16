@@ -6,6 +6,9 @@ public class ExtractedDmmEntry(string? infoHash, string? filename, long filesize
     public string? InfoHash { get; set; } = infoHash;
     public long Filesize { get; set; } = filesize;
     public TorrentInfo? ParseResponse { get; set; } = parseResponse;
+
+    public static ExtractedDmmEntry FromStreamedEntry(StreamedEntry streamedEntry) =>
+        new(streamedEntry.InfoHash, streamedEntry.Name, streamedEntry.Size, null);
 }
 
 public class ExtractedDmmEntryResponse(TorrentInfo torrentInfo)

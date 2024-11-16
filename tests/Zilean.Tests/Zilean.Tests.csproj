@@ -26,7 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Zilean.DmmScraper\Zilean.DmmScraper.csproj" />
+      <ProjectReference Include="..\..\src\Zilean.Scraper\Zilean.Scraper.csproj" />
     </ItemGroup>
 
     <ItemGroup>
