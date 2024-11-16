@@ -18,9 +18,13 @@ The DMM import reruns on missing pages every hour.
       "EnableScraping": true,
       "EnableEndpoint": true,
       "ScrapeSchedule": "0 * * * *",
+      "MinimumReDownloadIntervalMinutes": 30,
       "MaxFilteredResults": 200,
       "MinimumScoreMatch": 0.85,
       "ImportBatched": false
+    },
+    "Torznab": {
+      "EnableEndpoint": true
     },
     "Database": {
       "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
@@ -28,17 +32,39 @@ The DMM import reruns on missing pages every hour.
     "Prowlarr": {
       "EnableEndpoint": true
     },
+    "Torrents": {
+      "EnableEndpoint": false
+    },
     "Imdb": {
-      "EnableImportMatching": false,
+      "EnableImportMatching": true,
       "EnableEndpoint": true,
       "MinimumScoreMatch": 0.85
     },
-    "Torznab": {
-      "EnableEndpoint": true
+    "Ingestion": {
+      "ZurgInstances": [],
+      "ZileanInstances": [],
+      "EnableScraping": false,
+      "Kubernetes": {
+        "EnableServiceDiscovery": false,
+        "KubernetesSelectors": [
+          {
+            "UrlTemplate": "http://zurg.{0}:9999",
+            "LabelSelector": "app.elfhosted.com/name=zurg",
+            "EndpointType": 1
+          }
+        ],
+        "KubeConfigFile": "/$HOME/.kube/config"
+      },
+      "BatchSize": 500,
+      "MaxChannelSize": 5000,
+      "ScrapeSchedule": "0 * * * *",
+      "ZurgEndpointSuffix": "/debug/torrents",
+      "ZileanEndpointSuffix": "/torrents/all"
     }
   }
 }
 ```
+### This file can be edited on your disk and mounted as a volume into the container at `/app/data/settings.json`.
 
 Every option you see can be set as an env variable, the env variable name is the same as the json path with double underscores instead of dots.
 For example, `Zilean__Dmm__EnableScraping` would be the env variable for `Zilean.Dmm.EnableScraping`.
