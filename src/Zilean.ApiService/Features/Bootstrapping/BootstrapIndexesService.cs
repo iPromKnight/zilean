@@ -1,4 +1,4 @@
-using Zilean.Database;
+using Zilean.ApiService.Features.Sync;
 
 namespace Zilean.ApiService.Features.Bootstrapping;
 
@@ -28,10 +28,16 @@ public class BootstrapIndexesService(
 
     public async Task StartedAsync(CancellationToken cancellationToken)
     {
-        if (configuration.Dmm.EnableScraping && DmmSyncJob.ShouldRunOnStartup())
+        if (configuration.Dmm.EnableScraping)
         {
-            var dmmJob = new DmmSyncJob(executionService, loggerFactory.CreateLogger<DmmSyncJob>());
-            await dmmJob.Invoke();
+            await using var asyncScope = serviceProvider.CreateAsyncScope();
+            var infoService = asyncScope.ServiceProvider.GetRequiredService<ITorrentInfoService>();
+            var dmmJob = new SyncJob(executionService, loggerFactory.CreateLogger<SyncJob>(), infoService);
+            var shouldRun = await dmmJob.ShouldRunOnStartup();
+            if (shouldRun)
+            {
+                await dmmJob.Invoke();
+            }
         }
     }
 }
