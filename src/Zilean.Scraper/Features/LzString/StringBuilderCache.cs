@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.LzString;
+namespace Zilean.Scraper.Features.LzString;
 
 public static class StringBuilderCache
 {

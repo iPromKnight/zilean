@@ -1,4 +1,8 @@
-namespace Zilean.DmmScraper.Features.Bootstrapping;
+using Zilean.Scraper.Features.Dmm;
+using Zilean.Scraper.Features.Imdb;
+using Zilean.Scraper.Features.PythonSupport;
+
+namespace Zilean.Scraper.Features.Bootstrapping;
 
 public static class ServiceCollectionExtensions
 {

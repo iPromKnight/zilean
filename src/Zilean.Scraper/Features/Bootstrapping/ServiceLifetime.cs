@@ -1,4 +1,7 @@
-namespace Zilean.DmmScraper.Features.Bootstrapping;
+using Zilean.Scraper.Features.Dmm;
+using Zilean.Scraper.Features.Imdb;
+
+namespace Zilean.Scraper.Features.Bootstrapping;
 
 public class ServiceLifetime(ImdbMetadataLoader metadataLoader, DmmScraping dmmScraper, IServiceProvider serviceProvider, ILogger<ServiceLifetime> logger, ZileanConfiguration configuration) : IHostedLifecycleService
 {

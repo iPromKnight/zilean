@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Zilean.DmmScraper\Zilean.DmmScraper.csproj" />
+      <ProjectReference Include="..\Zilean.Scraper\Zilean.Scraper.csproj" />
     </ItemGroup>
 
   <ItemGroup>

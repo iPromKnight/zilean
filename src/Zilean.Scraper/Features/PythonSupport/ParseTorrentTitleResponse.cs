@@ -1,3 +1,3 @@
-namespace Zilean.DmmScraper.Features.PythonSupport;
+namespace Zilean.Scraper.Features.PythonSupport;
 
 public record ParseTorrentTitleResponse(bool Success, TorrentInfo? Response);

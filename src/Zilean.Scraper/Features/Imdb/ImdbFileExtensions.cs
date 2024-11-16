@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.Imdb;
+namespace Zilean.Scraper.Features.Imdb;
 
 public static class ImdbFileExtensions
 {
