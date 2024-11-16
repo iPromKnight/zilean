@@ -1,4 +1,6 @@
-namespace Zilean.DmmScraper.Features.Dmm;
+using Zilean.Scraper.Features.PythonSupport;
+
+namespace Zilean.Scraper.Features.Dmm;
 
 public class DmmScraping(
     DmmSyncState dmmState,

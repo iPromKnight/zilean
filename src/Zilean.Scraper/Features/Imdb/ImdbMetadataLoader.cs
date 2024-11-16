@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.Imdb;
+namespace Zilean.Scraper.Features.Imdb;
 
 public class ImdbMetadataLoader(ImdbFileDownloader downloader, ImdbFileProcessor processor, ILogger<ImdbMetadataLoader> logger, ImdbFileService imdbFileService)
 {

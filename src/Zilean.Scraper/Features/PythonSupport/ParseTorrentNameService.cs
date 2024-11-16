@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.PythonSupport;
+namespace Zilean.Scraper.Features.PythonSupport;
 
 public class ParseTorrentNameService
 {
@@ -24,7 +24,7 @@ public class ParseTorrentNameService
         custom_format = (
             "[{time:HH:mm:ss}] | "
             f"{light_blue}{{level}}{reset} | "
-            f"{light_green}\"Zilean.DmmScraper.Features.Python.ParseTorrentNameService\"{reset} | "
+            f"{light_green}\"Zilean.Scraper.Features.Python.ParseTorrentNameService\"{reset} | "
             "{message}"
         )
 

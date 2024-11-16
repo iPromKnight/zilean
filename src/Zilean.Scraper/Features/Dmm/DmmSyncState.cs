@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.Dmm;
+namespace Zilean.Scraper.Features.Dmm;
 
 public class DmmSyncState(ILogger<DmmSyncState> logger, DmmService dmmService)
 {

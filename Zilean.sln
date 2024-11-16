@@ -31,7 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{CF4C96
 		.github\workflows\cicd.yaml = .github\workflows\cicd.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zilean.DmmScraper", "src\Zilean.DmmScraper\Zilean.DmmScraper.csproj", "{192B767E-7CFA-4F72-A9CA-35BE2CEE46FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zilean.Scraper", "src\Zilean.Scraper\Zilean.Scraper.csproj", "{192B767E-7CFA-4F72-A9CA-35BE2CEE46FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Zilean.Shared", "src\Zilean.Shared\Zilean.Shared.csproj", "{85F3D012-6CA4-43D3-A08F-0A93FA739F46}"
 EndProject

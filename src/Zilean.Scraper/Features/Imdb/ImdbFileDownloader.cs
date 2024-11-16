@@ -1,4 +1,4 @@
-namespace Zilean.DmmScraper.Features.Imdb;
+namespace Zilean.Scraper.Features.Imdb;
 
 public class ImdbFileDownloader(ILogger<ImdbFileDownloader> logger)
 {
