@@ -12,9 +12,6 @@ public class GenericIngestionScraping(
 
         List<GenericEndpoint> urlsToProcess = [];
 
-        configuration.Ingestion.ZileanInstances.Add("http://localhost:8181");
-        configuration.Ingestion.ZurgInstances.Add("http://experiments:19999");
-
         await DiscoverUrlsFromKubernetesServices(cancellationToken, urlsToProcess);
 
         AddZurgInstancesToUrls(urlsToProcess);
