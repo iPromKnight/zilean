@@ -1,5 +1,3 @@
-using Zilean.ApiService.Features.Search;
-
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 public static class WebApplicationExtensions
@@ -17,5 +15,6 @@ public static class WebApplicationExtensions
             .MapDmmEndpoints(configuration)
             .MapImdbEndpoints(configuration)
             .MapTorznabEndpoints(configuration)
+            .MapTorrentsEndpoints(configuration)
             .MapHealthCheckEndpoints();
 }

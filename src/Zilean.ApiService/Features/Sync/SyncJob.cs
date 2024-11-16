@@ -1,6 +1,6 @@
 namespace Zilean.ApiService.Features.Sync;
 
-public class SyncJob(IShellExecutionService shellExecutionService, ILogger<SyncJob> logger, ITorrentInfoService infoService) : IInvocable, ICancellableInvocable
+public class SyncJob(IShellExecutionService shellExecutionService, ILogger<SyncJob> logger, ZileanDbContext dbContext) : IInvocable, ICancellableInvocable
 {
     public CancellationToken CancellationToken { get; set; }
 
@@ -18,5 +18,6 @@ public class SyncJob(IShellExecutionService shellExecutionService, ILogger<SyncJ
         logger.LogInformation("SyncJob completed");
     }
 
-    public Task<bool> ShouldRunOnStartup() => infoService.HasParsedPages();
+    // ReSharper disable once MethodSupportsCancellation
+    public Task<bool> ShouldRunOnStartup() => dbContext.ParsedPages.AnyAsync();
 }
