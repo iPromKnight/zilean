@@ -1,6 +1,6 @@
-﻿namespace Zilean.ApiService.Features.Dmm;
+﻿namespace Zilean.ApiService.Features.Search;
 
-public class DmmFilteredRequest
+public class SearchFilteredRequest
 {
     public string? Query { get; init; }
     public int? Season { get; init; }

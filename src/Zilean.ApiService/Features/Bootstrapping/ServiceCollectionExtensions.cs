@@ -1,4 +1,4 @@
-using Zilean.Database;
+using Zilean.ApiService.Features.Sync;
 
 namespace Zilean.ApiService.Features.Bootstrapping;
 
@@ -18,8 +18,8 @@ public static class ServiceCollectionExtensions
     {
         if (configuration.Dmm.EnableScraping)
         {
-            services.AddTransient<DmmSyncJob>();
-            services.AddSingleton<DmmSyncOnDemandState>();
+            services.AddTransient<SyncJob>();
+            services.AddSingleton<SyncOnDemandState>();
         }
 
         return services;
@@ -31,9 +31,9 @@ public static class ServiceCollectionExtensions
             {
                 if (configuration.Dmm.EnableScraping)
                 {
-                    scheduler.Schedule<DmmSyncJob>()
+                    scheduler.Schedule<SyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
-                        .PreventOverlapping(nameof(DmmSyncJob));
+                        .PreventOverlapping(nameof(SyncJob));
                 }
             })
             .LogScheduledTaskProgress();

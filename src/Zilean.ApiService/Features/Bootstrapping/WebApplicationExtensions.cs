@@ -1,3 +1,5 @@
+using Zilean.ApiService.Features.Search;
+
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 public static class WebApplicationExtensions

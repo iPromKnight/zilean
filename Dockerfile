@@ -6,7 +6,7 @@ COPY . .
 RUN dotnet restore -a $TARGETARCH
 WORKDIR /build/src/Zilean.ApiService
 RUN dotnet publish -c Release --no-restore -a $TARGETARCH -o /app/out
-WORKDIR /build/src/Zilean.DmmScraper
+WORKDIR /build/src/Zilean.Scraper
 RUN dotnet publish -c Release --no-restore -a $TARGETARCH -o /app/out
 
 # Run Stage

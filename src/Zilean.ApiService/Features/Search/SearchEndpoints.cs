@@ -1,6 +1,8 @@
-namespace Zilean.ApiService.Features.Dmm;
+using Zilean.ApiService.Features.Sync;
 
-public static class DmmEndpoints
+namespace Zilean.ApiService.Features.Search;
+
+public static class SearchEndpoints
 {
     private const string GroupName = "dmm";
     private const string Search = "/search";
@@ -34,7 +36,7 @@ public static class DmmEndpoints
         return group;
     }
 
-    private static async Task PerformOnDemandScrape(HttpContext context, ILogger<GeneralInstance> logger, IShellExecutionService executionService, ILogger<DmmSyncJob> syncLogger, IMutex mutex, DmmSyncOnDemandState state)
+    private static async Task PerformOnDemandScrape(HttpContext context, ILogger<GeneralInstance> logger, IShellExecutionService executionService, ILogger<SyncJob> syncLogger, IMutex mutex, SyncOnDemandState state)
     {
         if (state.IsRunning)
         {
@@ -44,7 +46,7 @@ public static class DmmEndpoints
 
         logger.LogInformation("Trying to schedule on-demand scrape with a 5 minute timeout on lock acquisition.");
 
-        bool available = mutex.TryGetLock(nameof(DmmSyncJob), 1);
+        bool available = mutex.TryGetLock(nameof(SyncJob), 1);
 
         if(available)
         {
@@ -52,11 +54,11 @@ public static class DmmEndpoints
             {
                 logger.LogInformation("On-demand scrape mutex lock acquired.");
                 state.IsRunning = true;
-                await new DmmSyncJob(executionService, syncLogger).Invoke();
+                await new SyncJob(executionService, syncLogger).Invoke();
             }
             finally
             {
-                mutex.Release(nameof(DmmSyncJob));
+                mutex.Release(nameof(SyncJob));
                 state.IsRunning = false;
             }
 
@@ -91,7 +93,7 @@ public static class DmmEndpoints
         }
     }
 
-    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, ITorrentInfoService torrentInfoService, ZileanConfiguration configuration, ILogger<DmmFilteredInstance> logger, [AsParameters] DmmFilteredRequest request)
+    private static async Task<Ok<TorrentInfo[]>> PerformFilteredSearch(HttpContext context, ITorrentInfoService torrentInfoService, ZileanConfiguration configuration, ILogger<DmmFilteredInstance> logger, [AsParameters] SearchFilteredRequest request)
     {
 
         try

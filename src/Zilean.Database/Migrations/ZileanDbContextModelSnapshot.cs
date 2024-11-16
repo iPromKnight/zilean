@@ -23,7 +23,7 @@ namespace Zilean.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Zilean.Shared.Features.Dmm.ParsedPages", b =>
+            modelBuilder.Entity("Zilean.Shared.Features.Search.ParsedPages", b =>
                 {
                     b.Property<string>("Page")
                         .HasColumnType("text");
@@ -36,7 +36,7 @@ namespace Zilean.Database.Migrations
                     b.ToTable("ParsedPages", (string)null);
                 });
 
-            modelBuilder.Entity("Zilean.Shared.Features.Dmm.TorrentInfo", b =>
+            modelBuilder.Entity("Zilean.Shared.Features.Search.TorrentInfo", b =>
                 {
                     b.Property<string>("InfoHash")
                         .HasColumnType("text")
@@ -295,7 +295,7 @@ namespace Zilean.Database.Migrations
                     b.ToTable("ImportMetadata");
                 });
 
-            modelBuilder.Entity("Zilean.Shared.Features.Dmm.TorrentInfo", b =>
+            modelBuilder.Entity("Zilean.Shared.Features.Search.TorrentInfo", b =>
                 {
                     b.HasOne("Zilean.Shared.Features.Imdb.ImdbFile", "Imdb")
                         .WithMany()
