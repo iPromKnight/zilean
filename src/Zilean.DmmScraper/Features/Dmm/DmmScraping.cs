@@ -191,6 +191,7 @@ public class DmmScraping(
     }
 
     private static bool WipeSomeTissue(TorrentInfo torrent) =>
-        !(torrent.RawTitle.Contains(" xxx ", StringComparison.OrdinalIgnoreCase) &&
+        !((torrent.RawTitle.Contains(" xxx ", StringComparison.OrdinalIgnoreCase) ||
+           torrent.RawTitle.Contains(" xx ", StringComparison.OrdinalIgnoreCase)) &&
           !torrent.ParsedTitle.Contains("XXX", StringComparison.OrdinalIgnoreCase));
 }
