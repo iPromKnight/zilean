@@ -22,6 +22,7 @@
     <PackageReference Include="pythonnet" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="KubernetesClient" />
+    <PackageReference Include="Spectre.Console.Cli" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
