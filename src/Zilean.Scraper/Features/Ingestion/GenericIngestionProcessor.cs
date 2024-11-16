@@ -60,11 +60,6 @@ public class GenericIngestionProcessor(
                 }
             }
         }
-        catch (Exception)
-        {
-            logger.LogWarning("Error processing item");
-            throw;
-        }
         finally
         {
             writer.Complete();

@@ -2,6 +2,6 @@
 
 public enum GenericEndpointType
 {
-    Zilean,
-    Zurg
+    Zilean = 0,
+    Zurg = 1
 }

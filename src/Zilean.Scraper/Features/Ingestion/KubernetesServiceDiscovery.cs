@@ -57,7 +57,7 @@ public class KubernetesServiceDiscovery(
         return urls;
     }
 
-    private static string BuildUrlFromService(DiscoveredService service)
+    private string BuildUrlFromService(DiscoveredService service)
     {
         if (service.Service.Metadata?.NamespaceProperty == null)
         {
