@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.2](https://github.com/iPromKnight/zilean/compare/v2.1.1...v2.1.2) (2024-11-16)
+
+
+### 🔥 Bug Fixes
+
+* Add filtering logic to exclude certain torrents during DMM scraping ([50612a7](https://github.com/iPromKnight/zilean/commit/50612a7d1467e9b47289882b762f658f4c09c5c6))
+* reverse predicate ([c083aac](https://github.com/iPromKnight/zilean/commit/c083aacb999121b9d341cce0a0ab65e0a0d2fe9a))
+* this will allow maxxxine, and xxx ([1f3c5c0](https://github.com/iPromKnight/zilean/commit/1f3c5c05f9979128a5cc49c9de72990550c87aa8))
+
 ## [2.1.1](https://github.com/iPromKnight/zilean/compare/v2.1.0...v2.1.1) (2024-11-15)
 
 
