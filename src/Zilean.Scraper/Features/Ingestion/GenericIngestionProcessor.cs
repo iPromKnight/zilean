@@ -7,9 +7,14 @@ public class GenericIngestionProcessor(
     ITorrentInfoService torrentInfoService,
     ZileanConfiguration configuration)
 {
-    public async Task ProcessTorrentsAsync(string url, CancellationToken cancellationToken = default)
+    private int _processedCount;
+
+    public async Task ProcessTorrentsAsync(GenericEndpoint endpoint, CancellationToken cancellationToken = default)
     {
-        logger.LogInformation("Processing URL: {Url}", url);
+        var sw = Stopwatch.StartNew();
+        logger.LogInformation("Processing URL: {@Url}", endpoint);
+
+        Interlocked.Exchange(ref _processedCount, 0);
 
         var channel = Channel.CreateBounded<Task<StreamedEntry>>(new BoundedChannelOptions(configuration.Ingestion.MaxChannelSize)
         {
@@ -18,17 +23,27 @@ public class GenericIngestionProcessor(
             FullMode = BoundedChannelFullMode.Wait
         });
 
-        var producerTask = ProduceAsync(url, channel.Writer, cancellationToken);
+        var producerTask = ProduceAsync(endpoint, channel.Writer, cancellationToken);
         var consumerTask = ConsumeAsync(channel.Reader, configuration.Ingestion.BatchSize, cancellationToken);
         await Task.WhenAll(producerTask, consumerTask);
+
+        logger.LogInformation("Processed {Count} torrents for endpoint '{@Endpoint}' in {TimeTaken}s", _processedCount, endpoint, sw.Elapsed.TotalSeconds);
+        sw.Stop();
     }
 
-    private async Task ProduceAsync(string url, ChannelWriter<Task<StreamedEntry>> writer, CancellationToken cancellationToken = default)
+    private async Task ProduceAsync(GenericEndpoint endpoint, ChannelWriter<Task<StreamedEntry>> writer, CancellationToken cancellationToken = default)
     {
         try
         {
             var httpClient = clientFactory.CreateClient();
-            var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            var fullUrl = endpoint.EndpointType switch
+            {
+                GenericEndpointType.Zurg => $"{endpoint.Url}/debug/torrents",
+                GenericEndpointType.Zilean => $"{endpoint.Url}/torrents/all",
+                _ => throw new InvalidOperationException("Unknown endpoint type")
+            };
+
+            var response = await httpClient.GetAsync(fullUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
@@ -89,6 +104,7 @@ public class GenericIngestionProcessor(
             {
                 var current = await result;
                 torrents.Add(ExtractedDmmEntry.FromStreamedEntry(current));
+                Interlocked.Increment(ref _processedCount);
             }
 
             if (torrents.Count == 0 || cancellationToken.IsCancellationRequested)
@@ -96,11 +112,22 @@ public class GenericIngestionProcessor(
                 return;
             }
 
-            logger.LogInformation("Processing batch of {Count} torrents", torrents.Count);
+            var infoHashes = torrents.Select(t => t.InfoHash!).ToList();
+
+            var existingInfoHashes = await torrentInfoService.GetExistingInfoHashesAsync(infoHashes);
+
+            var newTorrents = torrents.Where(t => !existingInfoHashes.Contains(t.InfoHash)).ToList();
+            logger.LogInformation("Filtered out {Count} torrents already in the database", torrents.Count - newTorrents.Count);
+
+            if (newTorrents.Count == 0)
+            {
+                logger.LogInformation("No new torrents to process in this batch.");
+                return;
+            }
 
             if (torrents.Count != 0)
             {
-                var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(torrents);
+                var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(newTorrents);
                 var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
                 logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
                 await torrentInfoService.StoreTorrentInfo(finalizedTorrents);

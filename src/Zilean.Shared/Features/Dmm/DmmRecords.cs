@@ -1,5 +1,3 @@
-using Zilean.Shared.Features.Scraping;
-
 namespace Zilean.Shared.Features.Dmm;
 
 public class ExtractedDmmEntry(string? infoHash, string? filename, long filesize, TorrentInfo? parseResponse)

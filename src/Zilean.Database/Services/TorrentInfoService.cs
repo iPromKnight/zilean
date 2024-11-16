@@ -189,5 +189,18 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
         return imdbRecord?.ImdbId;
     }
 
+    public async Task<HashSet<string>> GetExistingInfoHashesAsync(List<string> infoHashes)
+    {
+        await using var serviceScope = serviceProvider.CreateAsyncScope();
+        await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
+
+        var existingHashes = await dbContext.Torrents
+            .Where(t => infoHashes.Contains(t.InfoHash))
+            .Select(t => t.InfoHash)
+            .ToListAsync();
+
+        return [..existingHashes];
+    }
+
     private void WriteProgress(decimal @decimal) => logger.LogInformation("Storing torrent info: {Percentage:P}", @decimal);
 }
