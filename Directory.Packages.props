@@ -29,7 +29,7 @@
     <PackageVersion Include="Testcontainers" Version="4.0.0" />
     <PackageVersion Include="Testcontainers.PostgreSql" Version="4.0.0" />
     <PackageVersion Include="KubernetesClient" Version="15.0.1" />
-    <PackageVersion Include="Verify.Xunit" Version="28.2.1" />
+    <PackageVersion Include="Verify.Xunit" Version="28.3.1" />
     <PackageVersion Include="xunit" Version="2.9.2" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2">
       <PrivateAssets>all</PrivateAssets>

@@ -1,5 +1,3 @@
-using Zilean.ApiService.Features.Sync;
-
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 [ExcludeFromCodeCoverage]
