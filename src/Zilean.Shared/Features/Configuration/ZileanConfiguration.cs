@@ -14,6 +14,7 @@ public class ZileanConfiguration
     public ProwlarrConfiguration Prowlarr { get; set; } = new();
     public TorrentsConfiguration Torrents { get; set; } = new();
     public ImdbConfiguration Imdb { get; set; } = new();
+    public IngestionConfiguration Ingestion { get; set; } = new();
 
     public static void EnsureExists()
     {
