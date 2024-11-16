@@ -1,11 +1,32 @@
-﻿var builder = Host.CreateApplicationBuilder(args);
+﻿var builder = Host.CreateDefaultBuilder();
 
-builder.Configuration.AddConfigurationFiles();
+builder.ConfigureAppConfiguration(configuration =>
+{
+    configuration.AddConfigurationFiles();
+});
 
-builder.AddOtlpServiceDefaults();
+builder.ConfigureLogging((context, logging) =>
+{
+    logging.ClearProviders();
+    var loggingConfiguration = context.Configuration.GetLoggerConfiguration();
+    Log.Logger = loggingConfiguration.CreateLogger();
+    logging.AddSerilog();
+});
 
-builder.Services.AddScrapers(builder.Configuration);
+builder.ConfigureServices((context, services) =>
+{
+    services.AddScrapers(context.Configuration);
+    services.AddCommandLine<DefaultCommand>(config =>
+    {
+        config.SetApplicationName("zilean-scraper");
 
-var scraper = builder.Build();
+        config.AddCommand<DmmSyncCommand>("dmm-sync")
+            .WithDescription("Sync DMM Hashlists from Github.");
 
-await scraper.RunAsync();
+        config.AddCommand<GenericSyncCommand>("generic-sync")
+            .WithDescription("Sync data from Zurg and Zilean instances.");
+    });
+});
+
+var host = builder.Build();
+return await host.RunAsync(args);

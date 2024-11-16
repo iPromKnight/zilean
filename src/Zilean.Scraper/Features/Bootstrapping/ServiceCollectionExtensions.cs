@@ -6,13 +6,14 @@ public static class ServiceCollectionExtensions
     {
         var zileanConfiguration = configuration.GetZileanConfiguration();
 
+        services.AddHttpClient();
         services.AddSingleton(zileanConfiguration);
         services.AddImdbServices();
         services.AddDmmServices();
         services.AddGenericServices();
         services.AddZileanDataServices(zileanConfiguration);
         services.AddSingleton<ParseTorrentNameService>();
-        services.AddHostedService<ServiceLifetime>();
+        services.AddHostedService<EnsureMigrated>();
     }
 
     private static void AddDmmServices(this IServiceCollection services)

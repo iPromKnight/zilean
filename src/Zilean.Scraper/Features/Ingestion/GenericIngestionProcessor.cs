@@ -4,7 +4,7 @@ public class GenericIngestionProcessor(
     IHttpClientFactory clientFactory,
     ILogger<GenericIngestionProcessor> logger,
     ParseTorrentNameService parseTorrentNameService,
-    TorrentInfoService torrentInfoService,
+    ITorrentInfoService torrentInfoService,
     ZileanConfiguration configuration)
 {
     public async Task ProcessTorrentsAsync(string url, CancellationToken cancellationToken = default)
