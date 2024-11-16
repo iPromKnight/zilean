@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.1](https://github.com/iPromKnight/zilean/compare/v2.2.0...v2.2.1) (2024-11-16)
+
+
+### 🔥 Bug Fixes
+
+* add configuration tests and update ingestion scraping logic ([ae73304](https://github.com/iPromKnight/zilean/commit/ae73304a6713fec098bcc5a39b5d5b088ca68e6b))
+
+
+### ⚙️ Chores
+
+* uddate readme ([a3461a6](https://github.com/iPromKnight/zilean/commit/a3461a606e5ff6cbad90bf6b33acaefe9c7cb831))
+* update readme ([d9fed86](https://github.com/iPromKnight/zilean/commit/d9fed86a5382e7a5030811f157adbf8d908dabe0))
+
 ## [2.2.0](https://github.com/iPromKnight/zilean/compare/v2.1.3...v2.2.0) (2024-11-16)
 
 
