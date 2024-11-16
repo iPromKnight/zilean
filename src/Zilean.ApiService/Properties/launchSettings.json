@@ -6,7 +6,9 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://+:8181",
-        "Zilean__Torrents__EnableEndpoint": "true"
+        "Zilean__Torrents__EnableEndpoint": "true",
+        "Zilean__Ingestion__EnableScraping": "true",
+        "Zilean__Dmm__EnableScraping": "true"
       }
     }
   }

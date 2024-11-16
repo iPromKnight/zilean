@@ -9,14 +9,15 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
-    public static IServiceCollection AddDataBootStrapping(this IServiceCollection services) =>
-        services.AddHostedService<BootstrapIndexesService>();
+    public static IServiceCollection AddStartupHostedService(this IServiceCollection services) =>
+        services.AddHostedService<StartupService>();
 
     public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services, ZileanConfiguration configuration)
     {
         if (configuration.Dmm.EnableScraping)
         {
-            services.AddTransient<SyncJob>();
+            services.AddTransient<DmmSyncJob>();
+            services.AddTransient<GenericSyncJob>();
             services.AddSingleton<SyncOnDemandState>();
         }
 
@@ -29,9 +30,16 @@ public static class ServiceCollectionExtensions
             {
                 if (configuration.Dmm.EnableScraping)
                 {
-                    scheduler.Schedule<SyncJob>()
+                    scheduler.Schedule<DmmSyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
-                        .PreventOverlapping(nameof(SyncJob));
+                        .PreventOverlapping("SyncJobs");
+                }
+
+                if (configuration.Ingestion.EnableScraping)
+                {
+                    scheduler.Schedule<GenericSyncJob>()
+                        .Cron(configuration.Ingestion.ScrapeSchedule)
+                        .PreventOverlapping("SyncJobs");
                 }
             })
             .LogScheduledTaskProgress();

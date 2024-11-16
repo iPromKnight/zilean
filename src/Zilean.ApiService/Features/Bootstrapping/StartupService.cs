@@ -1,6 +1,6 @@
 namespace Zilean.ApiService.Features.Bootstrapping;
 
-public class BootstrapIndexesService(
+public class StartupService(
     ZileanConfiguration configuration,
     IShellExecutionService executionService,
     IServiceProvider serviceProvider,
@@ -12,7 +12,7 @@ public class BootstrapIndexesService(
 
     public async Task StartingAsync(CancellationToken cancellationToken)
     {
-        var logger = loggerFactory.CreateLogger<BootstrapIndexesService>();
+        var logger = loggerFactory.CreateLogger<StartupService>();
         logger.LogInformation("Applying Migrations...");
         await using var asyncScope = serviceProvider.CreateAsyncScope();
         var dbContext = asyncScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
@@ -30,7 +30,7 @@ public class BootstrapIndexesService(
         {
             await using var asyncScope = serviceProvider.CreateAsyncScope();
             var dbContext = asyncScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
-            var dmmJob = new SyncJob(executionService, loggerFactory.CreateLogger<SyncJob>(), dbContext);
+            var dmmJob = new DmmSyncJob(executionService, loggerFactory.CreateLogger<DmmSyncJob>(), dbContext);
             var shouldRun = await dmmJob.ShouldRunOnStartup();
             if (shouldRun)
             {

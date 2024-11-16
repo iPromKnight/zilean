@@ -34,7 +34,7 @@ public static class SearchEndpoints
         return group;
     }
 
-    private static async Task PerformOnDemandScrape(HttpContext context, ILogger<GeneralInstance> logger, IShellExecutionService executionService, ILogger<SyncJob> syncLogger, IMutex mutex, SyncOnDemandState state, ZileanDbContext dbContext)
+    private static async Task PerformOnDemandScrape(HttpContext context, ILogger<GeneralInstance> logger, IShellExecutionService executionService, ILogger<DmmSyncJob> syncLogger, IMutex mutex, SyncOnDemandState state, ZileanDbContext dbContext)
     {
         if (state.IsRunning)
         {
@@ -42,9 +42,9 @@ public static class SearchEndpoints
             return;
         }
 
-        logger.LogInformation("Trying to schedule on-demand scrape with a 5 minute timeout on lock acquisition.");
+        logger.LogInformation("Trying to schedule on-demand scrape with a 1 minute timeout on lock acquisition.");
 
-        bool available = mutex.TryGetLock(nameof(SyncJob), 1);
+        bool available = mutex.TryGetLock(nameof(DmmSyncJob), 1);
 
         if(available)
         {
@@ -52,11 +52,11 @@ public static class SearchEndpoints
             {
                 logger.LogInformation("On-demand scrape mutex lock acquired.");
                 state.IsRunning = true;
-                await new SyncJob(executionService, syncLogger, dbContext).Invoke();
+                await new DmmSyncJob(executionService, syncLogger, dbContext).Invoke();
             }
             finally
             {
-                mutex.Release(nameof(SyncJob));
+                mutex.Release(nameof(DmmSyncJob));
                 state.IsRunning = false;
             }
 
