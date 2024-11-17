@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.3](https://github.com/iPromKnight/zilean/compare/v2.3.2...v2.3.3) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* include ingestion request timeout ([92426da](https://github.com/iPromKnight/zilean/commit/92426da0af85f6595e1886576615664ee525b75c))
+* increase command timeout in dockerfile example ([007f514](https://github.com/iPromKnight/zilean/commit/007f514097afb386ca2d5da7ccbfda3c8f121e68))
+
 ## [2.3.2](https://github.com/iPromKnight/zilean/compare/v2.3.1...v2.3.2) (2024-11-17)
 
 
