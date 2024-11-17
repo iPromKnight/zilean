@@ -3,31 +3,27 @@ namespace Zilean.ApiService.Features.Bootstrapping;
 [ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddSwaggerSupport(this IServiceCollection services)
-    {
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(
-            options =>
-            {
-                options.SwaggerDoc("v1", new()
-                {
-                    Version = "v1",
-                    Title = "Zilean API",
-                    Description = "Arrless Searching for Riven",
-                });
-            });
-
-        return services;
-    }
+    public static IServiceCollection AddSwaggerSupport(this IServiceCollection services) =>
+        services.AddOpenApi("v2", options =>
+        {
+            options.AddDocumentTransformer<ApiKeyDocumentTransformer>();
+        });
 
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
-    public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services, ZileanConfiguration configuration)
+    public static IServiceCollection AddStartupHostedServices(this IServiceCollection services) =>
+        services.AddHostedService<StartupService>()
+            .AddHostedService<ConfigurationUpdaterService>();
+
+    public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services,
+        ZileanConfiguration configuration)
     {
         if (configuration.Dmm.EnableScraping)
         {
             services.AddTransient<DmmSyncJob>();
+            services.AddTransient<GenericSyncJob>();
+            services.AddSingleton<SyncOnDemandState>();
         }
 
         return services;
@@ -39,18 +35,41 @@ public static class ServiceCollectionExtensions
             {
                 if (configuration.Dmm.EnableScraping)
                 {
-                    var dmmSchedule = scheduler.Schedule<DmmSyncJob>()
+                    scheduler.Schedule<DmmSyncJob>()
                         .Cron(configuration.Dmm.ScrapeSchedule)
-                        .PreventOverlapping(nameof(DmmSyncJob));
+                        .PreventOverlapping("SyncJobs");
+                }
 
-                    if (DmmSyncJob.ShouldRunOnStartup())
-                    {
-                        dmmSchedule.RunOnceAtStart();
-                    }
+                if (configuration.Ingestion.EnableScraping)
+                {
+                    scheduler.Schedule<GenericSyncJob>()
+                        .Cron(configuration.Ingestion.ScrapeSchedule)
+                        .PreventOverlapping("SyncJobs");
                 }
             })
-            .LogScheduledTaskProgress(provider.GetService<ILogger<IScheduler>>());
+            .LogScheduledTaskProgress();
 
         return provider;
+    }
+
+    public static IServiceCollection AddApiKeyAuthentication(this IServiceCollection services)
+    {
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "None";
+                options.DefaultAuthenticateScheme = "None";
+            })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthentication.Scheme, _ => { });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(ApiKeyAuthentication.Policy, policy =>
+            {
+                policy.AuthenticationSchemes.Add(ApiKeyAuthentication.Scheme);
+                policy.RequireAuthenticatedUser();
+            });
+        });
+
+        return services;
     }
 }

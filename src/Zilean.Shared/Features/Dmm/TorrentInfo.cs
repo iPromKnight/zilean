@@ -2,51 +2,150 @@ namespace Zilean.Shared.Features.Dmm;
 
 public class TorrentInfo
 {
-    public string? Resolution { get; set; }
-    public int? Year { get; set; }
-    public bool Remastered { get; set; }
-    public string? Source { get; set; }
-    public string? Codec { get; set; }
-    public string? Group { get; set; }
-    public List<int> Episodes { get; set; } = [];
-    public List<int> Seasons { get; set; } = [];
-    public List<string> Languages { get; set; } = [];
-    public string? Title { get; set; }
+    [JsonPropertyName("raw_title")]
     public string? RawTitle { get; set; }
-    public long Size { get; set; }
-    public string? InfoHash { get; set; }
 
-    public bool IsPossibleMovie { get; set; }
+    [JsonPropertyName("parsed_title")]
+    public string? ParsedTitle { get; set; }
 
-    public static IClrTypeMapping<TorrentInfo> TorrentInfoDefaultMapping(ClrTypeMappingDescriptor<TorrentInfo> x)
-    {
-        x.IndexName(ElasticSearchClient.DmmIndex);
-        x.IdProperty(p => p.InfoHash);
+    [JsonPropertyName("normalized_title")]
+    public string? NormalizedTitle { get; set; }
 
-        return x;
-    }
+    [JsonPropertyName("trash")]
+    public bool? Trash { get; set; } = false;
 
-    public static ITypeMapping TorrentInfoIndexMapping(TypeMappingDescriptor<TorrentInfo> x)
-    {
-        x.Properties(prop =>
-        {
-            prop.Text(s => s.Name(p => p.Resolution));
-            prop.Number(s => s.Name(p => p.Year).Type(NumberType.Integer));
-            prop.Boolean(s => s.Name(p => p.Remastered));
-            prop.Text(s => s.Name(p => p.Source));
-            prop.Text(s => s.Name(p => p.Codec));
-            prop.Text(s => s.Name(p => p.Group));
-            prop.Number(s => s.Name(p => p.Episodes).Type(NumberType.Integer));
-            prop.Number(s => s.Name(p => p.Seasons).Type(NumberType.Integer));
-            prop.Keyword(s => s.Name(p => p.Languages));
-            prop.Text(s => s.Name(p => p.Title));
-            prop.Text(s => s.Name(p => p.RawTitle));
-            prop.Number(s => s.Name(p => p.Size).Type(NumberType.Long));
-            prop.Keyword(s => s.Name(p => p.InfoHash));
-            prop.Boolean(s => s.Name(p => p.IsPossibleMovie));
-            return prop;
-        });
+    [JsonPropertyName("year")]
+    public int? Year { get; set; } = 0;
 
-        return x;
-    }
+    [JsonPropertyName("resolution")]
+    public string? Resolution { get; set; }
+
+    [JsonPropertyName("seasons")]
+    public int[]? Seasons { get; set; } = [];
+
+    [JsonPropertyName("episodes")]
+    public int[]? Episodes { get; set; } = [];
+
+    [JsonPropertyName("complete")]
+    public bool? Complete { get; set; } = false;
+
+    [JsonPropertyName("volumes")]
+    public int[]? Volumes { get; set; } = [];
+
+    [JsonPropertyName("languages")]
+    public string[]? Languages { get; set; } = [];
+
+    [JsonPropertyName("quality")]
+    public string? Quality { get; set; }
+
+    [JsonPropertyName("hdr")]
+    public string[]? Hdr { get; set; } = [];
+
+    [JsonPropertyName("codec")]
+    public string? Codec { get; set; }
+
+    [JsonPropertyName("audio")]
+    public string[]? Audio { get; set; } = [];
+
+    [JsonPropertyName("channels")]
+    public string[]? Channels { get; set; } = [];
+
+    [JsonPropertyName("dubbed")]
+    public bool? Dubbed { get; set; } = false;
+
+    [JsonPropertyName("subbed")]
+    public bool? Subbed { get; set; } = false;
+
+    [JsonPropertyName("date")]
+    public string? Date { get; set; }
+
+    [JsonPropertyName("group")]
+    public string? Group { get; set; }
+
+    [JsonPropertyName("edition")]
+    public string? Edition { get; set; }
+
+    [JsonPropertyName("bit_depth")]
+    public string? BitDepth { get; set; }
+
+    [JsonPropertyName("bitrate")]
+    public string? Bitrate { get; set; }
+
+    [JsonPropertyName("network")]
+    public string? Network { get; set; }
+
+    [JsonPropertyName("extended")]
+    public bool? Extended { get; set; } = false;
+
+    [JsonPropertyName("converted")]
+    public bool? Converted { get; set; } = false;
+
+    [JsonPropertyName("hardcoded")]
+    public bool? Hardcoded { get; set; } = false;
+
+    [JsonPropertyName("region")]
+    public string? Region { get; set; }
+
+    [JsonPropertyName("ppv")]
+    public bool? Ppv { get; set; } = false;
+
+    [JsonPropertyName("_3d")]
+    public bool? Is3d { get; set; } = false;
+
+    [JsonPropertyName("site")]
+    public string? Site { get; set; }
+
+    [JsonPropertyName("size")]
+    public string? Size { get; set; }
+
+    [JsonPropertyName("proper")]
+    public bool? Proper { get; set; } = false;
+
+    [JsonPropertyName("repack")]
+    public bool? Repack { get; set; } = false;
+
+    [JsonPropertyName("retail")]
+    public bool? Retail { get; set; } = false;
+
+    [JsonPropertyName("upscaled")]
+    public bool? Upscaled { get; set; } = false;
+
+    [JsonPropertyName("remastered")]
+    public bool? Remastered { get; set; } = false;
+
+    [JsonPropertyName("unrated")]
+    public bool? Unrated { get; set; } = false;
+
+    [JsonPropertyName("documentary")]
+    public bool? Documentary { get; set; } = false;
+
+    [JsonPropertyName("episode_code")]
+    public string? EpisodeCode { get; set; }
+
+    [JsonPropertyName("country")]
+    public string? Country { get; set; }
+
+    [JsonPropertyName("container")]
+    public string? Container { get; set; }
+
+    [JsonPropertyName("extension")]
+    public string? Extension { get; set; }
+
+    [JsonPropertyName("torrent")]
+    public bool? Torrent { get; set; } = false;
+
+    [JsonPropertyName("category")]
+    public string Category { get; set; } = default!;
+
+    [JsonPropertyName("imdb_id")]
+    public string? ImdbId { get; set; }
+
+    [JsonPropertyName("imdb")]
+    public virtual ImdbFile? Imdb { get; set; }
+
+    [JsonPropertyName("info_hash")]
+    public string InfoHash { get; set; } = default!;
+
+    [JsonPropertyName("ingested_at")]
+    public DateTime IngestedAt { get; set; } = DateTime.UtcNow;
 }

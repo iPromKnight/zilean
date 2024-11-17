@@ -6,4 +6,6 @@ riderModule.iml
 .DS_Store
 .idea/
 
-src/Zilean.DmmScraper/python/
+src/Zilean.Scraper/python/
+
+Zilean.sln.DotSettings.user

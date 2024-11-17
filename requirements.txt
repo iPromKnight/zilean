@@ -1,2 +1,3 @@
-parsett==0.2.4
-loguru
+loguru==0.7.2
+rich==13.8.0
+rank-torrent-name==1.0.4

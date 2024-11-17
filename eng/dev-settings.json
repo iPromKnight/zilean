@@ -1,0 +1,51 @@
+﻿{
+  "Zilean": {
+    "Dmm": {
+      "EnableScraping": true,
+      "EnableEndpoint": true,
+      "ScrapeSchedule": "0 * * * *",
+      "MinimumReDownloadIntervalMinutes": 30,
+      "MaxFilteredResults": 200,
+      "MinimumScoreMatch": 0.85,
+      "ImportBatched": false
+    },
+    "Torznab": {
+      "EnableEndpoint": true
+    },
+    "Database": {
+      "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+    },
+    "Prowlarr": {
+      "EnableEndpoint": true
+    },
+    "Torrents": {
+      "EnableEndpoint": false
+    },
+    "Imdb": {
+      "EnableImportMatching": true,
+      "EnableEndpoint": true,
+      "MinimumScoreMatch": 0.85
+    },
+    "Ingestion": {
+      "ZurgInstances": [],
+      "ZileanInstances": [],
+      "EnableScraping": false,
+      "Kubernetes": {
+        "EnableServiceDiscovery": false,
+        "KubernetesSelectors": [
+          {
+            "UrlTemplate": "http://zurg.{0}:9999",
+            "LabelSelector": "app.elfhosted.com/name=zurg",
+            "EndpointType": 1
+          }
+        ],
+        "KubeConfigFile": "/$HOME/.kube/config"
+      },
+      "BatchSize": 500,
+      "MaxChannelSize": 5000,
+      "ScrapeSchedule": "0 * * * *",
+      "ZurgEndpointSuffix": "/debug/torrents",
+      "ZileanEndpointSuffix": "/torrents/all"
+    }
+  }
+}

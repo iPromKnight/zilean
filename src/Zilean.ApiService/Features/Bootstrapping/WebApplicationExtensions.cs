@@ -4,8 +4,8 @@ public static class WebApplicationExtensions
 {
     public static WebApplication EnableSwagger(this WebApplication app)
     {
-        app.UseSwagger();
-        app.UseSwaggerUI();
+        app.MapOpenApi();
+        app.MapScalarApiReference();
 
         return app;
     }
@@ -13,5 +13,9 @@ public static class WebApplicationExtensions
     public static WebApplication MapZileanEndpoints(this WebApplication app, ZileanConfiguration configuration) =>
         app
             .MapDmmEndpoints(configuration)
+            .MapImdbEndpoints(configuration)
+            .MapTorznabEndpoints(configuration)
+            .MapTorrentsEndpoints(configuration)
+            .MapBlacklistEndpoints()
             .MapHealthCheckEndpoints();
 }

@@ -1,0 +1,19 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Zilean.ApiService": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "http://localhost:8181/scalar/v2",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:8181",
+        "Zilean__Torrents__EnableEndpoint": "true",
+        "Zilean__Ingestion__EnableScraping": "true",
+        "Zilean__Dmm__EnableScraping": "true",
+        "ZILEAN__NEW__API__KEY": "false",
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-testing;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+      }
+    }
+  }
+}

@@ -1,6 +1,4 @@
-﻿using SimCube.Aspire.Features.Otlp;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddConfigurationFiles();
 
@@ -12,18 +10,25 @@ builder.Services
     .AddConfiguration(zileanConfiguration)
     .AddSwaggerSupport()
     .AddSchedulingSupport()
-    .AddElasticSearchSupport()
     .AddShellExecutionService()
-    .ConditionallyRegisterDmmJob(zileanConfiguration);
+    .ConditionallyRegisterDmmJob(zileanConfiguration)
+    .AddZileanDataServices(zileanConfiguration)
+    .AddApiKeyAuthentication()
+    .AddStartupHostedServices();
 
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
+app.MapDefaultEndpoints();
 app.MapZileanEndpoints(zileanConfiguration)
     .EnableSwagger();
 
 app.Services.SetupScheduling(zileanConfiguration);
 
-logger.LogInformation("Zilean API Service started");
+logger.LogInformation("Zilean API Service started.");
+
 app.Run();
