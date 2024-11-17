@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.9](https://github.com/iPromKnight/zilean/compare/v2.3.8...v2.3.9) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* dedupe infohashes ([caa116d](https://github.com/iPromKnight/zilean/commit/caa116d2d619ea1dbfe04561bfc1e4c1ba5e56bb))
+
 ## [2.3.8](https://github.com/iPromKnight/zilean/compare/v2.3.7...v2.3.8) (2024-11-17)
 
 
