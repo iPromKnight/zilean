@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.8](https://github.com/iPromKnight/zilean/compare/v2.3.7...v2.3.8) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* regex ([ebd58e1](https://github.com/iPromKnight/zilean/commit/ebd58e1ce4fba27df12392eed04421077812ff5e))
+
 ## [2.3.7](https://github.com/iPromKnight/zilean/compare/v2.3.6...v2.3.7) (2024-11-17)
 
 
