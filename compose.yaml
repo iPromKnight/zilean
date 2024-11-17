@@ -16,7 +16,7 @@ services:
       - zilean_data:/app/data
       - zilean_tmp:/tmp
     environment:
-        Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres"
+        Zilean__Database__ConnectionString: "Host=postgres;Port=5432;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
       # Zilean__Dmm__ImportBatched: "true"                    Allows enabling batched import - this is for low-end systems.
       # Zilean__Dmm__MaxFilteredResults: 200                  Allows changing the maximum number of filtered results returned by the DMM API. 200 is the default.
       # Zilean__Dmm__MinimumScoreMatch: 0.85                  Allows changing the minimum score match for the DMM API. 0.85 is the default. Values between 0 and 1 are accepted.
