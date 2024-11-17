@@ -87,7 +87,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
     public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null)
     {
         var cleanQuery = Parsing.CleanQuery(filter.Query);
-        var imdbId = filter.ImdbId.StartsWith("tt") ? filter.ImdbId : $"tt{filter.ImdbId}";
+        var imdbId = EnsureCorrectFormatImdbId(filter);
 
         return await ExecuteCommandAsync(async connection =>
         {
@@ -124,6 +124,17 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             // assign imdb to torrent info
             return results.Select(MapImdbDataToTorrentInfo).ToArray();
         }, "Error finding unfiltered dmm entries.");
+    }
+
+    private static string? EnsureCorrectFormatImdbId(TorrentInfoFilter filter)
+    {
+        string? imdbId = null;
+        if (!string.IsNullOrEmpty(filter.ImdbId))
+        {
+            imdbId = filter.ImdbId.StartsWith("tt") ? filter.ImdbId : $"tt{filter.ImdbId}";
+        }
+
+        return imdbId;
     }
 
     private static Func<TorrentInfoResult, TorrentInfoResult> MapImdbDataToTorrentInfo =>
