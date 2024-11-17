@@ -16,6 +16,7 @@ public static class LoggingConfiguration
                 "System.Net.Http.HttpClient.Scraper.LogicalHandler": "Warning",
                 "System.Net.Http.HttpClient.Scraper.ClientHandler": "Warning",
                 "Microsoft.AspNetCore.Hosting.Diagnostics": "Error",
+                "Microsoft.AspNetCore.DataProtection": "Error",
               }
             }
           }
@@ -34,9 +35,6 @@ public static class LoggingConfiguration
     private static void EnsureExists(string configurationFolderPath)
     {
         var loggingPath = Path.Combine(configurationFolderPath, ConfigurationLiterals.LoggingConfigFilename);
-        if (!File.Exists(loggingPath))
-        {
-            File.WriteAllText(loggingPath, DefaultLoggingContents);
-        }
+        File.WriteAllText(loggingPath, DefaultLoggingContents);
     }
 }
