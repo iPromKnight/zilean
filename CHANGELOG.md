@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/iPromKnight/zilean/compare/v2.3.0...v2.3.1) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* stop word removal ([026b1bc](https://github.com/iPromKnight/zilean/commit/026b1bc67bc95df3784b56943b357842c9582b34))
+
 ## [2.3.0](https://github.com/iPromKnight/zilean/compare/v2.2.1...v2.3.0) (2024-11-17)
 
 
