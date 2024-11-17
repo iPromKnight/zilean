@@ -116,12 +116,16 @@ public class GenericIngestionProcessor(
                 return;
             }
 
-            var infoHashes = torrents.Select(t => t.InfoHash!).ToList();
+            var distinctTorrents = torrents.DistinctBy(x => x.InfoHash).ToList();
+
+            logger.LogInformation("Removed duplicate hashes: {Count}", torrents.Count - distinctTorrents.Count);
+
+            var infoHashes = distinctTorrents.Select(t => t.InfoHash!).ToList();
 
             var existingInfoHashes = await torrentInfoService.GetExistingInfoHashesAsync(infoHashes);
 
-            var newTorrents = torrents.DistinctBy(x => x.InfoHash).Where(t => !existingInfoHashes.Contains(t.InfoHash)).ToList();
-            logger.LogInformation("Filtered out {Count} torrents already in the database", torrents.Count - newTorrents.Count);
+            var newTorrents = distinctTorrents.Where(t => !existingInfoHashes.Contains(t.InfoHash)).ToList();
+            logger.LogInformation("Filtered out {Count} torrents already in the database", distinctTorrents.Count - newTorrents.Count);
 
             if (newTorrents.Count == 0)
             {
