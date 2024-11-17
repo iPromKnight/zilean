@@ -28,8 +28,6 @@ public class GenericIngestionScraping(
 
         foreach (var url in urlsToProcess)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             try
             {
                 await ingestionProcessor.ProcessTorrentsAsync(url, CancellationToken.None);
@@ -37,8 +35,7 @@ public class GenericIngestionScraping(
             }
             catch (OperationCanceledException)
             {
-                logger.LogInformation("Ingestion scraping cancelled");
-                break;
+                logger.LogInformation("Ingestion scraping cancelled URL: {@Url}", url);
             }
             catch (Exception ex)
             {

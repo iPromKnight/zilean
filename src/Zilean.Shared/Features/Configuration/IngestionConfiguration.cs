@@ -11,4 +11,5 @@ public class IngestionConfiguration
     public string ScrapeSchedule { get; set; } = "0 * * * *";
     public string ZurgEndpointSuffix { get; set; } = "/debug/torrents";
     public string ZileanEndpointSuffix { get; set; } = "/torrents/all";
+    public int RequestTimeout { get; set; } = 10000;
 }

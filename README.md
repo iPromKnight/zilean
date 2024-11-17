@@ -58,7 +58,8 @@ The DMM import reruns on missing pages every hour.
       "MaxChannelSize": 5000,
       "ScrapeSchedule": "0 * * * *",
       "ZurgEndpointSuffix": "/debug/torrents",
-      "ZileanEndpointSuffix": "/torrents/all"
+      "ZileanEndpointSuffix": "/torrents/all",
+      "RequestTimeout": 10000
     }
   }
 }
@@ -130,7 +131,8 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
   "MaxChannelSize": 5000,
   "ScrapeSchedule": "0 * * * *",
   "ZurgEndpointSuffix": "/debug/torrents",
-  "ZileanEndpointSuffix": "/torrents/all"
+  "ZileanEndpointSuffix": "/torrents/all",
+  "RequestTimeout": 10000
 }
 ```
 
@@ -213,6 +215,10 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
 ### `ZileanEndpointSuffix`
 - **Type**: `string`
 - **Description**: Default suffix appended to Zilean instance URLs for ingestion.
+
+### `RequestTimeout`
+- **Type**: `int`
+- **Description**: Timeout for HTTP requests in milliseconds.
 
 ---
 

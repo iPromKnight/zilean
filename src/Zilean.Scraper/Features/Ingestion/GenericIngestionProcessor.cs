@@ -36,6 +36,7 @@ public class GenericIngestionProcessor(
         try
         {
             var httpClient = clientFactory.CreateClient();
+            httpClient.Timeout = TimeSpan.FromSeconds(configuration.Ingestion.RequestTimeout);
             var fullUrl = endpoint.EndpointType switch
             {
                 GenericEndpointType.Zurg => $"{endpoint.Url}/debug/torrents",
@@ -59,6 +60,14 @@ public class GenericIngestionProcessor(
                     await writer.WriteAsync(Task.FromResult(item), cancellationToken);
                 }
             }
+        }
+        catch (HttpRequestException)
+        {
+            logger.LogError("Invalid status code returned for URL: {@Url}", endpoint);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Exception occured for URL: {@Url}", endpoint);
         }
         finally
         {
