@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.5](https://github.com/iPromKnight/zilean/compare/v2.3.4...v2.3.5) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* broken imdbid ([135d389](https://github.com/iPromKnight/zilean/commit/135d389b9fc50c4d7082f66643a1f8ac3be59052))
+* remove warnings from dataprotection stack ([1a11e54](https://github.com/iPromKnight/zilean/commit/1a11e5414e5002a181b8377ea95d4f56b83a06ce))
+
 ## [2.3.4](https://github.com/iPromKnight/zilean/compare/v2.3.3...v2.3.4) (2024-11-17)
 
 
