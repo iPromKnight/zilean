@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.7](https://github.com/iPromKnight/zilean/compare/v2.3.6...v2.3.7) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* log batch import error ([b325076](https://github.com/iPromKnight/zilean/commit/b325076593e877343efbf360a8cb982d79e5bb75))
+
 ## [2.3.6](https://github.com/iPromKnight/zilean/compare/v2.3.5...v2.3.6) (2024-11-17)
 
 
