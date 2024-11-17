@@ -13,7 +13,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "ZILEAN_PYTHON_VENV": "C:\\Python311",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-clean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
       },
       "commandLineArgs": "generic-sync"
     }

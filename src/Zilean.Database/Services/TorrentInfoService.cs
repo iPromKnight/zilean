@@ -13,6 +13,11 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             return;
         }
 
+        foreach (var torrentInfo in torrents)
+        {
+            torrentInfo.CleanedParsedTitle = Parsing.CleanQuery(torrentInfo.ParsedTitle);
+        }
+
         logger.LogInformation("Storing {Count} torrents", torrents.Count);
 
         await using var serviceScope = serviceProvider.CreateAsyncScope();
