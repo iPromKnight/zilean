@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/iPromKnight/zilean/compare/v2.3.1...v2.3.2) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* Store it in ingestion too :/ ([1cac03c](https://github.com/iPromKnight/zilean/commit/1cac03c726e8f28a1e5ca1fb0f4b1127cdfd0485))
+
 ## [2.3.1](https://github.com/iPromKnight/zilean/compare/v2.3.0...v2.3.1) (2024-11-17)
 
 
