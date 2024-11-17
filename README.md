@@ -14,6 +14,8 @@ The DMM import reruns on missing pages every hour.
 ```json
 {
   "Zilean": {
+    "ApiKey": "5c43b70d3be04308b72ada4f61515fb4e278b08c48ec4c8a87e954ec658f8e4e",
+    "FirstRun": false,
     "Dmm": {
       "EnableScraping": true,
       "EnableEndpoint": true,
@@ -29,11 +31,8 @@ The DMM import reruns on missing pages every hour.
     "Database": {
       "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
     },
-    "Prowlarr": {
-      "EnableEndpoint": true
-    },
     "Torrents": {
-      "EnableEndpoint": false
+      "EnableEndpoint": true
     },
     "Imdb": {
       "EnableImportMatching": true,
@@ -41,19 +40,19 @@ The DMM import reruns on missing pages every hour.
       "MinimumScoreMatch": 0.85
     },
     "Ingestion": {
-      "ZurgInstances": [],
+      "ZurgInstances": [
+        {
+          "Url": "http://zurg:9999",
+          "EndpointType": 1
+        }
+      ],
       "ZileanInstances": [],
-      "EnableScraping": false,
+      "EnableScraping": true,
       "Kubernetes": {
         "EnableServiceDiscovery": false,
-        "KubernetesSelectors": [
-          {
-            "UrlTemplate": "http://zurg.{0}:9999",
-            "LabelSelector": "app.elfhosted.com/name=zurg",
-            "EndpointType": 1
-          }
-        ],
-        "KubeConfigFile": "/$HOME/.kube/config"
+        "KubernetesSelectors": [],
+        "KubeConfigFile": "/$HOME/.kube/config",
+        "AuthenticationType": 0
       },
       "BatchSize": 500,
       "MaxChannelSize": 5000,
@@ -124,7 +123,8 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
         "EndpointType": 1
       }
     ],
-    "KubeConfigFile": "/$HOME/.kube/config"
+    "KubeConfigFile": "/$HOME/.kube/config",
+    "AuthenticationType": 0
   },
   "BatchSize": 500,
   "MaxChannelSize": 5000,
@@ -192,6 +192,7 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
         - **`LabelSelector`**: Label selector to filter Kubernetes services.
         - **`EndpointType`**: Indicates the type of endpoint (0 = Zilean, 1 = Zurg).
     - **`KubeConfigFile`**: Path to the Kubernetes configuration file.
+    - **`AuthenticationType`**: Authentication type for Kubernetes service discovery (0 = ConfigFile, 1 = RoleBased).
 
 ### `BatchSize`
 - **Type**: `int`
@@ -273,9 +274,21 @@ If `EnableServiceDiscovery` is set to `true` in the Kubernetes section, the appl
       "EndpointType": 1
     }
   ],
-  "KubeConfigFile": "/$HOME/.kube/config"
+  "KubeConfigFile": "/$HOME/.kube/config",
+  "AuthenticationType": 0
 }
 ```
+### `AuthenticationType`
+Defines the Types of authentication to use when connecting to the kubernetes service host.
+
+```csharp
+public enum KubernetesAuthenticationType
+{
+    ConfigFile = 0,
+    RoleBased = 1
+}
+```
+note: In order for RBAC to work, the service account must have the correct permissions to list services in the namespace, and the `KUBERNETES_SERVICE_HOST` and `KUBERNETES_SERVICE_PORT` environment variables must be set.
 
 ### Behavior
 1. The application uses the Kubernetes client to list services matching the `LabelSelector`.
@@ -297,3 +310,20 @@ Key events in the ingestion process are logged:
 - Filtered torrents (existing in the database).
 - Processed torrents (new and valid).
 - Errors during processing or service discovery.
+
+---
+
+## Blacklisting
+
+The ingestion pipeline supports blacklisting infohashes to prevent them from being processed. This feature is useful for filtering out unwanted torrents or duplicates.
+See the `/blacklist` endpoints for more information in scalar.
+These endpoints are protected by the ApiKey that will be generated on first run of the application and stored in the settings.json file as well as a one time print to application logs on startup.
+Blacklisting an item also removes it from the database.
+
+---
+
+## Api Key
+
+The ApiKey is generated on first run of the application and stored in the settings.json file as well as a one time print to application logs on startup.
+The key can also be cycled to a new key if you set the environment variable `ZILEAN__NEW__API__KEY` to `true` and restart the application.
+To authenticate with the API, you must include the `ApiKey` in the request headers. The header key is `X-Api-Key` and will automatically be configured in scalar.

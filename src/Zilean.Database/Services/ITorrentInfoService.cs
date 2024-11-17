@@ -6,4 +6,5 @@ public interface ITorrentInfoService
     Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query);
     Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null);
     Task<HashSet<string>> GetExistingInfoHashesAsync(List<string> infoHashes);
+    Task<HashSet<string>> GetBlacklistedItems();
 }

@@ -109,7 +109,16 @@ public class DmmScraping(
 
                     var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
 
-                    var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
+                    var blacklistedHashes = await torrentInfoService.GetBlacklistedItems();
+
+                    var finalizedTorrents = parsedTorrents
+                        .Where(torrentInfo => torrentInfo.WipeSomeTissue())
+                        .Where(torrentsInfo => !torrentsInfo.IsBlacklisted(blacklistedHashes))
+                        .ToList();
+
+                    logger.LogInformation("Removed {Count} hashes due to blacklisting or possible adult titile matches", parsedTorrents.Count - finalizedTorrents.Count);
+
+                    logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
 
                     await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
                 }
@@ -154,7 +163,14 @@ public class DmmScraping(
 
             var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(distinctTorrents);
 
-            var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
+            var blacklistedHashes = await torrentInfoService.GetBlacklistedItems();
+
+            var finalizedTorrents = parsedTorrents
+                .Where(torrentInfo => torrentInfo.WipeSomeTissue())
+                .Where(torrentInfo => !torrentInfo.IsBlacklisted(blacklistedHashes))
+                .ToList();
+
+            logger.LogInformation("Removed {Count} hashes due to blacklisting or possible adult titile matches", parsedTorrents.Count - finalizedTorrents.Count);
 
             logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
 
