@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.6](https://github.com/iPromKnight/zilean/compare/v2.3.5...v2.3.6) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* db indexes for new columns ([bab4059](https://github.com/iPromKnight/zilean/commit/bab405917d3d27cf8eab53bee3040b3b63fd58fb))
+
 ## [2.3.5](https://github.com/iPromKnight/zilean/compare/v2.3.4...v2.3.5) (2024-11-17)
 
 
