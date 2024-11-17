@@ -12,11 +12,11 @@ public static partial class Parsing
     [GeneratedRegex(@"^(?:tt)?(\d{1,8})$", RegexOptions.Compiled)]
     private static partial Regex ImdbIdRegex();
 
-    [GeneratedRegex(@"\s+")]
+    [GeneratedRegex(@"\s+", RegexOptions.Compiled)]
     private static partial Regex SpaceRegex();
-    [GeneratedRegex(@"(?i)\b(?:a|the|and|of|in|on|with|to|for|by|is|it)\b", RegexOptions.None, "en-GB")]
+    [GeneratedRegex(@"(?i)\b(?:a|the|and|of|in|on|with|to|for|by|is|it)\b", RegexOptions.Compiled)]
     private static partial Regex StopWordRegex();
-    [GeneratedRegex(@"\s{2,}")]
+    [GeneratedRegex(@"\s{2,}", RegexOptions.Compiled)]
     private static partial Regex SpaceRemovalRegex();
 
     public static string NormalizeSpace(string s) => s?.Trim() ?? string.Empty;
