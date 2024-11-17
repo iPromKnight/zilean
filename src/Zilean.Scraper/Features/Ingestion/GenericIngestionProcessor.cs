@@ -145,10 +145,9 @@ public class GenericIngestionProcessor(
                 await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
             }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            logger.LogWarning("Error processing batch of torrents. Batch size: {BatchSize}", batch.Count);
-            throw;
+            logger.LogWarning(e, "Error processing batch of torrents. Batch size: {BatchSize}", batch.Count);
         }
     }
 }
