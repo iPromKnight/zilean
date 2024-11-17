@@ -49,6 +49,8 @@ public static class TorznabEndpoints
                 Releases = results,
             };
 
+            logger.LogInformation("Returning {Count} results for query", results.Count);
+
             var xml = resultPage.ToXml(ChannelInfo.Link);
             return new XmlResult<string>(xml, StatusCodes.Status200OK);
         }

@@ -15,19 +15,19 @@ public partial class FunctionsAndIndexes : Migration
         migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS pg_trgm;");
         migrationBuilder.Sql("SET pg_trgm.similarity_threshold = 0.85;");
 
-        migrationBuilder.Sql(SearchImdbProcedure.RemoveTorrentProcedure);
+        migrationBuilder.Sql(SearchTorrentsMeta.Remove);
         migrationBuilder.Sql(SearchImdbProcedure.RemoveImdbProcedure);
         migrationBuilder.Sql(ImdbFilesIndexes.RemoveIndexes);
 
         migrationBuilder.Sql(SearchImdbProcedure.CreateImdbProcedure);
-        migrationBuilder.Sql(SearchImdbProcedure.CreateTorrentProcedure);
+        migrationBuilder.Sql(SearchTorrentsMeta.Create);
         migrationBuilder.Sql(ImdbFilesIndexes.CreateIndexes);
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql(SearchImdbProcedure.RemoveTorrentProcedure);
+        migrationBuilder.Sql(SearchTorrentsMeta.Remove);
         migrationBuilder.Sql(SearchImdbProcedure.RemoveImdbProcedure);
         migrationBuilder.Sql(ImdbFilesIndexes.RemoveIndexes);
         migrationBuilder.Sql("DROP EXTENSION IF EXISTS pg_trgm;");

@@ -27,6 +27,12 @@ public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
             .HasColumnType("text")
             .HasAnnotation("Relational:JsonPropertyName", "parsed_title");
 
+        builder.Property(t => t.CleanedParsedTitle)
+            .IsRequired()
+            .HasColumnType("text")
+            .HasDefaultValue("")
+            .HasAnnotation("Relational:JsonPropertyName", "cleaned_parsed_title");
+
         builder.Property(t => t.NormalizedTitle)
             .IsRequired()
             .HasColumnType("text")

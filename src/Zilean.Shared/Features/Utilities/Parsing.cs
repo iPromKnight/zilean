@@ -14,6 +14,10 @@ public static partial class Parsing
 
     [GeneratedRegex(@"\s+")]
     private static partial Regex SpaceRegex();
+    [GeneratedRegex(@"(?i)\b(?:a|the|and|of|in|on|with|to|for|by|is|it)\b", RegexOptions.None, "en-GB")]
+    private static partial Regex StopWordRegex();
+    [GeneratedRegex(@"\s{2,}")]
+    private static partial Regex SpaceRemovalRegex();
 
     public static string NormalizeSpace(string s) => s?.Trim() ?? string.Empty;
 
@@ -185,4 +189,17 @@ public static partial class Parsing
     public static long BytesFromMB(float mb) => BytesFromKB(mb * 1024f);
 
     public static long BytesFromKB(float kb) => (long)(kb * 1024f);
+
+    public static string CleanQuery(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return query;
+        }
+
+        var cleanedQuery = StopWordRegex().Replace(query, "");
+        cleanedQuery = SpaceRemovalRegex().Replace(cleanedQuery, " ").Trim();
+
+        return cleanedQuery;
+    }
 }

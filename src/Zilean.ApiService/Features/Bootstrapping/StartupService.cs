@@ -26,6 +26,8 @@ public class StartupService(
 
     public async Task StartedAsync(CancellationToken cancellationToken)
     {
+        var logger = loggerFactory.CreateLogger<StartupService>();
+
         if (configuration.Dmm.EnableScraping)
         {
             await using var asyncScope = serviceProvider.CreateAsyncScope();
@@ -37,5 +39,7 @@ public class StartupService(
                 await dmmJob.Invoke();
             }
         }
+
+        logger.LogInformation("Zilean Running: Startup Complete.");
     }
 }

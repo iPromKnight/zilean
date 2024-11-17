@@ -11,6 +11,9 @@ public class TorrentInfo
     [JsonPropertyName("normalized_title")]
     public string? NormalizedTitle { get; set; }
 
+    [JsonPropertyName("cleaned_parsed_title")]
+    public string? CleanedParsedTitle { get; set; }
+
     [JsonPropertyName("trash")]
     public bool? Trash { get; set; } = false;
 

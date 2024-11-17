@@ -53,8 +53,11 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
         }
     }
 
-    public async Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query) =>
-        await ExecuteCommandAsync(async connection =>
+    public async Task<TorrentInfo[]> SearchForTorrentInfoByOnlyTitle(string query)
+    {
+        var cleanQuery = Parsing.CleanQuery(query);
+
+        return await ExecuteCommandAsync(async connection =>
         {
             var sql =
                 """
@@ -68,15 +71,19 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
 
             var parameters = new DynamicParameters();
 
-            parameters.Add("@query", query);
+            parameters.Add("@query", cleanQuery);
 
             var result = await connection.QueryAsync<TorrentInfo>(sql, parameters);
 
             return result.ToArray();
         }, "Error finding unfiltered dmm entries.");
+    }
 
-    public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null) =>
-        await ExecuteCommandAsync(async connection =>
+    public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null)
+    {
+        var cleanQuery = Parsing.CleanQuery(filter.Query);
+
+        return await ExecuteCommandAsync(async connection =>
         {
             const string sql =
                 """
@@ -96,7 +103,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
 
             var parameters = new DynamicParameters();
 
-            parameters.Add("@Query", filter.Query);
+            parameters.Add("@Query", cleanQuery);
             parameters.Add("@Season", filter.Season);
             parameters.Add("@Episode", filter.Episode);
             parameters.Add("@Year", filter.Year);
@@ -111,6 +118,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             // assign imdb to torrent info
             return results.Select(MapImdbDataToTorrentInfo).ToArray();
         }, "Error finding unfiltered dmm entries.");
+    }
 
     private static Func<TorrentInfoResult, TorrentInfoResult> MapImdbDataToTorrentInfo =>
         torrentInfo =>

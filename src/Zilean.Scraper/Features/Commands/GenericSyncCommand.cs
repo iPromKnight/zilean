@@ -1,7 +1,7 @@
 ﻿namespace Zilean.Scraper.Features.Commands;
 
-public class GenericSyncCommand(GenericIngestionScraping genericIngestion) : Command
+public class GenericSyncCommand(GenericIngestionScraping genericIngestion) : AsyncCommand
 {
-    public override int Execute(CommandContext context) =>
-        genericIngestion.Execute(CancellationToken.None).GetAwaiter().GetResult();
+    public override Task<int> ExecuteAsync(CommandContext context) =>
+        genericIngestion.Execute(CancellationToken.None);
 }

@@ -12,7 +12,7 @@
         "Zilean__Ingestion__EnableScraping": "true",
         "Zilean__Dmm__EnableScraping": "true",
         "ZILEAN__NEW__API__KEY": "false",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-testing;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
       }
     }
   }

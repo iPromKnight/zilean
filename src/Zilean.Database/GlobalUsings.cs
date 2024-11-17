@@ -17,3 +17,4 @@ global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
 global using Zilean.Shared.Features.Imdb;
 global using Zilean.Shared.Features.Statistics;
+global using Zilean.Shared.Features.Utilities;

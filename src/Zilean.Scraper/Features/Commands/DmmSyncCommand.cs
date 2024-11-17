@@ -1,7 +1,7 @@
 ﻿namespace Zilean.Scraper.Features.Commands;
 
-public class DmmSyncCommand(DmmScraping dmmScraping) : Command
+public class DmmSyncCommand(DmmScraping dmmScraping) : AsyncCommand
 {
-    public override int Execute(CommandContext context) =>
-        dmmScraping.Execute(CancellationToken.None).GetAwaiter().GetResult();
+    public override Task<int> ExecuteAsync(CommandContext context) =>
+        dmmScraping.Execute(CancellationToken.None);
 }

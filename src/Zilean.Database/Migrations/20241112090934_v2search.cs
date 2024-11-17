@@ -11,14 +11,14 @@ public partial class v2search : Migration
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql(SearchImdbProcedure.RemoveTorrentProcedure);
-        migrationBuilder.Sql(SearchImdbProcedure.CreateTorrentProcedureV2);
+        migrationBuilder.Sql(SearchTorrentsMeta.Remove);
+        migrationBuilder.Sql(SearchTorrentsMetaV2.Create);
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql(SearchImdbProcedure.RemoveTorrentProcedure);
-        migrationBuilder.Sql(SearchImdbProcedure.CreateTorrentProcedure);
+        migrationBuilder.Sql(SearchTorrentsMetaV2.Remove);
+        migrationBuilder.Sql(SearchTorrentsMeta.Create);
     }
 }

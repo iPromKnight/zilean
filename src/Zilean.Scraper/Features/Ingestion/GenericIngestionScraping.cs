@@ -32,7 +32,7 @@ public class GenericIngestionScraping(
 
             try
             {
-                await ingestionProcessor.ProcessTorrentsAsync(url, cancellationToken);
+                await ingestionProcessor.ProcessTorrentsAsync(url, CancellationToken.None);
                 completedCount++;
             }
             catch (OperationCanceledException)
