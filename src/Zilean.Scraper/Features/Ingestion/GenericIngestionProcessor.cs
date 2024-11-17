@@ -120,7 +120,7 @@ public class GenericIngestionProcessor(
 
             var existingInfoHashes = await torrentInfoService.GetExistingInfoHashesAsync(infoHashes);
 
-            var newTorrents = torrents.Where(t => !existingInfoHashes.Contains(t.InfoHash)).ToList();
+            var newTorrents = torrents.DistinctBy(x => x.InfoHash).Where(t => !existingInfoHashes.Contains(t.InfoHash)).ToList();
             logger.LogInformation("Filtered out {Count} torrents already in the database", torrents.Count - newTorrents.Count);
 
             if (newTorrents.Count == 0)
