@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.4](https://github.com/iPromKnight/zilean/compare/v2.3.3...v2.3.4) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* ensure imdbId from torznab has tt prefixed ([354ae43](https://github.com/iPromKnight/zilean/commit/354ae43a56e45285183031eb3ec7477c86888ffe))
+
 ## [2.3.3](https://github.com/iPromKnight/zilean/compare/v2.3.2...v2.3.3) (2024-11-17)
 
 
