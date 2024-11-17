@@ -87,6 +87,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
     public async Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null)
     {
         var cleanQuery = Parsing.CleanQuery(filter.Query);
+        var imdbId = filter.ImdbId.StartsWith("tt") ? filter.ImdbId : $"tt{filter.ImdbId}";
 
         return await ExecuteCommandAsync(async connection =>
         {
@@ -114,7 +115,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             parameters.Add("@Year", filter.Year);
             parameters.Add("@Language", filter.Language);
             parameters.Add("@Resolution", filter.Resolution);
-            parameters.Add("@ImdbId", filter.ImdbId);
+            parameters.Add("@ImdbId", imdbId);
             parameters.Add("@Limit", limit ?? Configuration.Dmm.MaxFilteredResults);
             parameters.Add("@SimilarityThreshold", (float)Configuration.Dmm.MinimumScoreMatch);
 
