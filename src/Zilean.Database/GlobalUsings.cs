@@ -12,6 +12,7 @@ global using NpgsqlTypes;
 global using Spectre.Console;
 global using Zilean.Database.Dtos;
 global using Zilean.Database.ModelConfiguration;
+global using Zilean.Shared.Features.Blacklist;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
 global using Zilean.Shared.Features.Imdb;

@@ -8,10 +8,11 @@ public class ZileanConfiguration
         PropertyNamingPolicy = null,
     };
 
+    public string? ApiKey { get; set; } = Utilities.ApiKey.Generate();
+    public bool FirstRun { get; set; } = true;
     public DmmConfiguration Dmm { get; set; } = new();
     public TorznabConfiguration Torznab { get; set; } = new();
     public DatabaseConfiguration Database { get; set; } = new();
-    public ProwlarrConfiguration Prowlarr { get; set; } = new();
     public TorrentsConfiguration Torrents { get; set; } = new();
     public ImdbConfiguration Imdb { get; set; } = new();
     public IngestionConfiguration Ingestion { get; set; } = new();

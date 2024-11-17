@@ -21,9 +21,6 @@ public class ConfigurationTests
             "Database": {
               "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
             },
-            "Prowlarr": {
-              "EnableEndpoint": true
-            },
             "Torrents": {
               "EnableEndpoint": true
             },
@@ -99,10 +96,6 @@ public class ConfigurationTests
         zileanConfig.Database.ConnectionString.Should()
             .Be(
                 "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;");
-
-        // Prowlarr
-        zileanConfig.Prowlarr.Should().NotBeNull();
-        zileanConfig.Prowlarr.EnableEndpoint.Should().BeTrue();
 
         // Torrents
         zileanConfig.Torrents.Should().NotBeNull();

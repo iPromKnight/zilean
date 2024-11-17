@@ -4,15 +4,20 @@ namespace Zilean.ApiService.Features.Bootstrapping;
 public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSwaggerSupport(this IServiceCollection services) =>
-        services.AddOpenApi("v2");
+        services.AddOpenApi("v2", options =>
+        {
+            options.AddDocumentTransformer<ApiKeyDocumentTransformer>();
+        });
 
     public static IServiceCollection AddSchedulingSupport(this IServiceCollection services) =>
         services.AddScheduler();
 
-    public static IServiceCollection AddStartupHostedService(this IServiceCollection services) =>
-        services.AddHostedService<StartupService>();
+    public static IServiceCollection AddStartupHostedServices(this IServiceCollection services) =>
+        services.AddHostedService<StartupService>()
+            .AddHostedService<ConfigurationUpdaterService>();
 
-    public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services, ZileanConfiguration configuration)
+    public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services,
+        ZileanConfiguration configuration)
     {
         if (configuration.Dmm.EnableScraping)
         {
@@ -45,5 +50,26 @@ public static class ServiceCollectionExtensions
             .LogScheduledTaskProgress();
 
         return provider;
+    }
+
+    public static IServiceCollection AddApiKeyAuthentication(this IServiceCollection services)
+    {
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "None";
+                options.DefaultAuthenticateScheme = "None";
+            })
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthentication.Scheme, _ => { });
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy(ApiKeyAuthentication.Policy, policy =>
+            {
+                policy.AuthenticationSchemes.Add(ApiKeyAuthentication.Scheme);
+                policy.RequireAuthenticatedUser();
+            });
+        });
+
+        return services;
     }
 }

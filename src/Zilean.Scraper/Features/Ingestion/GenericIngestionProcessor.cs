@@ -123,7 +123,15 @@ public class GenericIngestionProcessor(
             if (torrents.Count != 0)
             {
                 var parsedTorrents = await parseTorrentNameService.ParseAndPopulateAsync(newTorrents);
-                var finalizedTorrents = parsedTorrents.Where(torrentInfo => torrentInfo.WipeSomeTissue()).ToList();
+
+                var blacklistedHashes = await torrentInfoService.GetBlacklistedItems();
+
+                var finalizedTorrents = parsedTorrents
+                    .Where(torrentInfo => torrentInfo.WipeSomeTissue())
+                    .Where(torrentsInfo => !torrentsInfo.IsBlacklisted(blacklistedHashes))
+                    .ToList();
+
+                logger.LogInformation("Removed {Count} hashes due to blacklisting or possible adult titile matches", parsedTorrents.Count - finalizedTorrents.Count);
                 logger.LogInformation("Parsed {Count} torrents", finalizedTorrents.Count);
                 await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
             }

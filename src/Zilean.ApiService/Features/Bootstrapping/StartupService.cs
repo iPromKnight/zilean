@@ -31,8 +31,8 @@ public class StartupService(
             await using var asyncScope = serviceProvider.CreateAsyncScope();
             var dbContext = asyncScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
             var dmmJob = new DmmSyncJob(executionService, loggerFactory.CreateLogger<DmmSyncJob>(), dbContext);
-            var shouldRun = await dmmJob.ShouldRunOnStartup();
-            if (shouldRun)
+            var pagesExist = await dmmJob.ShouldRunOnStartup();
+            if (!pagesExist)
             {
                 await dmmJob.Invoke();
             }

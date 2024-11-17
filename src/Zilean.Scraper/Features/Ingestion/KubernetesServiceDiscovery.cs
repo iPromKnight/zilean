@@ -12,8 +12,14 @@ public class KubernetesServiceDiscovery(
 
         try
         {
-            var clientConfig =
-                KubernetesClientConfiguration.BuildConfigFromConfigFile(configuration.Ingestion.Kubernetes.KubeConfigFile);
+            var clientConfig = configuration.Ingestion.Kubernetes.AuthenticationType switch
+            {
+                KubernetesAuthenticationType.ConfigFile => KubernetesClientConfiguration.BuildConfigFromConfigFile(configuration
+                    .Ingestion.Kubernetes.KubeConfigFile),
+                KubernetesAuthenticationType.RoleBased => KubernetesClientConfiguration.InClusterConfig(),
+                _ => throw new InvalidOperationException("Unknown authentication type")
+            };
+
             var kubernetesClient = new Kubernetes(clientConfig);
 
             List<DiscoveredService> discoveredServices = [];

@@ -1,6 +1,4 @@
-﻿using Zilean.Database.Bootstrapping;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddConfigurationFiles();
 
@@ -15,9 +13,13 @@ builder.Services
     .AddShellExecutionService()
     .ConditionallyRegisterDmmJob(zileanConfiguration)
     .AddZileanDataServices(zileanConfiguration)
-    .AddStartupHostedService();
+    .AddApiKeyAuthentication()
+    .AddStartupHostedServices();
 
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
@@ -28,4 +30,5 @@ app.MapZileanEndpoints(zileanConfiguration)
 app.Services.SetupScheduling(zileanConfiguration);
 
 logger.LogInformation("Zilean API Service started.");
+
 app.Run();
