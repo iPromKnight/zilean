@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/iPromKnight/zilean/compare/v2.2.1...v2.3.0) (2024-11-17)
+
+
+### 🚀 New Features
+
+* add blacklist feature and API key authentication ([562bd14](https://github.com/iPromKnight/zilean/commit/562bd1433aa741c13e417a1608a628ee7093a0e6))
+
 ## [2.2.1](https://github.com/iPromKnight/zilean/compare/v2.2.0...v2.2.1) (2024-11-16)
 
 
