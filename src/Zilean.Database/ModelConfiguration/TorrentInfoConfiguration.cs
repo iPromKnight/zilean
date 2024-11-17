@@ -2,6 +2,8 @@ namespace Zilean.Database.ModelConfiguration;
 
 public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
 {
+    private static readonly string[] _trigramOps = ["gin_trgm_ops"];
+
     public void Configure(EntityTypeBuilder<TorrentInfo> builder)
     {
         builder.ToTable("Torrents");
@@ -237,7 +239,32 @@ public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
             .HasDefaultValueSql("now() at time zone 'utc'")
             .HasAnnotation("Relational:JsonPropertyName", "ingested_at");
 
-        builder.HasIndex(t => t.ImdbId);
+        builder.HasIndex(t => t.CleanedParsedTitle)
+            .HasDatabaseName("idx_cleaned_parsed_title_trgm")
+            .HasMethod("GIN")
+            .HasAnnotation("Npgsql:IndexOperators", _trigramOps);
+
+        builder.HasIndex(t => t.Seasons)
+            .HasDatabaseName("idx_seasons_gin")
+            .HasMethod("GIN");
+
+        builder.HasIndex(t => t.Episodes)
+            .HasDatabaseName("idx_episodes_gin")
+            .HasMethod("GIN");
+
+        builder.HasIndex(t => t.Languages)
+            .HasDatabaseName("idx_languages_gin")
+            .HasMethod("GIN");
+
+        builder.HasIndex(t => t.Year)
+            .HasDatabaseName("idx_year");
+
+        builder.HasIndex(t => t.ImdbId)
+            .HasDatabaseName("idx_torrents_imdbid");
+
+        builder.HasIndex(t => t.IngestedAt)
+            .HasDatabaseName("idx_ingested_at")
+            .IsDescending();
 
         builder.HasIndex(t => t.InfoHash)
             .IsUnique();
