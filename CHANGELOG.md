@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.10](https://github.com/iPromKnight/zilean/compare/v2.3.9...v2.3.10) (2024-11-17)
+
+
+### 🔥 Bug Fixes
+
+* better distinction handling ([633433b](https://github.com/iPromKnight/zilean/commit/633433b4d3a5b601e9946100bcd2e44867511cf6))
+
 ## [2.3.9](https://github.com/iPromKnight/zilean/compare/v2.3.8...v2.3.9) (2024-11-17)
 
 
