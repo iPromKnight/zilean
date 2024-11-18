@@ -85,7 +85,6 @@ public class ConfigurationTests
         zileanConfig.Dmm.MinimumReDownloadIntervalMinutes.Should().Be(30);
         zileanConfig.Dmm.MaxFilteredResults.Should().Be(200);
         zileanConfig.Dmm.MinimumScoreMatch.Should().Be(0.85);
-        zileanConfig.Dmm.ImportBatched.Should().BeFalse();
 
         // Torznab
         zileanConfig.Torznab.Should().NotBeNull();
@@ -114,8 +113,6 @@ public class ConfigurationTests
         zileanConfig.Ingestion.ZurgInstances[0].EndpointType.Should().Be(GenericEndpointType.Zurg);
         zileanConfig.Ingestion.ZileanInstances.Should().BeEmpty();
         zileanConfig.Ingestion.EnableScraping.Should().BeFalse();
-        zileanConfig.Ingestion.BatchSize.Should().Be(500);
-        zileanConfig.Ingestion.MaxChannelSize.Should().Be(5000);
         zileanConfig.Ingestion.ScrapeSchedule.Should().Be("0 * * * *");
         zileanConfig.Ingestion.ZurgEndpointSuffix.Should().Be("/debug/torrents");
         zileanConfig.Ingestion.ZileanEndpointSuffix.Should().Be("/torrents/all");

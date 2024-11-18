@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Ingestion;
+﻿namespace Zilean.Scraper.Features.Ingestion.Endpoints;
 
 public class KubernetesServiceDiscovery(
     ILogger<KubernetesServiceDiscovery> logger,

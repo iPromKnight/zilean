@@ -1,4 +1,4 @@
-namespace Zilean.Scraper.Features.Ingestion;
+namespace Zilean.Scraper.Features.Ingestion.Dmm;
 
 public class DmmFileDownloader(ILogger<DmmFileDownloader> logger, ZileanConfiguration configuration)
 {

@@ -14,25 +14,24 @@ The DMM import reruns on missing pages every hour.
 ```json
 {
   "Zilean": {
-    "ApiKey": "5c43b70d3be04308b72ada4f61515fb4e278b08c48ec4c8a87e954ec658f8e4e",
-    "FirstRun": false,
+    "ApiKey": "69f72d7eb22e48938fd889206ffcf911a514bcc2e3824b2e9e7549122fb16849",
+    "FirstRun": true,
     "Dmm": {
       "EnableScraping": true,
       "EnableEndpoint": true,
       "ScrapeSchedule": "0 * * * *",
       "MinimumReDownloadIntervalMinutes": 30,
       "MaxFilteredResults": 200,
-      "MinimumScoreMatch": 0.85,
-      "ImportBatched": false
+      "MinimumScoreMatch": 0.85
     },
     "Torznab": {
       "EnableEndpoint": true
     },
     "Database": {
-      "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+      "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
     },
     "Torrents": {
-      "EnableEndpoint": true
+      "EnableEndpoint": false
     },
     "Imdb": {
       "EnableImportMatching": true,
@@ -40,26 +39,24 @@ The DMM import reruns on missing pages every hour.
       "MinimumScoreMatch": 0.85
     },
     "Ingestion": {
-      "ZurgInstances": [
-        {
-          "Url": "http://zurg:9999",
-          "EndpointType": 1
-        }
-      ],
+      "ZurgInstances": [],
       "ZileanInstances": [],
-      "EnableScraping": true,
+      "EnableScraping": false,
       "Kubernetes": {
         "EnableServiceDiscovery": false,
         "KubernetesSelectors": [],
         "KubeConfigFile": "/$HOME/.kube/config",
         "AuthenticationType": 0
       },
-      "BatchSize": 500,
-      "MaxChannelSize": 5000,
       "ScrapeSchedule": "0 * * * *",
       "ZurgEndpointSuffix": "/debug/torrents",
       "ZileanEndpointSuffix": "/torrents/all",
       "RequestTimeout": 10000
+    },
+    "Parsing": {
+      "IncludeAdult": false,
+      "IncludeTrash": true,
+      "BatchSize": 5000
     }
   }
 }
@@ -127,8 +124,6 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
     "KubeConfigFile": "/$HOME/.kube/config",
     "AuthenticationType": 0
   },
-  "BatchSize": 500,
-  "MaxChannelSize": 5000,
   "ScrapeSchedule": "0 * * * *",
   "ZurgEndpointSuffix": "/debug/torrents",
   "ZileanEndpointSuffix": "/torrents/all",
@@ -195,14 +190,6 @@ The `Ingestion` section in the JSON configuration defines the behavior and optio
         - **`EndpointType`**: Indicates the type of endpoint (0 = Zilean, 1 = Zurg).
     - **`KubeConfigFile`**: Path to the Kubernetes configuration file.
     - **`AuthenticationType`**: Authentication type for Kubernetes service discovery (0 = ConfigFile, 1 = RoleBased).
-
-### `BatchSize`
-- **Type**: `int`
-- **Description**: Number of torrents to process in a single batch.
-
-### `MaxChannelSize`
-- **Type**: `int`
-- **Description**: Maximum number of items to buffer in memory during ingestion.
 
 ### `ScrapeSchedule`
 - **Type**: `string` (CRON format)

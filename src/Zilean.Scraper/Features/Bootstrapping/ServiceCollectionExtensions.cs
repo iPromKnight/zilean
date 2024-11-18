@@ -1,3 +1,6 @@
+using Zilean.Scraper.Features.Ingestion.Dmm;
+using Zilean.Scraper.Features.Ingestion.Endpoints;
+
 namespace Zilean.Scraper.Features.Bootstrapping;
 
 public static class ServiceCollectionExtensions
@@ -18,8 +21,6 @@ public static class ServiceCollectionExtensions
 
     private static void AddDmmServices(this IServiceCollection services)
     {
-        services.AddSingleton<DmmSyncState>();
-        services.AddSingleton<DmmPageProcessor>();
         services.AddSingleton<DmmFileDownloader>();
         services.AddSingleton<DmmScraping>();
         services.AddTransient<DmmService>();
@@ -28,7 +29,6 @@ public static class ServiceCollectionExtensions
     private static void AddGenericServices(this IServiceCollection services)
     {
         services.AddSingleton<GenericIngestionScraping>();
-        services.AddSingleton<GenericIngestionProcessor>();
         services.AddSingleton<KubernetesServiceDiscovery>();
     }
 

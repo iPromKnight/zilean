@@ -24,7 +24,6 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
             PropertiesToIncludeOnUpdate = [string.Empty],
             UpdateByProperties = ["ImdbId"],
             BulkCopyTimeout = 0,
-            NotifyAfter = (int)Math.Ceiling(ImdbFiles.Count * 0.05),
             TrackingEntities = false,
         };
 
@@ -32,7 +31,7 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
 
         logger.LogInformation("Storing {Count} imdb entries", ImdbFiles.Count);
 
-        await dbContext.BulkInsertOrUpdateAsync(ImdbFiles, bulkConfig, WriteProgress);
+        await dbContext.BulkInsertOrUpdateAsync(ImdbFiles, bulkConfig);
 
         var imdbLastImport = new ImdbLastImport
         {
@@ -68,8 +67,6 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
 
             return result.ToArray();
         }, "Error finding imdb metadata.");
-
-    private void WriteProgress(decimal @decimal) => logger.LogInformation("Storing imdb meta info: {Percentage:P}", @decimal);
 
     public async Task<ImdbLastImport?> GetImdbLastImportAsync(CancellationToken cancellationToken)
     {

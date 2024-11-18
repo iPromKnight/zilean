@@ -1,8 +1,11 @@
-﻿namespace Zilean.Scraper.Features.Ingestion;
+﻿namespace Zilean.Scraper.Features.Ingestion.Endpoints;
 
 public class GenericIngestionScraping(
     ZileanConfiguration configuration,
-    GenericIngestionProcessor ingestionProcessor,
+    ITorrentInfoService torrentInfoService,
+    ParseTorrentNameService parseTorrentNameService,
+    ILoggerFactory loggerFactory,
+    IHttpClientFactory clientFactory,
     ILogger<GenericIngestionScraping> logger,
     KubernetesServiceDiscovery kubernetesServiceDiscovery)
 {
@@ -10,15 +13,15 @@ public class GenericIngestionScraping(
     {
         logger.LogInformation("Starting ingestion scraping");
 
-        List<GenericEndpoint> urlsToProcess = [];
+        List<GenericEndpoint> endpointsToProcess = [];
 
-        await DiscoverUrlsFromKubernetesServices(cancellationToken, urlsToProcess);
+        await DiscoverUrlsFromKubernetesServices(cancellationToken, endpointsToProcess);
 
-        AddZurgInstancesToUrls(urlsToProcess);
+        AddZurgInstancesToUrls(endpointsToProcess);
 
-        AddZileanInstancesToUrls(urlsToProcess);
+        AddZileanInstancesToUrls(endpointsToProcess);
 
-        if (urlsToProcess.Count == 0)
+        if (endpointsToProcess.Count == 0)
         {
             logger.LogInformation("No URLs to process, exiting");
             return 0;
@@ -26,20 +29,23 @@ public class GenericIngestionScraping(
 
         var completedCount = 0;
 
-        foreach (var url in urlsToProcess)
+        var ingestionProcessor = new StreamedEntryProcessor(torrentInfoService, parseTorrentNameService, loggerFactory, clientFactory, configuration);
+
+        foreach (var endpoint in endpointsToProcess)
         {
             try
             {
-                await ingestionProcessor.ProcessTorrentsAsync(url, CancellationToken.None);
+
+                await ingestionProcessor.ProcessEndpointAsync(endpoint, cancellationToken);
                 completedCount++;
             }
             catch (OperationCanceledException)
             {
-                logger.LogInformation("Ingestion scraping cancelled URL: {@Url}", url);
+                logger.LogInformation("Ingestion scraping cancelled URL: {@Url}", endpoint);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error processing URL: {@Url}", url);
+                logger.LogError(ex, "Error processing URL: {@Url}", endpoint);
             }
         }
 

@@ -1,3 +1,3 @@
-Remove-Item -Path ../src/Zilean.DmmScraper/python -Recurse -Force
-New-Item -Path ../src/Zilean.DmmScraper/python -ItemType Directory
-python -m pip install -r ../requirements.txt -t ../src/Zilean.DmmScraper/python/ --no-user
+Remove-Item -Path ../src/Zilean.Scraper/python -Recurse -Force
+New-Item -Path ../src/Zilean.Scraper/python -ItemType Directory
+python -m pip install -r ../requirements.txt -t ../src/Zilean.Scraper/python/ --no-user

@@ -16,6 +16,7 @@ public class ZileanConfiguration
     public TorrentsConfiguration Torrents { get; set; } = new();
     public ImdbConfiguration Imdb { get; set; } = new();
     public IngestionConfiguration Ingestion { get; set; } = new();
+    public ParsingConfiguration Parsing { get; set; } = new();
 
     public static void EnsureExists()
     {

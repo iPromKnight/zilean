@@ -1,4 +1,6 @@
-﻿namespace Zilean.Scraper.Features.Commands;
+﻿using Zilean.Scraper.Features.Ingestion.Dmm;
+
+namespace Zilean.Scraper.Features.Commands;
 
 public class DmmSyncCommand(DmmScraping dmmScraping) : AsyncCommand
 {

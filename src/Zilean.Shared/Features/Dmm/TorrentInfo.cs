@@ -149,6 +149,9 @@ public class TorrentInfo
     [JsonPropertyName("info_hash")]
     public string InfoHash { get; set; } = default!;
 
+    [JsonPropertyName("adult")]
+    public bool IsAdult { get; set; }
+
     [JsonPropertyName("ingested_at")]
     public DateTime IngestedAt { get; set; } = DateTime.UtcNow;
 }

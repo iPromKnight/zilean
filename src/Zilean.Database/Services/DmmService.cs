@@ -45,6 +45,14 @@ public class DmmService(ILogger<DmmService> logger, ZileanConfiguration configur
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task AddPageToIngestedAsync(ParsedPages pageNames, CancellationToken cancellationToken)
+    {
+        await using var serviceScope = serviceProvider.CreateAsyncScope();
+        await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
+        await dbContext.ParsedPages.AddAsync(pageNames, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<List<ParsedPages>> GetIngestedPagesAsync(CancellationToken cancellationToken)
     {
         await using var serviceScope = serviceProvider.CreateAsyncScope();

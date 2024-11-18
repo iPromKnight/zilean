@@ -239,6 +239,12 @@ public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
             .HasDefaultValueSql("now() at time zone 'utc'")
             .HasAnnotation("Relational:JsonPropertyName", "ingested_at");
 
+        builder.Property(t => t.IsAdult)
+            .IsRequired()
+            .HasColumnType("boolean")
+            .HasDefaultValue(false)
+            .HasAnnotation("Relational:JsonPropertyName", "adult");
+
         builder.HasIndex(t => t.CleanedParsedTitle)
             .HasDatabaseName("idx_cleaned_parsed_title_trgm")
             .HasMethod("GIN")
@@ -261,6 +267,12 @@ public class TorrentInfoConfiguration : IEntityTypeConfiguration<TorrentInfo>
 
         builder.HasIndex(t => t.ImdbId)
             .HasDatabaseName("idx_torrents_imdbid");
+
+        builder.HasIndex(t => t.IsAdult)
+            .HasDatabaseName("idx_torrents_isadult");
+
+        builder.HasIndex(t => t.Trash)
+            .HasDatabaseName("idx_torrents_trash");
 
         builder.HasIndex(t => t.IngestedAt)
             .HasDatabaseName("idx_ingested_at")

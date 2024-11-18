@@ -18,8 +18,6 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             torrentInfo.CleanedParsedTitle = Parsing.CleanQuery(torrentInfo.ParsedTitle);
         }
 
-        logger.LogInformation("Storing {Count} torrents", torrents.Count);
-
         await using var serviceScope = serviceProvider.CreateAsyncScope();
         await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
         await using var connection = new NpgsqlConnection(Configuration.Database.ConnectionString);
@@ -31,7 +29,6 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             PropertiesToIncludeOnUpdate = [string.Empty],
             UpdateByProperties = ["InfoHash"],
             BulkCopyTimeout = 0,
-            NotifyAfter = 250,
             TrackingEntities = false,
         };
 
@@ -45,8 +42,6 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
         {
             currentBatch++;
 
-            bulkConfig.NotifyAfter = (int)Math.Ceiling(batch.Length * 0.05);
-
             if (Configuration.Imdb.EnableImportMatching)
             {
                 logger.LogInformation("Fetching IMDb IDs for batch {CurrentBatch} of {TotalBatches}", currentBatch, chunks.Count);
@@ -54,7 +49,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             }
 
             logger.LogInformation("Storing batch {CurrentBatch} of {TotalBatches}", currentBatch, chunks.Count);
-            await dbContext.BulkInsertOrUpdateAsync(batch, bulkConfig, WriteProgress);
+            await dbContext.BulkInsertOrUpdateAsync(batch, bulkConfig);
         }
     }
 
@@ -238,6 +233,4 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
 
         return [..existingHashes];
     }
-
-    private void WriteProgress(decimal @decimal) => logger.LogInformation("Storing torrent info: {Percentage:P}", @decimal);
 }

@@ -19,6 +19,7 @@ public class ParseTorrentNameService
 
         light_blue = "\033[38;2;0;175;255m"
         light_green = "\033[38;2;172;233;149m"
+        red = "\033[38;2;255;0;0m"
         reset = "\033[0m"
 
         custom_format = (
@@ -38,9 +39,14 @@ public class ParseTorrentNameService
                 title, info_hash = info
                 try:
                     result = parse(title)
+                    logger.info(
+                       f"Title: {light_blue}{title}{reset}, "
+                       f"Parsed Title: {light_green}{result.parsed_title}{reset}, "
+                       f"Is Adult: {light_blue}{result.adult}{reset}, "
+                       f"Is Trash: {light_blue}{result.trash}{reset}")
                     return {'infoHash': info_hash, 'result': result}
                 except Exception as e:
-                    logger.error(f"Failed to parse title: {title}, Error: {e}")
+                    logger.error(f"Failed to parse title: {red}{title}{reset}, "f"Error: {red}{e}{reset}")
                     return {'infoHash': info_hash, 'result': None, 'error': str(e)}
 
         async def parse_torrents(infos, max_concurrent_tasks):
@@ -53,13 +59,16 @@ public class ParseTorrentNameService
         async def process_batches(info_batches, max_concurrent_tasks):
             results = []
             total_batches = len(info_batches)
-            with Progress() as progress:
-                task_id = progress.add_task("[green]Processing batches...", total=total_batches)
-                for batch_number, infos in enumerate(info_batches, start=1):
+            logger.info(f"Total batches to process: {light_blue}{total_batches}{reset}")
+            logger.info(f"Max concurrent tasks: {light_green}{max_concurrent_tasks}{reset}")
+            logger.info("Starting to process batches")
+            for batch_number, infos in enumerate(info_batches, start=1):
+                try:
                     batch_results = await parse_torrents(infos, max_concurrent_tasks)
                     results.extend(batch_results)
-                    progress.update(task_id, advance=1)
-                progress.remove_task(task_id)
+                    logger.info(f"Processed batch {light_blue}{batch_number}{reset}/{light_green}{total_batches}{reset}")
+                except Exception as e:
+                    logger.error(f"Batch {red}{batch_number}{reset} failed with error: {red}{e}{reset}")
             return results
 
         def run_process_batches(info_batches, max_concurrent_tasks):
