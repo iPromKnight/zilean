@@ -14,8 +14,7 @@ public static class SearchEndpoints
             app.MapGroup(GroupName)
                 .WithTags(GroupName)
                 .Dmm()
-                .DisableAntiforgery()
-                .AllowAnonymous();
+                .DisableAntiforgery();
         }
 
         return app;
@@ -24,12 +23,16 @@ public static class SearchEndpoints
     private static RouteGroupBuilder Dmm(this RouteGroupBuilder group)
     {
         group.MapPost(Search, PerformSearch)
-            .Produces<TorrentInfo[]>();
+            .Produces<TorrentInfo[]>()
+            .AllowAnonymous();
 
         group.MapGet(Filtered, PerformFilteredSearch)
-            .Produces<TorrentInfo[]>();
+            .Produces<TorrentInfo[]>()
+            .AllowAnonymous();
 
-        group.MapGet(Ingest, PerformOnDemandScrape);
+        group.MapGet(Ingest, PerformOnDemandScrape)
+            .RequireAuthorization(ApiKeyAuthentication.Policy)
+            .WithMetadata(new OpenApiSecurityMetadata(ApiKeyAuthentication.Scheme));
 
         return group;
     }

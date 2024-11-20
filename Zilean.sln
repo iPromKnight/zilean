@@ -13,11 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eng", "eng", "{49EC8AF3-9A9
 		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		Dockerfile = Dockerfile
-		compose.yaml = compose.yaml
 		README.md = README.md
 		eng\compose-dev.yaml = eng\compose-dev.yaml
 		eng\.dockerignore = eng\.dockerignore
-		eng\dev-settings.json = eng\dev-settings.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6", "k6", "{3F62995D-FA0F-434F-B90A-5E59C5960A4A}"

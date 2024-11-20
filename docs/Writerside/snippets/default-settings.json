@@ -1,22 +1,20 @@
-﻿{
+{
   "Zilean": {
+    "ApiKey": "da3a4ee25d3749ad87301d701a924eb9154c4a95c9b740c5a179469ab0f10578",
+    "FirstRun": true,
     "Dmm": {
       "EnableScraping": true,
       "EnableEndpoint": true,
       "ScrapeSchedule": "0 * * * *",
       "MinimumReDownloadIntervalMinutes": 30,
       "MaxFilteredResults": 200,
-      "MinimumScoreMatch": 0.85,
-      "ImportBatched": false
+      "MinimumScoreMatch": 0.85
     },
     "Torznab": {
       "EnableEndpoint": true
     },
     "Database": {
-      "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
-    },
-    "Prowlarr": {
-      "EnableEndpoint": true
+      "ConnectionString": "Host=postgres;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
     },
     "Torrents": {
       "EnableEndpoint": false
@@ -32,20 +30,19 @@
       "EnableScraping": false,
       "Kubernetes": {
         "EnableServiceDiscovery": false,
-        "KubernetesSelectors": [
-          {
-            "UrlTemplate": "http://zurg.{0}:9999",
-            "LabelSelector": "app.elfhosted.com/name=zurg",
-            "EndpointType": 1
-          }
-        ],
-        "KubeConfigFile": "/$HOME/.kube/config"
+        "KubernetesSelectors": [],
+        "KubeConfigFile": "/$HOME/.kube/config",
+        "AuthenticationType": 0
       },
-      "BatchSize": 500,
-      "MaxChannelSize": 5000,
-      "ScrapeSchedule": "0 * * * *",
+      "ScrapeSchedule": "0 0 * * *",
       "ZurgEndpointSuffix": "/debug/torrents",
-      "ZileanEndpointSuffix": "/torrents/all"
+      "ZileanEndpointSuffix": "/torrents/all",
+      "RequestTimeout": 10000
+    },
+    "Parsing": {
+      "IncludeAdult": false,
+      "IncludeTrash": true,
+      "BatchSize": 5000
     }
   }
 }

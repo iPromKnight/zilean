@@ -4,10 +4,10 @@
     "Zilean.ApiService": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:8181/scalar/v2",
+      "launchUrl": "http://localhost:5000/scalar/v2",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ASPNETCORE_URLS": "http://localhost:8181",
+        "ASPNETCORE_URLS": "http://localhost:5000",
         "Zilean__Torrents__EnableEndpoint": "true",
         "Zilean__Ingestion__EnableScraping": "true",
         "Zilean__Dmm__EnableScraping": "true",

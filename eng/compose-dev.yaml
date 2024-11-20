@@ -1,7 +1,7 @@
 services:
-  postgres:
-    image: postgres:16.3-alpine3.20
-    container_name: postgres
+  postgresdev:
+    image: postgres:17.1
+    container_name: postgresdev
     restart: unless-stopped
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata

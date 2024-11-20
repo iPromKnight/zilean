@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE vars SYSTEM "https://resources.jetbrains.com/writerside/1.0/vars.dtd">
+<vars>
+    <var name="product" value="zilean"/>
+    <var name="Product" value="Zilean"/>
+    <var name="settings-file" value="settings.json" />
+</vars>

@@ -1,0 +1,12 @@
+<rss>
+    <channel>
+        <item>
+            <title>Example Movie 1080p</title>
+            <link>magnet:?xt=urn:btih:...</link>
+            <description>Some details about the torrent.</description>
+            <category>Movies</category>
+            <size>2147483648</size>
+        </item>
+        ...
+    </channel>
+</rss>
