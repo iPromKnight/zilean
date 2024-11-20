@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/iPromKnight/zilean/compare/v3.0.0...v3.0.1) (2024-11-20)
+
+
+### 📦 CI Improvements
+
+* upgrade docs workflow [skip-release] ([11091d9](https://github.com/iPromKnight/zilean/commit/11091d99a94a850e94d426090134b70f8bc258ed))
+
 ## [3.0.0](https://github.com/iPromKnight/zilean/compare/v2.3.10...v3.0.0) (2024-11-20)
 
 
