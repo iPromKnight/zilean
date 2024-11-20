@@ -27,11 +27,11 @@
     "Ingestion": {
       "ZurgInstances": [{
         "Url": "http://zurg:9999",
-        "EndpointType": 0
+        "EndpointType": 1
       }],
       "ZileanInstances": [{
         "Url": "http://other-zilean:8181",
-        "EndpointType": 1
+        "EndpointType": 0
       }],
       "EnableScraping": true,
       "Kubernetes": {

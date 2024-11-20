@@ -155,7 +155,7 @@ _Default: `5000`_
 
 To enable ingestion, set the `Ingestion.EnableScraping` key to `true` in the configuration.
 Also ensure that the `Ingestion.ZurgInstances` and or `Ingestion.ZileanInstances` keys are populated with the appropriate `Url`, and `EndpointType` values.
-`EndpointType` can be either `0` (Zurg) or `1` (Zilean).
+`EndpointType` can be either `1` (Zurg) or `0` (Zilean).
 You do not have to specify both, you can specify one or the other, or both, depending on your requirements.
 Also there is no limit to the number of instances you can scrape from.
 
