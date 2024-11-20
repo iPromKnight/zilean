@@ -18,7 +18,9 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build Writerside docs using Docker
         uses: JetBrains/writerside-github-action@v4
@@ -27,22 +29,20 @@ jobs:
           artifact: ${{ env.ARTIFACT }}
           location: ${{ env.DOCS_FOLDER }}
 
-      - name: Upload documentation
-        uses: actions/upload-artifact@v3
+      - name: Save artifact with build results
+        uses: actions/upload-artifact@v4
         with:
           name: docs
           path: |
             artifacts/${{ env.ARTIFACT }}
-            artifacts/report.json
           retention-days: 7
 
   test:
     needs: build
     runs-on: ubuntu-latest
-
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: docs
           path: artifacts
@@ -56,25 +56,25 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: test
+    needs: [build, test]
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
         with:
           name: docs
 
       - name: Unzip artifact
-        run: unzip -O UTF-8 -qq ${{ env.ARTIFACT }} -d dir
+        run: unzip -O UTF-8 -qq '${{ env.ARTIFACT }}' -d dir
 
       - name: Setup Pages
-        uses: actions/configure-pages@v2
+        uses: actions/configure-pages@v4
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Package and upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dir
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4
