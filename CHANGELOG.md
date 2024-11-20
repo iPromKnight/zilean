@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0](https://github.com/iPromKnight/zilean/compare/v2.3.10...v3.0.0) (2024-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* Upgrade rtn for adult check handling
+
+### 🚀 New Features
+
+* Upgrade rtn for adult check handling ([5422baa](https://github.com/iPromKnight/zilean/commit/5422baa3ad68a8fc0dafe235ccdebf293fd10492))
+
+
+### ⚙️ Chores
+
+* documentation ([b474b99](https://github.com/iPromKnight/zilean/commit/b474b9940fcd46ee129e5ddc1a4eeb27ae90698b))
+
 ## [2.3.10](https://github.com/iPromKnight/zilean/compare/v2.3.9...v2.3.10) (2024-11-17)
 
 
