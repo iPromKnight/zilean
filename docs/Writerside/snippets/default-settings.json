@@ -2,6 +2,7 @@
   "Zilean": {
     "ApiKey": "da3a4ee25d3749ad87301d701a924eb9154c4a95c9b740c5a179469ab0f10578",
     "FirstRun": true,
+    "EnableDashboard": false,
     "Dmm": {
       "EnableScraping": true,
       "EnableEndpoint": true,
@@ -40,8 +41,6 @@
       "RequestTimeout": 10000
     },
     "Parsing": {
-      "IncludeAdult": false,
-      "IncludeTrash": true,
       "BatchSize": 5000
     }
   }

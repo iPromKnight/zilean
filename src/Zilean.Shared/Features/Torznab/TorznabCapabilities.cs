@@ -18,6 +18,13 @@ public static class TorznabCapabilities
         MovieSearch.Year,
     ];
 
+    public static List<XxxSearch> XxxSearchParams { get; } =
+    [
+        XxxSearch.Q,
+        XxxSearch.Year,
+        XxxSearch.ImdbId
+    ];
+
     public static int LimitsMax { get; } = 5000;
     public static int LimitsDefault { get; } = 100;
     public static bool SearchAvailable { get; } = true;
@@ -30,10 +37,15 @@ public static class TorznabCapabilities
     public static bool MovieSearchAvailable => MovieSearchParams.Count > 0;
     public static bool MovieSearchImdbAvailable => MovieSearchParams.Contains(MovieSearch.ImdbId);
     public static bool MovieSearchYearAvailable => MovieSearchParams.Contains(MovieSearch.Year);
+    public static bool XxxSearchAvailable => XxxSearchParams.Count > 0;
+    public static bool XxxSearchImdbAvailable => XxxSearchParams.Contains(XxxSearch.ImdbId);
+    public static bool XxxSearchYearAvailable => XxxSearchParams.Contains(XxxSearch.Year);
+
     public static List<TorznabCategory> Categories { get; } =
     [
         TorznabCategoryTypes.Movies,
         TorznabCategoryTypes.TV,
+        TorznabCategoryTypes.XXX,
     ];
 
     public static string ToXml() =>
@@ -65,6 +77,11 @@ public static class TorznabCapabilities
                     new XElement("movie-search",
                         new XAttribute("available", MovieSearchAvailable ? "yes" : "no"),
                         new XAttribute("supportedParams", SupportedMovieSearchParams()),
+                        SupportsRawSearch ? new XAttribute("searchEngine", "raw") : null
+                    ),
+                    new XElement("xxx-search",
+                        new XAttribute("available", XxxSearchAvailable ? "yes" : "no"),
+                        new XAttribute("supportedParams", SupportedXxxSearchParams()),
                         SupportsRawSearch ? new XAttribute("searchEngine", "raw") : null
                     )
                 ),
@@ -122,6 +139,23 @@ public static class TorznabCapabilities
         }
 
         if (MovieSearchYearAvailable)
+        {
+            parameters.Add("year");
+        }
+
+        return string.Join(",", parameters);
+    }
+
+    private static string SupportedXxxSearchParams()
+    {
+        var parameters = new List<string> { "q" };
+
+        if (XxxSearchImdbAvailable)
+        {
+            parameters.Add("imdbid");
+        }
+
+        if (XxxSearchYearAvailable)
         {
             parameters.Add("year");
         }

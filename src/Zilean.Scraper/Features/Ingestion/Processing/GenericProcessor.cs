@@ -112,8 +112,6 @@ public abstract class GenericProcessor<TInput>(
                 var finalizedTorrents = parsedTorrents
                     .AsEnumerable()
                     .FilterBlacklistedTorrents(parsedTorrents, _blacklistedHashes, _configuration, _logger, _processedCounts)
-                    .FilterAdultTorrents(parsedTorrents, _configuration, _logger, _processedCounts)
-                    .FilterOutTrashTorrents(parsedTorrents, _configuration, _logger, _processedCounts)
                     .ToList();
 
                 await torrentInfoService.StoreTorrentInfo(finalizedTorrents);

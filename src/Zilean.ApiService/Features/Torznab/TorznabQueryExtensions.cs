@@ -17,6 +17,12 @@ public static class TorznabQueryExtensions
                 logger.LogWarning("IMDB ID TV search is not supported.");
                 throw new NotSupportedException("IMDB ID TV search is not supported by Zilean.");
             }
+
+            if (query.IsTVSearch && !TorznabCapabilities.XxxSearchImdbAvailable)
+            {
+                logger.LogWarning("IMDB ID Xxx search is not supported.");
+                throw new NotSupportedException("IMDB ID Xxx search is not supported by Zilean.");
+            }
         }
 
         if (query.Season != null && !TorznabCapabilities.TvSearchSeasonAvailable)
@@ -44,6 +50,12 @@ public static class TorznabQueryExtensions
                 logger.LogWarning("Year-based TV search is not supported.");
                 throw new NotSupportedException("Year-based TV search is not supported by Zilean.");
             }
+
+            if (query.IsXxxSearch && !TorznabCapabilities.XxxSearchYearAvailable)
+            {
+                logger.LogWarning("Year-based Xxx search is not supported.");
+                throw new NotSupportedException("Year-based Xxx search is not supported by Zilean.");
+            }
         }
 
         if (query.SearchTerm != null && !TorznabCapabilities.SearchAvailable)
@@ -68,6 +80,11 @@ public static class TorznabQueryExtensions
             {
                 return false;
             }
+
+            if (query.IsXxxSearch && !TorznabCapabilities.XxxSearchImdbAvailable)
+            {
+                return false;
+            }
         }
 
         if (query.Season != null && !TorznabCapabilities.TvSearchSeasonAvailable)
@@ -88,6 +105,11 @@ public static class TorznabQueryExtensions
             }
 
             if (query.IsTVSearch && !TorznabCapabilities.TvSearchYearAvailable)
+            {
+                return false;
+            }
+
+            if (query.IsXxxSearch && !TorznabCapabilities.XxxSearchYearAvailable)
             {
                 return false;
             }

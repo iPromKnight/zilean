@@ -4,15 +4,17 @@
     "Zilean.ApiService": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "http://localhost:5000/scalar/v2",
+      "launchUrl": "http://localhost:5000",
       "environmentVariables": {
+        "ZILEAN_PYTHON_VENV": "C:\\Python311",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_URLS": "http://localhost:5000",
         "Zilean__Torrents__EnableEndpoint": "true",
         "Zilean__Ingestion__EnableScraping": "true",
         "Zilean__Dmm__EnableScraping": "true",
+        "Zilean__EnableDashboard": "true",
         "ZILEAN__NEW__API__KEY": "false",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;"
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
       }
     }
   }

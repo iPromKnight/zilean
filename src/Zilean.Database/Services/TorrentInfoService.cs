@@ -5,6 +5,14 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
 {
     private readonly ConcurrentDictionary<string, string?> _imdbCache = [];
 
+    public async Task VaccumTorrentsIndexes(CancellationToken cancellationToken)
+    {
+        await using var serviceScope = serviceProvider.CreateAsyncScope();
+        await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
+
+        await dbContext.Database.ExecuteSqlRawAsync("VACUUM (VERBOSE, ANALYZE) \"Torrents\"", cancellationToken: cancellationToken);
+    }
+
     public async Task StoreTorrentInfo(List<TorrentInfo> torrents, int batchSize = 5000)
     {
         if (torrents.Count == 0)
@@ -98,6 +106,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                        @Resolution,
                        @ImdbId,
                        @Limit,
+                       @Category,
                        @SimilarityThreshold
                    );
                 """;
@@ -110,6 +119,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             parameters.Add("@Year", filter.Year);
             parameters.Add("@Language", filter.Language);
             parameters.Add("@Resolution", filter.Resolution);
+            parameters.Add("@Category", filter.Category);
             parameters.Add("@ImdbId", imdbId);
             parameters.Add("@Limit", limit ?? Configuration.Dmm.MaxFilteredResults);
             parameters.Add("@SimilarityThreshold", (float)Configuration.Dmm.MinimumScoreMatch);

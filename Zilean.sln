@@ -45,6 +45,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{DAAA
 		eng\install-python-reqs-benchmarks.sh = eng\install-python-reqs-benchmarks.sh
 		eng\install-python-reqs-dmmscraper.sh = eng\install-python-reqs-dmmscraper.sh
 		eng\create-new-migration.sh = eng\create-new-migration.sh
+		eng\install-python-reqs-dmmscraper.ps1 = eng\install-python-reqs-dmmscraper.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal Apps", "Internal Apps", "{2042A18C-6933-4FE9-B4F6-E164BE2D514A}"

@@ -10,6 +10,7 @@ public class ZileanConfiguration
 
     public string? ApiKey { get; set; } = Utilities.ApiKey.Generate();
     public bool FirstRun { get; set; } = true;
+    public bool EnableDashboard { get; set; } = false;
     public DmmConfiguration Dmm { get; set; } = new();
     public TorznabConfiguration Torznab { get; set; } = new();
     public DatabaseConfiguration Database { get; set; } = new();

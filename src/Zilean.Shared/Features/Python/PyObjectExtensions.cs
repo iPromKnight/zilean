@@ -1,4 +1,4 @@
-namespace Zilean.Scraper.Features.PythonSupport;
+namespace Zilean.Shared.Features.Python;
 
 public static class PyObjectExtensions
 {

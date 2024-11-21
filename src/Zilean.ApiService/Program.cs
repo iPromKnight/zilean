@@ -14,21 +14,13 @@ builder.Services
     .ConditionallyRegisterDmmJob(zileanConfiguration)
     .AddZileanDataServices(zileanConfiguration)
     .AddApiKeyAuthentication()
-    .AddStartupHostedServices();
+    .AddStartupHostedServices()
+    .AddDashboardSupport(zileanConfiguration);
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
-
-app.MapDefaultEndpoints();
-app.MapZileanEndpoints(zileanConfiguration)
-    .EnableSwagger();
-
+app.UseZileanRequired(zileanConfiguration);
+app.MapZileanEndpoints(zileanConfiguration);
 app.Services.SetupScheduling(zileanConfiguration);
-
-logger.LogInformation("Zilean API Service started.");
 
 app.Run();

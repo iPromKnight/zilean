@@ -1,0 +1,35 @@
+﻿@using Syncfusion.Blazor.Buttons
+<div class="form-group mt-3">
+    <SfCheckBox @bind-Checked="InternalChecked" Label="@Label"></SfCheckBox>
+    @if (InternalChecked)
+    {
+        <div class="mt-1">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Label { get; set; } = "Toggle Field";
+
+    [Parameter]
+    public bool IsChecked { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsCheckedChanged { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool InternalChecked
+    {
+        get => IsChecked;
+        set
+        {
+            if (value == IsChecked) return;
+            IsChecked = value;
+            IsCheckedChanged.InvokeAsync(value);
+        }
+    }
+}

@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="pythonnet" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="KubernetesClient" />
     <PackageReference Include="Spectre.Console.Cli" />

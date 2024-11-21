@@ -28,6 +28,7 @@ public partial class TorznabQuery
     public bool IsSearch => QueryType == "search";
 
     public bool IsTVSearch => QueryType == "tvsearch";
+    public bool IsXxxSearch => QueryType == "xxx";
 
     public bool IsMovieSearch => QueryType == "movie";
     public bool IsImdbQuery => ImdbID != null;

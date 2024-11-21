@@ -10,12 +10,15 @@
 
     <ItemGroup>
       <PackageReference Include="Coravel" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
       <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
       <PackageReference Include="Microsoft.Extensions.Hosting" />
       <PackageReference Include="Microsoft.Extensions.Http" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
       <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />
       <PackageReference Include="Scalar.AspNetCore" />
+      <PackageReference Include="Syncfusion.Blazor.Grid" />
+      <PackageReference Include="Syncfusion.Blazor.Themes" />
       <PackageReference Include="System.Linq.Async" />
     </ItemGroup>
 
@@ -23,5 +26,24 @@
       <ProjectReference Include="..\Zilean.Database\Zilean.Database.csproj" />
       <ProjectReference Include="..\Zilean.Shared\Zilean.Shared.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\app.css">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\bootstrap\bootstrap.min.css">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Update="wwwroot\bootstrap\bootstrap.min.css.map">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Remove="python\**" />
+    <None Include="python\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

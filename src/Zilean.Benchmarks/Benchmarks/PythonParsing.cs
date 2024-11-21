@@ -1,4 +1,4 @@
-using Zilean.Scraper.Features.PythonSupport;
+using Zilean.Shared.Features.Python;
 
 namespace Zilean.Benchmarks.Benchmarks;
 

@@ -9,4 +9,5 @@ public class TorrentInfoFilter
     public string? Language { get; init; }
     public string? Resolution { get; init; }
     public string? ImdbId { get; init; }
+    public string? Category { get; set; }
 }

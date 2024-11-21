@@ -87,7 +87,6 @@ public static class TorznabCategoryTypes
         SubCategories =
         {
             XXXDVD,
-            XXX,
             XXXXviD,
             XXXx264,
             XXXUHD,

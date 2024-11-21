@@ -104,6 +104,7 @@ public static class TorznabEndpoints
             Episode = query.Episode,
             Year = query.Year,
             ImdbId = query.ImdbID,
+            Category = GetFromTorznabCategories(query.Categories, query.QueryType),
         };
 
         var limit = query.Limit switch
@@ -122,20 +123,9 @@ public static class TorznabEndpoints
             InfoHash = t.InfoHash,
             PublishDate = t.IngestedAt,
             Size = Parsing.GetBytes(t.Size),
-            Category = t.Category.Equals("tvSeries", StringComparison.OrdinalIgnoreCase)
-                ? [TorznabCategoryTypes.TV.Id]
-                : [TorznabCategoryTypes.Movies.Id],
+            Category = GetCategory(t.Category),
             Imdb = Parsing.GetImdbId(t.ImdbId),
         });
-
-        if (query.IsMovieSearch)
-        {
-            results = results.Where(r => r.Category.Contains(TorznabCategoryTypes.Movies.Id));
-        }
-        else if (query.IsTVSearch)
-        {
-            results = results.Where(r => r.Category.Contains(TorznabCategoryTypes.TV.Id));
-        }
 
         results = query.Limit switch
         {
@@ -146,6 +136,37 @@ public static class TorznabEndpoints
 
         return results.ToList();
     }
+
+    private static string? GetFromTorznabCategories(int[] queryCategories, string? queryQueryType) =>
+        !queryQueryType.IsNullOrWhiteSpace()
+            ? queryQueryType switch
+            {
+                "movie" => "movie",
+                "tvSearch" => "tvSeries",
+                "xxx" => "xxx",
+                _ => null
+            }
+            : queryCategories.Length == 0
+                ? null
+                : queryCategories.Contains(TorznabCategoryTypes.Movies.Id) ||
+                  TorznabCategoryTypes.Movies.SubCategories.Any(c => queryCategories.Contains(c.Id))
+                    ? "movie"
+                    : queryCategories.Contains(TorznabCategoryTypes.TV.Id) ||
+                      TorznabCategoryTypes.TV.SubCategories.Any(c => queryCategories.Contains(c.Id))
+                        ? "tvSeries"
+                        : queryCategories.Contains(TorznabCategoryTypes.XXX.Id) ||
+                          TorznabCategoryTypes.XXX.SubCategories.Any(c => queryCategories.Contains(c.Id))
+                            ? "xxx"
+                            : null;
+
+    private static ICollection<int> GetCategory(string dbCategory) =>
+        dbCategory switch
+        {
+            "tvSeries" => [TorznabCategoryTypes.TV.Id],
+            "xxx" => [TorznabCategoryTypes.XXX.Id],
+            "movie" => [TorznabCategoryTypes.Movies.Id],
+            _ => [TorznabCategoryTypes.Movies.Id]
+        };
 
 
     private static XmlResult<string> GetCapabilities()

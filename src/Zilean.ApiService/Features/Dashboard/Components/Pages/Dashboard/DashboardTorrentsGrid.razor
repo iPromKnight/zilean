@@ -1,0 +1,102 @@
+﻿@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.DropDowns
+@using SelectionMode = Syncfusion.Blazor.Grids.SelectionMode
+@using Syncfusion.Blazor.Buttons
+
+@rendermode InteractiveServer
+
+<SfGrid @ref="_torrentsGrid" TValue="DashboardTorrentDetails" AllowSorting="false" AllowFiltering="true" AllowResizing="true" AllowPaging="true" Toolbar="@_toolbarOptions" EnableHover="true" EnableStickyHeader="true" GridLines="GridLine.Both" EnableAltRow="true" AdaptiveUIMode="AdaptiveMode.Both">
+    <SfDataManager AdaptorInstance="typeof(DashboardDataAdapter)" Adaptor="Adaptors.CustomAdaptor"></SfDataManager>
+    <GridSelectionSettings Mode="SelectionMode.Row" CheckboxOnly="true" CheckboxMode="CheckboxSelectionType.Default"></GridSelectionSettings>
+    <GridEditSettings AllowEditing="true" AllowDeleting="true" AllowAdding="true" Mode="@EditMode.Dialog" AllowEditOnDblClick="true" AllowNextRowEdit="false" ShowAddNewRow="false" ShowConfirmDialog="true" ShowDeleteConfirmDialog="true" Dialog="@_dialogSettings">
+        <Validator>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </Validator>
+        <Template>
+            @{
+                if (context is DashboardTorrentDetails torrent)
+                {
+                    <div>
+                        <ValidationMessage For="() => torrent.InfoHash"/>
+                        <ValidationMessage For="() => torrent.RawTitle"/>
+                        <ValidationMessage For="() => torrent.Size"/>
+                        <div class="form-row">
+                            <div class="form-group col-md-12">
+                                <SfTextBox ID="InfoHash" @bind-Value="@(torrent.InfoHash)" FloatLabelType="FloatLabelType.Always" Placeholder="Info hash" ShowClearButton="true"></SfTextBox>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <SfTextBox ID="RawTitle" @bind-Value="@(torrent.RawTitle)" FloatLabelType="FloatLabelType.Always" Placeholder="Raw Title" ShowClearButton="true"></SfTextBox>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <SfTextBox ID="Filesize" @bind-Value="@(torrent.Size)" Type="InputType.Number" ShowClearButton="true" FloatLabelType="FloatLabelType.Always" Placeholder="Size"></SfTextBox>
+                            </div>
+                            <DashboardToggleBox Label="Override Category"
+                                                @bind-IsChecked="@(torrent.ChangeCategory)">
+                                <SfDropDownList TValue="string" TItem="string"
+                                                @bind-Value="@(torrent.Category)"
+                                                DataSource="@_categories"
+                                                Placeholder="Select Category"/>
+                            </DashboardToggleBox>
+
+                            <DashboardToggleBox Label="Override Year"
+                                                @bind-IsChecked="@(torrent.ChangeYear)">
+                                <SfTextBox ID="Filesize" @bind-Value="@(torrent.Year)" Type="InputType.Number" ShowClearButton="true" FloatLabelType="FloatLabelType.Always" Placeholder="Year"></SfTextBox>
+                            </DashboardToggleBox>
+
+                            <DashboardToggleBox Label="Override Imdb Id"
+                                                @bind-IsChecked="@(torrent.ChangeImdb)">
+                                <SfTextBox ID="Filesize" @bind-Value="@(torrent.ImdbId)" Type="InputType.Text" ShowClearButton="true" FloatLabelType="FloatLabelType.Always" Placeholder="Imdb Id"></SfTextBox>
+                            </DashboardToggleBox>
+
+                            <DashboardToggleBox Label="Override Adult Flag"
+                                                @bind-IsChecked="@(torrent.ChangeAdult)">
+                                <SfCheckBox @bind-Checked="@(torrent.IsAdult)" Label="Is Adult"></SfCheckBox>
+                            </DashboardToggleBox>
+
+                            <DashboardToggleBox Label="Override Trash Flag"
+                                                @bind-IsChecked="@(torrent.ChangeTrash)">
+                                <SfCheckBox @bind-Checked="@(torrent.Trash)" Label="Is Trash"></SfCheckBox>
+                            </DashboardToggleBox>
+                        </div>
+                    </div>
+                }
+            }
+        </Template>
+    </GridEditSettings>
+    <GridPageSettings PageSizes="@_pageSizes" PageSize="@_initialPageSize"></GridPageSettings>
+    <GridColumns>
+        <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.InfoHash) HeaderText="Info Hash" TextAlign="TextAlign.Left" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip" AllowEditing="true" Width="150" IsIdentity="true" IsPrimaryKey="true"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.Category) HeaderText="Category" TextAlign="TextAlign.Left" AllowEditing="false" Width="100" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.RawTitle) HeaderText="Raw Title" TextAlign="TextAlign.Left" Width="240" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.ParsedTitle) HeaderText="Parsed Title" TextAlign="TextAlign.Left" AllowEditing="false" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip" Width="240"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.ImdbId) HeaderText="Imdb Id" TextAlign="TextAlign.Left" AllowEditing="false" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip" Width="100"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.Year) HeaderText="Year" TextAlign="TextAlign.Left" AllowEditing="false" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip" Width="80"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.Size) HeaderText="Size" TextAlign="TextAlign.Left" AllowEditing="false" AllowResizing="true" ClipMode="ClipMode.EllipsisWithTooltip" Width="100"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.IsAdult) HeaderText="Adult" DisplayAsCheckBox="true" AllowEditing="false" Width="50" AllowResizing="false"></GridColumn>
+        <GridColumn Field=@nameof(DashboardTorrentDetails.Trash) HeaderText="Trash" DisplayAsCheckBox="true" AllowEditing="false" Width="50" AllowResizing="false"></GridColumn>
+    </GridColumns>
+</SfGrid>
+
+@code {
+
+    private readonly DialogSettings _dialogSettings = new()
+    {
+        Width = "600px",
+        Height = "450px",
+        CloseOnEscape = true,
+        AllowDragging = true,
+        EnableResize = true,
+        ShowCloseIcon = true,
+    };
+
+    private readonly List<string> _categories = ["movie", "tvSeries", "xxx"];
+
+    private SfGrid<DashboardTorrentDetails> _torrentsGrid = default!;
+    private readonly Array _pageSizes = new[] { 500, 100, 50, 25 };
+    private readonly int _initialPageSize = 25;
+    private readonly List<string> _toolbarOptions = ["Add", "Edit", "Delete", "Search"];
+}

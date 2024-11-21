@@ -1,4 +1,4 @@
-namespace Zilean.Scraper.Features.PythonSupport;
+namespace Zilean.Shared.Features.Python;
 
 public class ParseTorrentNameService
 {
@@ -7,13 +7,13 @@ public class ParseTorrentNameService
     private IntPtr _mainThreadState;
     private bool _isInitialized;
     private dynamic? _sys;
-    private dynamic? _runProcessBatches;
     private readonly ILogger<ParseTorrentNameService> _logger;
 
     private const string ParserScript =
         """
         from RTN import parse
         import asyncio
+        import gc
         from rich.progress import Progress, TaskID
         from loguru import logger
 
@@ -49,6 +49,20 @@ public class ParseTorrentNameService
                     logger.error(f"Failed to parse title: {red}{title}{reset}, "f"Error: {red}{e}{reset}")
                     return {'infoHash': info_hash, 'result': None, 'error': str(e)}
 
+        def parse_torrent_single(info):
+            title, info_hash = info
+            try:
+                result = parse(title)
+                logger.info(
+                   f"Title: {light_blue}{title}{reset}, "
+                   f"Parsed Title: {light_green}{result.parsed_title}{reset}, "
+                   f"Is Adult: {light_blue}{result.adult}{reset}, "
+                   f"Is Trash: {light_blue}{result.trash}{reset}")
+                return {'infoHash': info_hash, 'result': result}
+            except Exception as e:
+                logger.error(f"Failed to parse title: {red}{title}{reset}, "f"Error: {red}{e}{reset}")
+                return {'infoHash': info_hash, 'result': None, 'error': str(e)}
+
         async def parse_torrents(infos, max_concurrent_tasks):
             global sem
             sem = asyncio.Semaphore(max_concurrent_tasks)
@@ -73,8 +87,6 @@ public class ParseTorrentNameService
 
         def run_process_batches(info_batches, max_concurrent_tasks):
             return asyncio.run(process_batches(info_batches, max_concurrent_tasks))
-
-        logger.info("Parser initialized and defaults added.")
         """;
 
     public ParseTorrentNameService(ILogger<ParseTorrentNameService> logger)
@@ -86,8 +98,6 @@ public class ParseTorrentNameService
     public async Task StopPythonEngine()
     {
         await _initAsync;
-
-        _runProcessBatches.Dispose();
         _sys.Dispose();
 
         PythonEngine.Shutdown();
@@ -99,49 +109,147 @@ public class ParseTorrentNameService
     {
         await _initAsync;
 
-        _logger.LogInformation("RTN: Parsing {Count} torrents", torrents.Count);
+        PyModule? scope = null;
+        dynamic runProcessBatches = null;
+        dynamic gc = null;
+        dynamic results = null;
 
-        var torrentDict = torrents.ToDictionary(t => t.InfoHash!, t => t);
-
-        var infoBatches = torrents
-            .Select(x => new List<object> { x.Filename!, x.InfoHash! })
-            .ToList()
-            .ToChunks(batchSize)
-            .ToList();
-
-        using (Py.GIL())
+        try
         {
-            var results = _runProcessBatches(infoBatches, Environment.ProcessorCount);
+            _logger.LogInformation("RTN: Parsing {Count} torrents", torrents.Count);
 
-            foreach (var result in results)
+            var torrentDict = torrents.ToDictionary(t => t.InfoHash!, t => t);
+
+            var infoBatches = torrents
+                .Select(x => new List<object>
+                {
+                    x.Filename!,
+                    x.InfoHash!
+                })
+                .ToList()
+                .ToChunks(batchSize)
+                .ToList();
+
+            using (Py.GIL())
             {
-                var infoHash = result["infoHash"].As<string>();
-                var parsedResult = result["result"];
+                scope = Py.CreateScope();
+                scope.Exec(ParserScript);
+                gc = scope.Get("gc");
+                runProcessBatches = scope.Get("run_process_batches");
+                results = runProcessBatches(infoBatches, Environment.ProcessorCount);
 
-                var torrent = torrentDict[infoHash];
-
-                if (torrent is null)
+                foreach (var result in results)
                 {
-                    continue;
-                }
+                    var infoHash = result["infoHash"].As<string>();
+                    var parsedResult = result["result"];
 
-                ParseTorrentTitleResponse parsedResponse = ParseResult(parsedResult);
+                    var torrent = torrentDict[infoHash];
 
-                if (parsedResponse.Success)
-                {
+                    if (torrent is null)
+                    {
+                        continue;
+                    }
+
+                    ParseTorrentTitleResponse parsedResponse = ParseResult(parsedResult);
+
+                    if (!parsedResponse.Success)
+                    {
+                        continue;
+                    }
+
                     parsedResponse.Response.InfoHash = torrent.InfoHash;
                     parsedResponse.Response.Size = torrent.Filesize.ToString();
                     parsedResponse.Response.RawTitle = torrent.Filename;
                     torrent.ParseResponse = parsedResponse.Response;
                 }
             }
-
-            results.Dispose();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error occurred while parsing torrent: {Message}", e.Message);
+            throw;
+        }
+        finally
+        {
+            using (Py.GIL())
+            {
+                results?.Dispose();
+                runProcessBatches?.Dispose();
+                gc?.collect();
+                scope?.Dispose();
+            }
         }
 
         return torrents.Select(x => x.ParseResponse)
             .OfType<TorrentInfo>()
             .ToList();
+    }
+
+    public async Task<TorrentInfo> ParseAndPopulateTorrentInfoAsync(TorrentInfo torrent)
+    {
+        await _initAsync;
+
+        PyModule? scope = null;
+        dynamic runSingle = null;
+        dynamic gc = null;
+        PyString rawTitle = null;
+        PyString infoHash = null;
+        PyTuple torrentParsable = null;
+        dynamic result = null;
+
+        try
+        {
+            using (Py.GIL())
+            {
+                scope = Py.CreateScope();
+                scope.Exec(ParserScript);
+                gc = scope.Get("gc");
+                runSingle = scope.Get("parse_torrent_single");
+                rawTitle = new PyString(torrent.RawTitle);
+                infoHash = new PyString(torrent.InfoHash);
+
+                torrentParsable = new PyTuple([
+                    rawTitle,
+                    infoHash
+                ]);
+
+                _logger.LogInformation("RTN: Parsing {Incoming}", torrent.RawTitle);
+
+                result = runSingle(torrentParsable);
+                var parsedResult = result["result"];
+                ParseTorrentTitleResponse parsedResponse = ParseResult(parsedResult);
+
+                if (!parsedResponse.Success)
+                {
+                    return torrent;
+                }
+
+                parsedResponse.Response.InfoHash = torrent.InfoHash;
+                parsedResponse.Response.Size = torrent.Size;
+                torrent = parsedResponse.Response;
+            }
+
+            return torrent;
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error occurred while parsing torrent: {Message}", e.Message);
+            throw;
+        }
+        finally
+        {
+            using (Py.GIL())
+            {
+                result?.Dispose();
+                torrentParsable?.Dispose();
+                rawTitle?.Dispose();
+                infoHash?.Dispose();
+                runSingle?.Dispose();
+                gc?.collect();
+                scope?.Dispose();
+            }
+        }
     }
 
     private ParseTorrentTitleResponse ParseResult(dynamic? result)
@@ -169,7 +277,7 @@ public class ParseTorrentNameService
 
             var torrentInfo = JsonSerializer.Deserialize<TorrentInfo>(json);
 
-            torrentInfo.Category = mediaType.Equals("movie", StringComparison.OrdinalIgnoreCase) ? "movie" : "tvSeries";
+            torrentInfo.Category = torrentInfo.IsAdult ? "xxx" : mediaType.Equals("movie", StringComparison.OrdinalIgnoreCase) ? "movie" : "tvSeries";
 
             result.Dispose();
 
@@ -227,7 +335,6 @@ public class ParseTorrentNameService
                 _sys = Py.Import("sys");
                 _sys.path.append(Path.Combine(AppContext.BaseDirectory, "python"));
             }
-            CreateParserScript();
             _isInitialized = true;
         }
         catch (Exception e)
@@ -237,14 +344,5 @@ public class ParseTorrentNameService
         }
 
         return Task.CompletedTask;
-    }
-
-    private void CreateParserScript()
-    {
-        using var gil = Py.GIL();
-        using var scope = Py.CreateScope();
-        scope.Exec(ParserScript);
-
-        _runProcessBatches = scope.Get("run_process_batches");
     }
 }

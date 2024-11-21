@@ -41,6 +41,8 @@ public class DmmScraping(
 
             await UpdateDmmLastImportStatus(dmmLastImport, ImportStatus.Complete, processor.NewPages.Count, processor.NewPages.Sum(x => x.Value));
 
+            await torrentInfoService.VaccumTorrentsIndexes(cancellationToken);
+
             logger.LogInformation("DMM Internal Tasks Completed");
 
             return 0;

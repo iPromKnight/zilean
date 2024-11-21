@@ -40,16 +40,6 @@ public sealed class ProcessedCounts
 
         table.AddRow("Processed torrents", _totalProcessed.ToString(), $"Time Taken: {stopwatch.Elapsed.TotalSeconds:F2}s");
 
-        if (!configuration.Parsing.IncludeAdult)
-        {
-            table.AddRow("Removed Adult Content", _adultRemoved.ToString(), "Due to RTN Classification");
-        }
-
-        if (!configuration.Parsing.IncludeTrash)
-        {
-            table.AddRow("Removed Trash Content", _trashRemoved.ToString(), "Due to RTN Classification");
-        }
-
         if (_blacklistedRemoved > 0)
         {
             table.AddRow("Removed Blacklisted Content", _blacklistedRemoved.ToString(), "Due to identification by infohash");

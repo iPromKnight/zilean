@@ -109,6 +109,7 @@ public static class SearchEndpoints
                 Year = request.Year,
                 Language = request.Language,
                 Resolution = request.Resolution,
+                Category = request.Category,
                 ImdbId = request.ImdbId
             });
 

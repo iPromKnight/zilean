@@ -1,3 +1,5 @@
+using Zilean.ApiService.Features.Dashboard.Components.Pages.Dashboard;
+
 namespace Zilean.ApiService.Features.Bootstrapping;
 
 [ExcludeFromCodeCoverage]
@@ -69,6 +71,25 @@ public static class ServiceCollectionExtensions
                 policy.RequireAuthenticatedUser();
             });
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddDashboardSupport(this IServiceCollection services, ZileanConfiguration configuration)
+    {
+        if (!configuration.EnableDashboard)
+        {
+            return services;
+        }
+
+        services.AddRazorComponents()
+            .AddInteractiveServerComponents()
+            .AddInteractiveWebAssemblyComponents();
+
+        services.AddSyncfusionBlazor();
+
+        services.AddScoped<DashboardDataAdapter>();
+        services.AddSingleton<ParseTorrentNameService>();
 
         return services;
     }

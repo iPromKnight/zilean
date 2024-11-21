@@ -9,4 +9,5 @@ public interface IImdbFileService
     Task SetImdbLastImportAsync(ImdbLastImport imdbLastImport);
     Task<ImdbLastImport?> GetImdbLastImportAsync(CancellationToken cancellationToken);
     int ImdbFileCount { get; }
+    Task VaccumImdbFilesIndexes(CancellationToken cancellationToken);
 }

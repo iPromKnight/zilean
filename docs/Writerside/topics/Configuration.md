@@ -30,6 +30,10 @@ _Default: `Generated on first run`_
 _Indicates whether this is the first run of the application._
 _Default: `true`_
 
+**EnableDashboard**
+_Indicates whether the Zilean dashboard should be enabled allowing management of ingested data._
+_Default: `false`_
+
 ### DMM Configuration
 **Dmm.EnableScraping**
 _Indicates whether the DMM indexer should scrape from Dmm Hashlists._
@@ -139,14 +143,6 @@ _The timeout in milliseconds for requests to Zurg and Zilean instances._
 _Default: `10000`_
 
 ### Parsing Configuration
-**Parsing.IncludeAdult**
-_Indicates whether adult content should be included in the indexer._
-_Default: `false`_
-
-**Parsing.IncludeTrash**
-_Indicates whether trash content should be included in the indexer._
-_Default: `true`_
-
 **Parsing.BatchSize**
 _The batch size for parsing content._
 _Default: `5000`_

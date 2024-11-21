@@ -49,6 +49,8 @@ public class GenericIngestionScraping(
             }
         }
 
+        await torrentInfoService.VaccumTorrentsIndexes(cancellationToken);
+
         logger.LogInformation("Ingestion scraping completed for {Count} URLs", completedCount);
 
         return 0;

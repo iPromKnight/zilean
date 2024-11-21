@@ -29,8 +29,4 @@
       <ProjectReference Include="..\..\src\Zilean.Scraper\Zilean.Scraper.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Verification\" />
-    </ItemGroup>
-
 </Project>

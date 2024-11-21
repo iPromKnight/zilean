@@ -48,10 +48,18 @@ public static class TorznabRequestExtensions
             }
 
             query.Categories = request.cat != null
-                ? request.cat.Split(',').Where(s => !string.IsNullOrWhiteSpace(s)).Select(int.Parse).ToArray()
-                : query.QueryType == "movie" && !string.IsNullOrWhiteSpace(request.imdbid)
-                    ? ([TorznabCategoryTypes.Movies.Id])
-                    : ([]);
+                ? request.cat.Split(',')
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(int.Parse)
+                    .ToArray()
+                : query.QueryType switch
+                {
+                    "movie" when !string.IsNullOrWhiteSpace(request.imdbid) => [TorznabCategoryTypes.Movies.Id],
+                    "tvSearch" when !string.IsNullOrWhiteSpace(request.imdbid) => [TorznabCategoryTypes.TV.Id],
+                    "xxx" when !string.IsNullOrWhiteSpace(request.imdbid) => [TorznabCategoryTypes.XXX.Id],
+                    _ => []
+                };
+
 
             if (!string.IsNullOrWhiteSpace(request.season))
             {

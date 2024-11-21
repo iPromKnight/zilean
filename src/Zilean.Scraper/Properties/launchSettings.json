@@ -5,10 +5,10 @@
       "commandName": "Project",
       "environmentVariables": {
         "ZILEAN_PYTHON_VENV": "C:\\Python311",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;",
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-test;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;",
         "Zilean__Parsing__IncludeTrash": "false",
         "Zilean__Parsing__IncludeAdult": "false",
-        "Zilean__Parsing__BatchSize": "50000000"
+        "Zilean__Parsing__BatchSize": "5000"
       },
       "commandLineArgs": "dmm-sync"
     },

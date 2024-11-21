@@ -1,3 +1,5 @@
+using Zilean.Shared.Features.Python;
+
 namespace Zilean.Tests.Tests;
 
 public class PttPythonTests : IDisposable

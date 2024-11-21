@@ -1,5 +1,7 @@
 // Global using directives
 
+global using System.Collections;
+global using System.ComponentModel.DataAnnotations;
 global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
@@ -24,9 +26,12 @@ global using Microsoft.IO;
 global using Microsoft.OpenApi.Models;
 global using Scalar.AspNetCore;
 global using SimCube.Aspire.Features.Otlp;
+global using Syncfusion.Blazor;
+global using Syncfusion.Blazor.Data;
 global using Zilean.ApiService.Features.Authentication;
 global using Zilean.ApiService.Features.Blacklist;
 global using Zilean.ApiService.Features.Bootstrapping;
+global using Zilean.ApiService.Features.Dashboard;
 global using Zilean.ApiService.Features.HealthChecks;
 global using Zilean.ApiService.Features.Imdb;
 global using Zilean.ApiService.Features.Search;
@@ -36,9 +41,11 @@ global using Zilean.ApiService.Features.Torznab;
 global using Zilean.Database;
 global using Zilean.Database.Bootstrapping;
 global using Zilean.Database.Services;
+global using Zilean.Shared.Extensions;
 global using Zilean.Shared.Features.Blacklist;
 global using Zilean.Shared.Features.Configuration;
 global using Zilean.Shared.Features.Dmm;
+global using Zilean.Shared.Features.Python;
 global using Zilean.Shared.Features.Scraping;
 global using Zilean.Shared.Features.Shell;
 global using Zilean.Shared.Features.Torznab;

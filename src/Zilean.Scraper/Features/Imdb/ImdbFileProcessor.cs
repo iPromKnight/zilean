@@ -26,6 +26,8 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
         await ReadBasicEntries(csv, imdbFileService, cancellationToken);
 
         await imdbFileService.StoreImdbFiles();
+
+        await imdbFileService.VaccumImdbFilesIndexes(cancellationToken);
     }
 
     private static async Task ReadBasicEntries(CsvReader csv, IImdbFileService imdbFileService, CancellationToken cancellationToken)

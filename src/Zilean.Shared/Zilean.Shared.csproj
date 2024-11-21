@@ -11,10 +11,12 @@
     </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="pythonnet" />
     <PackageReference Include="CliWrap" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Serilog.Sinks.Spectre" />
     <PackageReference Include="SimCube.Aspire" />
+    <PackageReference Include="System.Private.Uri" />
   </ItemGroup>
 
 </Project>

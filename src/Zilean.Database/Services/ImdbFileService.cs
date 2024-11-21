@@ -43,6 +43,14 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
         await SetImdbLastImportAsync(imdbLastImport);
     }
 
+    public async Task VaccumImdbFilesIndexes(CancellationToken cancellationToken)
+    {
+        await using var serviceScope = serviceProvider.CreateAsyncScope();
+        await using var dbContext = serviceScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
+
+        await dbContext.Database.ExecuteSqlRawAsync("VACUUM (VERBOSE, ANALYZE) \"ImdbFiles\"", cancellationToken: cancellationToken);
+    }
+
     public async Task<ImdbSearchResult[]> SearchForImdbIdAsync(string query, int? year = null, string? category = null) =>
         await ExecuteCommandAsync(async connection =>
         {

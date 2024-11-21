@@ -7,4 +7,5 @@ public interface ITorrentInfoService
     Task<TorrentInfo[]> SearchForTorrentInfoFiltered(TorrentInfoFilter filter, int? limit = null);
     Task<HashSet<string>> GetExistingInfoHashesAsync(List<string> infoHashes);
     Task<HashSet<string>> GetBlacklistedItems();
+    Task VaccumTorrentsIndexes(CancellationToken cancellationToken);
 }
