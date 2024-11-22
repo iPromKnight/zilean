@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.1.0](https://github.com/iPromKnight/zilean/compare/v3.0.0...v3.1.0) (2024-11-21)
+
+
+### 🚀 New Features
+
+* huge changes to facilitate the bad adult classification we have ([5149cd1](https://github.com/iPromKnight/zilean/commit/5149cd10ee5598997850d721f1a5478c281195ae))
+
+
+### ⚙️ Chores
+
+* update docs ([970f14d](https://github.com/iPromKnight/zilean/commit/970f14d66489c82a6841f5b4051fb4254d900154))
+
+
+### 📦 CI Improvements
+
+* upgrade docs workflow [skip-release] ([11091d9](https://github.com/iPromKnight/zilean/commit/11091d99a94a850e94d426090134b70f8bc258ed))
+
 ## [3.0.0](https://github.com/iPromKnight/zilean/compare/v2.3.10...v3.0.0) (2024-11-20)
 
 
