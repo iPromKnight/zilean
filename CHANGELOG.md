@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.3.0](https://github.com/iPromKnight/zilean/compare/v3.2.1...v3.3.0) (2024-11-22)
+
+
+### 🚀 New Features
+
+* include imdb resync command ([cb1765d](https://github.com/iPromKnight/zilean/commit/cb1765dcb676c16a4841532742b6c2384165ee2a))
+
+
+### 📦 CI Improvements
+
+* automate doc publishing now its working when release publishes ([022ef57](https://github.com/iPromKnight/zilean/commit/022ef576007eb27853aed6e48a7c4992f0c06e07))
+
 ## [3.2.1](https://github.com/iPromKnight/zilean/compare/v3.2.0...v3.2.1) (2024-11-22)
 
 
