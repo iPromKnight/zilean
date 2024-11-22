@@ -25,6 +25,9 @@ builder.ConfigureServices((context, services) =>
 
         config.AddCommand<GenericSyncCommand>("generic-sync")
             .WithDescription("Sync data from Zurg and Zilean instances.");
+
+        config.AddCommand<ResyncImdbCommand>("resync-imdb")
+            .WithDescription("Force resync imdb data.");
     });
 });
 

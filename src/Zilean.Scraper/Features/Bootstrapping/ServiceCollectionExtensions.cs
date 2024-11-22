@@ -1,5 +1,4 @@
 using Zilean.Scraper.Features.Ingestion.Dmm;
-using Zilean.Scraper.Features.Ingestion.Endpoints;
 
 namespace Zilean.Scraper.Features.Bootstrapping;
 

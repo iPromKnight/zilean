@@ -1,6 +1,7 @@
 global using System.Collections.Concurrent;
 global using System.Data;
 global using System.Diagnostics;
+global using System.Text.Json;
 global using Dapper;
 global using EFCore.BulkExtensions;
 global using Microsoft.EntityFrameworkCore;

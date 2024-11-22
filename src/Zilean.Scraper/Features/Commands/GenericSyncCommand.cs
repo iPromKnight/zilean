@@ -1,6 +1,4 @@
-﻿using Zilean.Scraper.Features.Ingestion.Endpoints;
-
-namespace Zilean.Scraper.Features.Commands;
+﻿namespace Zilean.Scraper.Features.Commands;
 
 public class GenericSyncCommand(GenericIngestionScraping genericIngestion) : AsyncCommand
 {

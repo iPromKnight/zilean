@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace Zilean.Database.Services;
 
 public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguration configuration, IServiceProvider serviceProvider) : BaseDapperService(logger, configuration), IImdbFileService

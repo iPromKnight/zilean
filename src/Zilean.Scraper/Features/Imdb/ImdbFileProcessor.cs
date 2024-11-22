@@ -2,7 +2,14 @@ namespace Zilean.Scraper.Features.Imdb;
 
 public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileService imdbFileService)
 {
-    private static readonly List<string> _requiredCategories = ["movie", "tvMovie", "tvSeries"];
+    private static readonly List<string> _requiredCategories = [
+        "movie",
+        "tvMovie",
+        "tvSeries",
+        "tvShort",
+        "tvMiniSeries",
+        "tvSpecial"
+    ];
 
     public async Task Import(string fileName, CancellationToken cancellationToken)
     {

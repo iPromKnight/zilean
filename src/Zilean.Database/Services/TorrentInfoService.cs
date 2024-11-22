@@ -160,7 +160,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             return torrentInfo;
         };
 
-    private async Task FetchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch, NpgsqlConnection connection)
+    public async Task FetchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch, NpgsqlConnection connection)
     {
         foreach (var torrent in batch)
         {

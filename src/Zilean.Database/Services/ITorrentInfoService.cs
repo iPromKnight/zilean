@@ -8,4 +8,5 @@ public interface ITorrentInfoService
     Task<HashSet<string>> GetExistingInfoHashesAsync(List<string> infoHashes);
     Task<HashSet<string>> GetBlacklistedItems();
     Task VaccumTorrentsIndexes(CancellationToken cancellationToken);
+    Task FetchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch, NpgsqlConnection connection);
 }
