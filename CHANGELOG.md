@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/iPromKnight/zilean/compare/v3.2.0...v3.2.1) (2024-11-22)
+
+
+### 🔥 Bug Fixes
+
+* Ensure scrape endpoint isn't anonymous ([067054f](https://github.com/iPromKnight/zilean/commit/067054feb9eaff3ab6ada273166d824dc03a19cd))
+
 ## [3.2.0](https://github.com/iPromKnight/zilean/compare/v3.1.0...v3.2.0) (2024-11-22)
 
 
