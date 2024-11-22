@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/iPromKnight/zilean/compare/v3.1.0...v3.2.0) (2024-11-22)
+
+
+### 🚀 New Features
+
+* add cache check endpoint, require auth for /torrents endpoints ([7352abd](https://github.com/iPromKnight/zilean/commit/7352abd7a6940e27ac5170fcc2ca99a8f9abf456))
+
 ## [3.1.0](https://github.com/iPromKnight/zilean/compare/v3.0.0...v3.1.0) (2024-11-21)
 
 
