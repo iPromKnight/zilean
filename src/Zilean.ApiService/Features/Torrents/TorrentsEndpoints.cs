@@ -14,7 +14,7 @@ public static class TorrentsEndpoints
         {
             app.MapGroup(GroupName)
                 .WithTags(GroupName)
-                .Torrents()
+                .Torrents(configuration)
                 .DisableAntiforgery()
                 .RequireAuthorization(ApiKeyAuthentication.Policy)
                 .WithMetadata(new OpenApiSecurityMetadata(ApiKeyAuthentication.Scheme));
@@ -23,16 +23,21 @@ public static class TorrentsEndpoints
         return app;
     }
 
-    private static RouteGroupBuilder Torrents(this RouteGroupBuilder group)
+    private static RouteGroupBuilder Torrents(this RouteGroupBuilder group, ZileanConfiguration configuration)
     {
-        group.MapGet(Scrape, StreamTorrents)
-            .Produces<StreamedEntry[]>()
-            .AllowAnonymous();
+        if (configuration.Torrents.EnableScrapeEndpoint)
+        {
+            group.MapGet(Scrape, StreamTorrents)
+                .Produces<StreamedEntry[]>();
+        }
 
-        group.MapGet(CheckCached, CheckCachedTorrents)
-            .Produces<CachedItem[]>()
-            .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .Produces<BadRequest<ErrorResponse>>();
+        if (configuration.Torrents.EnableCacheCheckEndpoint)
+        {
+            group.MapGet(CheckCached, CheckCachedTorrents)
+                .Produces<CachedItem[]>()
+                .ProducesProblem(StatusCodes.Status500InternalServerError)
+                .Produces<BadRequest<ErrorResponse>>();
+        }
 
         return group;
     }

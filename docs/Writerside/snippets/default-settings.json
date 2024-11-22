@@ -19,7 +19,9 @@
     },
     "Torrents": {
       "EnableEndpoint": false,
-      "MaxHashesToCheck": 100
+      "MaxHashesToCheck": 100,
+      "EnableScrapeEndpoint": false,
+      "EnableCacheCheckEndpoint": false
     },
     "Imdb": {
       "EnableImportMatching": true,

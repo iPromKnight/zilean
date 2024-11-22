@@ -87,6 +87,14 @@ _Default: `false`_
 _The maximum number of hashes to check in a single request to the Torrents CheckCached API._
 _Default: `100`_
 
+**Torrents.EnableScrapeEndpoint**
+_Indicates whether the Torrents API should expose a scrape endpoint._
+_Default: `false`_
+
+**Torrents.EnableCacheCheckEndpoint**
+_Indicates whether the Torrents API should expose a cache check endpoint._
+_Default: `false`_
+
 ### IMDB Configuration
 **Imdb.EnableImportMatching**
 _Indicates whether the indexer should import match titles to IMDB Ids during importing._
@@ -158,6 +166,7 @@ Also ensure that the `Ingestion.ZurgInstances` and or `Ingestion.ZileanInstances
 `EndpointType` can be either `1` (Zurg) or `0` (Zilean). Zilean also requires an `ApiKey` to be set.
 You do not have to specify both, you can specify one or the other, or both, depending on your requirements.
 Also there is no limit to the number of instances you can scrape from.
+In order for zilean scrapes to work, the `ApiKey` must be set in the `Zilean` section of the configuration, and both `Zilean.Torrents.EnableEndpoint` and `Zilean.Torrents.EnableScrapeEndpoint` must be set to `true`.
 
 An example of this configuration is as follows:
 
