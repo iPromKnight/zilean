@@ -18,7 +18,8 @@
       "ConnectionString": "Host=postgres;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
     },
     "Torrents": {
-      "EnableEndpoint": false
+      "EnableEndpoint": false,
+      "MaxHashesToCheck": 100
     },
     "Imdb": {
       "EnableImportMatching": true,

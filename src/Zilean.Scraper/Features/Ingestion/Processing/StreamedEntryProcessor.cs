@@ -43,6 +43,11 @@ public class StreamedEntryProcessor(
                 _ => throw new InvalidOperationException($"Unknown endpoint type: {_currentEndpoint.EndpointType}")
             };
 
+            if (_currentEndpoint.EndpointType == GenericEndpointType.Zilean)
+            {
+                httpClient.DefaultRequestHeaders.Add("X-Api-Key", _currentEndpoint.ApiKey);
+            }
+
             var response = await httpClient.GetAsync(fullUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             response.EnsureSuccessStatusCode();
 

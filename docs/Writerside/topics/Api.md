@@ -71,9 +71,10 @@ This `ApiKey` is generated on first run of %product%, and stored in the settings
 > This endpoint is disabled by default, and can be enabled in the settings file see [](Configuration.md).
 {style="note"}
 
-| Path                | Description                          | Authenticated |
-|---------------------|--------------------------------------|---------------|
-| `/torrents/all`     | Stream all torrents in the database. | No            |
+| Path                    | Description                                          | Authenticated |
+|-------------------------|------------------------------------------------------|---------------|
+| `/torrents/all`         | Stream all torrents in the database.                 | Yes           |
+| `/torrents/checkcached` | Check if a hash, or collection of hashes, is cached. | Yes           |
 
 ### Healthcheck Endpoints
 

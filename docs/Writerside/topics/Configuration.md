@@ -83,6 +83,10 @@ The database connection string comprises of the following:
 _Indicates whether the Torrents API allowing other apps to scrape the Zilean database is enabled._
 _Default: `false`_
 
+**Torrents.MaxHashesToCheck**
+_The maximum number of hashes to check in a single request to the Torrents CheckCached API._
+_Default: `100`_
+
 ### IMDB Configuration
 **Imdb.EnableImportMatching**
 _Indicates whether the indexer should import match titles to IMDB Ids during importing._
@@ -151,7 +155,7 @@ _Default: `5000`_
 
 To enable ingestion, set the `Ingestion.EnableScraping` key to `true` in the configuration.
 Also ensure that the `Ingestion.ZurgInstances` and or `Ingestion.ZileanInstances` keys are populated with the appropriate `Url`, and `EndpointType` values.
-`EndpointType` can be either `1` (Zurg) or `0` (Zilean).
+`EndpointType` can be either `1` (Zurg) or `0` (Zilean). Zilean also requires an `ApiKey` to be set.
 You do not have to specify both, you can specify one or the other, or both, depending on your requirements.
 Also there is no limit to the number of instances you can scrape from.
 

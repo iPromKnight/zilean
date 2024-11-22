@@ -18,7 +18,8 @@
       "ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
     },
     "Torrents": {
-      "EnableEndpoint": true
+      "EnableEndpoint": true,
+      "MaxHashesToCheck": 100
     },
     "Imdb": {
       "EnableImportMatching": true,
@@ -32,7 +33,8 @@
       }],
       "ZileanInstances": [{
         "Url": "http://other-zilean:8181",
-        "EndpointType": 0
+        "EndpointType": 0,
+        "ApiKey": "SomeApiKey"
       }],
       "EnableScraping": true,
       "Kubernetes": {

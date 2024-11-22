@@ -61,11 +61,7 @@ public class GenericIngestionScraping(
         if (configuration.Ingestion.ZileanInstances.Count > 0)
         {
             logger.LogInformation("Adding Zilean instances to the list of URLs to process");
-            urlsToProcess.AddRange(configuration.Ingestion.ZileanInstances.Select(url => new GenericEndpoint
-            {
-                EndpointType = GenericEndpointType.Zilean,
-                Url = url.Url,
-            }));
+            urlsToProcess.AddRange(configuration.Ingestion.ZileanInstances);
         }
     }
 
@@ -74,11 +70,7 @@ public class GenericIngestionScraping(
         if (configuration.Ingestion.ZurgInstances.Count > 0)
         {
             logger.LogInformation("Adding Zurg instances to the list of URLs to process");
-            urlsToProcess.AddRange(configuration.Ingestion.ZurgInstances.Select(url => new GenericEndpoint
-            {
-                EndpointType = GenericEndpointType.Zurg,
-                Url = url.Url,
-            }));
+            urlsToProcess.AddRange(configuration.Ingestion.ZurgInstances);
         }
     }
 

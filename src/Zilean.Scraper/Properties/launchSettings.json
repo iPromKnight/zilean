@@ -16,7 +16,7 @@
       "commandName": "Project",
       "environmentVariables": {
         "ZILEAN_PYTHON_VENV": "C:\\Python311",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-clean2;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;Maximum Pool Size=3;"
+        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean-test;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=300;Maximum Pool Size=3;"
       },
       "commandLineArgs": "generic-sync"
     }

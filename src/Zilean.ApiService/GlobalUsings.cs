@@ -9,6 +9,7 @@ global using System.Reflection;
 global using System.Security.Claims;
 global using System.Text.Encodings.Web;
 global using System.Text.Json;
+global using System.Text.Json.Serialization;
 global using System.Xml.Serialization;
 global using Coravel;
 global using Coravel.Invocable;
