@@ -8,3 +8,10 @@ Newly added is the ability for Zilean to scrape from your running Zurg instance,
 
 Documentation for zilean can be viewed at [https://ipromknight.github.io/zilean/](https://ipromknight.github.io/zilean/)
 
+---
+
+Fancy getting a new provider for your filesharing needs?
+
+Consider getting Torbox using my referral link me :)
+
+<a href="https://torbox.app/subscription?referral=adf78554-93f7-46f8-a37b-eaafbdcf8894"><img src="https://github.com/user-attachments/assets/1d8bf59c-53df-4f04-99b1-086467153896" /></a>
