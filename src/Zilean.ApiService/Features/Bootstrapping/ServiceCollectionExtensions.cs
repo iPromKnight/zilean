@@ -21,12 +21,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection ConditionallyRegisterDmmJob(this IServiceCollection services,
         ZileanConfiguration configuration)
     {
-        if (configuration.Dmm.EnableScraping)
-        {
-            services.AddTransient<DmmSyncJob>();
-            services.AddTransient<GenericSyncJob>();
-            services.AddSingleton<SyncOnDemandState>();
-        }
+        services.AddTransient<DmmSyncJob>();
+        services.AddTransient<GenericSyncJob>();
+        services.AddSingleton<SyncOnDemandState>();
 
         return services;
     }
