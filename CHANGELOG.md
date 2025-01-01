@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.1](https://github.com/iPromKnight/zilean/compare/v3.3.0...v3.3.1) (2025-01-01)
+
+
+### 🔥 Bug Fixes
+
+* allow service registration when scrape is disabled ([cd45854](https://github.com/iPromKnight/zilean/commit/cd4585461b485f08c33da9adf7848f67259786b2))
+
 ## [3.3.0](https://github.com/iPromKnight/zilean/compare/v3.2.1...v3.3.0) (2024-11-22)
 
 
