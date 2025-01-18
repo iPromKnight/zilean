@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.2](https://github.com/iPromKnight/zilean/compare/v3.3.1...v3.3.2) (2025-01-18)
+
+
+### 🔥 Bug Fixes
+
+* Fix imdbSearch matching - thanks MatYRiCs ([a31d543](https://github.com/iPromKnight/zilean/commit/a31d543eecebb96cc12ea527e5ab3c89e85f7b1b))
+
 ## [3.3.1](https://github.com/iPromKnight/zilean/compare/v3.3.0...v3.3.1) (2025-01-01)
 
 
