@@ -17,7 +17,7 @@ RUN echo "https://dl-cdn.alpinelinux.org/alpine/v3.18/main" > /etc/apk/repositor
 RUN apk add --update --no-cache \
     python3=~3.11 \
     py3-pip=~23.1 \
-    curl=~8.9 \
+    curl \
     icu-libs \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
