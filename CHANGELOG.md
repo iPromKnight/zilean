@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.3](https://github.com/iPromKnight/zilean/compare/v3.3.2...v3.3.3) (2025-01-18)
+
+
+### 🔥 Bug Fixes
+
+* remove pinned curl version from dockerfile ([94bebe6](https://github.com/iPromKnight/zilean/commit/94bebe62407953c86d5d1801a48d68a252572e51))
+
 ## [3.3.2](https://github.com/iPromKnight/zilean/compare/v3.3.1...v3.3.2) (2025-01-18)
 
 
