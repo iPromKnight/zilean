@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.6](https://github.com/iPromKnight/zilean/compare/v3.3.5...v3.3.6) (2025-01-24)
+
+
+### ⌨️ Code Refactoring
+
+* include imdbfiles which dont have a year (0) ([b943ba0](https://github.com/iPromKnight/zilean/commit/b943ba0e51bfadfa7b34ceadad9d1f88b4560320))
+
 ## [3.3.5](https://github.com/iPromKnight/zilean/compare/v3.3.4...v3.3.5) (2025-01-24)
 
 
