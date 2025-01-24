@@ -108,6 +108,14 @@ _Default: `true`_
 _The minimum score match for IMDB search results. Closer to 1 means a more exact match has to occur. A value between 1 and 0._
 _Default: `0.85`_
 
+**Imdb.UseAllCores**
+_Should title matching use all available processor cores on the machine?_
+_Default: `false`_
+
+**Imdb.NumberOfCores**
+_The number of processor cores to use for parallel operations during matching_
+_Default: `2`_
+
 ### Ingestion Configuration
 **Ingestion.ZurgInstances**
 _A list of Zurg instances to scrape from._

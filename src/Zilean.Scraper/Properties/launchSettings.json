@@ -24,9 +24,10 @@
       "commandName": "Project",
       "environmentVariables": {
         "ZILEAN_PYTHON_VENV": "C:\\Python311",
-        "Zilean__Database__ConnectionString": "Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=300;CommandTimeout=3600;"
+        "Zilean__Database__ConnectionString": "Host=media-host;port=17000;Database=zilean;Username=postgres;Password=V8fVsqcFjiknykULWCA7egxMZAznkE;Include Error Detail=true;Timeout=30;CommandTimeout=36000;",
+        "Zilean__Imdb__UseAllCores": "true"
       },
-      "commandLineArgs": "resync-imdb -s -t"
+      "commandLineArgs": "resync-imdb -a"
     }
   }
 }
