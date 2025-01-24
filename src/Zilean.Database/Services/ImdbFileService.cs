@@ -95,7 +95,7 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
 
         var imdbFiles = sqlConnection.Query<ImdbFile>(
             """
-            SELECT "ImdbId", LOWER("Title") AS "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            SELECT "ImdbId", "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
             WHERE "Category" IN ('movie', 'tvMovie')
             """);
 
@@ -117,7 +117,7 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
 
         var imdbFiles = sqlConnection.Query<ImdbFile>(
             """
-            SELECT "ImdbId", LOWER("Title") AS "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            SELECT "ImdbId", "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
             WHERE "Category" IN ('tvSeries', 'tvShort', 'tvMiniSeries', 'tvSpecial')
             """);
 

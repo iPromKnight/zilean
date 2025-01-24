@@ -194,39 +194,21 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                     return;
                 }
 
-                if (!torrent.Year.HasValue)
-                {
-                    logger.LogWarning("Torrent '{Title}' has no year information, skipping", torrent.NormalizedTitle);
-                    return;
-                }
 
-                List<ImdbFile> relevantImdbFiles;
+                IEnumerable<ImdbFile> relevantImdbFiles;
 
-                switch (torrent.Category)
+                if (torrent.Year.HasValue)
                 {
-                    case "tvSeries":
-                        relevantImdbFiles = Enumerable.Range(torrent.Year.Value - 1, 3)
-                            .Where(year => imdbTvFilesByYear.TryGetValue(year, out var _))
-                            .SelectMany(year => imdbTvFilesByYear[year])
-                            .ToList();
-                        break;
-                    case "movie":
-                        relevantImdbFiles = Enumerable.Range(torrent.Year.Value - 1, 3)
-                            .Where(year => imdbMovieFilesByYear.TryGetValue(year, out var _))
-                            .SelectMany(year => imdbMovieFilesByYear[year])
-                            .ToList();
-                        break;
-                    default:
-                        logger.LogWarning("Torrent '{Title}' has an unknown category '{Category}', skipping", torrent.NormalizedTitle, torrent.Category);
+                    if (!HasFilteredPartitionsWithYear(imdbTvFilesByYear, imdbMovieFilesByYear, torrent, out var files))
+                    {
                         return;
-                }
+                    }
 
-                if (relevantImdbFiles.Count == 0)
+                    relevantImdbFiles = files;
+                }
+                else
                 {
-                    logger.LogWarning(
-                        "No IMDb entries found for Torrent '{Title}' in year range {YearRange}. Skipping",
-                        torrent.NormalizedTitle, $"{torrent.Year.Value - 1}-{torrent.Year.Value + 1}");
-                    return;
+                    relevantImdbFiles = GetAllImdbFilesWithoutYear(imdbTvFilesByYear, imdbMovieFilesByYear, torrent);
                 }
 
                 var bestMatch = relevantImdbFiles
@@ -234,36 +216,67 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                         imdb => new
                         {
                             imdb.ImdbId,
+                            imdb.Title,
+                            imdb.Year,
                             Score = CalculateScore(torrent, imdb),
                         })
-                    .Where(match => match.Score >= Configuration.Imdb.MinimumScoreMatch * 100)
                     .OrderByDescending(match => match.Score)
                     .FirstOrDefault();
 
-                if (bestMatch != null && bestMatch.ImdbId != torrent.ImdbId)
+                if (bestMatch == null)
+                {
+                    logger.LogWarning(
+                        "No suitable match found for Torrent '{Title}', Category: {Category}",
+                        torrent.ParsedTitle, torrent.Category);
+                    return;
+                }
+
+                var bestMatchIsValid = bestMatch.Score >= Configuration.Imdb.MinimumScoreMatch * 100;
+
+                if (bestMatchIsValid && bestMatch.ImdbId != torrent.ImdbId)
                 {
                     logger.LogInformation(
-                        "Torrent '{Title}' updated from IMDb ID '{OldImdbId}' to '{NewImdbId}' with a score of {Score}",
-                        torrent.NormalizedTitle, torrent.ImdbId, bestMatch.ImdbId, bestMatch.Score);
+                        "Torrent '{Title}' updated from IMDb ID '{OldImdbId}' to '{NewImdbId}' with a score of {Score}, Category: {Category}, Imdb Title: {ImdbTitle}, Imdb Year: {ImdbYear}",
+                        torrent.ParsedTitle, torrent.ImdbId, bestMatch.ImdbId, bestMatch.Score, torrent.Category, bestMatch.Title, bestMatch.Year);
 
                     torrent.ImdbId = bestMatch.ImdbId;
 
                     _imdbCache[torrent.CacheKey()] = bestMatch.ImdbId;
 
                     updatedTorrents.Add(torrent);
+
+                    return;
                 }
-                else if (bestMatch != null)
+
+                if (bestMatchIsValid)
                 {
                     logger.LogInformation(
-                        "Torrent '{Title}' retained its existing IMDb ID '{ImdbId}' with a best match score of {Score}",
-                        torrent.NormalizedTitle, torrent.ImdbId, bestMatch.Score);
+                        "Torrent '{Title}' retained its existing IMDb ID '{ImdbId}' with a best match score of {Score}, Category: {Category}, Imdb Title: {ImdbTitle}, Imdb Year: {ImdbYear}",
+                        torrent.ParsedTitle, torrent.ImdbId, bestMatch.Score, torrent.Category, bestMatch.Title, bestMatch.Year);
+
+                    return;
                 }
-                else
+
+                if (!bestMatchIsValid)
                 {
                     logger.LogWarning(
-                        "No suitable match found for Torrent '{Title}' in year range {YearRange}",
-                        torrent.NormalizedTitle, $"{torrent.Year.Value - 1}-{torrent.Year.Value + 1}");
+                        "Best match for Torrent '{Title}' is '{ImdbId}' with a score of {Score}, Category: {Category}, Imdb Title: {ImdbTitle}, Imdb Year: {ImdbYear}, Below Minimum Score Cutoff : {MinimumScore}",
+                        torrent.ParsedTitle, bestMatch.ImdbId, bestMatch.Score, torrent.Category, bestMatch.Title, bestMatch.Year, Configuration.Imdb.MinimumScoreMatch * 100);
                 }
+
+
+                if (torrent.Year.HasValue)
+                {
+                    logger.LogWarning(
+                        "No suitable match found for Torrent '{Title}' in year range {YearRange}, Category: {Category}",
+                        torrent.ParsedTitle, $"{torrent.Year.Value - 1}-{torrent.Year.Value + 1}", torrent.Category);
+                    return;
+                }
+
+                logger.LogWarning(
+                    "No suitable match found for Torrent '{Title}', Category: {Category}",
+                    torrent.ParsedTitle, torrent.Category);
+
 
                 await Task.CompletedTask;
             });
@@ -297,10 +310,50 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
     }
 
     private static double CalculateScore(TorrentInfo torrent, ImdbFile imdb) =>
-        torrent.NormalizedTitle == imdb.Title && torrent.Year == imdb.Year
+        torrent.ParsedTitle == imdb.Title && torrent.Year == imdb.Year
             ? ExactMatchTitleYearScore * 100
-            : torrent.NormalizedTitle == imdb.Title && torrent.Year.HasValue &&
+            : torrent.ParsedTitle == imdb.Title && torrent.Year.HasValue &&
               Math.Abs(torrent.Year.Value - imdb.Year) <= 1
                 ? CloseMatchTitleYearScore * 100
-                : Fuzz.Ratio(torrent.NormalizedTitle, imdb.Title, PreprocessMode.None);
+                : Fuzz.Ratio(torrent.ParsedTitle, imdb.Title, PreprocessMode.Full);
+
+    private bool HasFilteredPartitionsWithYear(ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear, ConcurrentDictionary<int, List<ImdbFile>> imdbMovieFilesByYear, TorrentInfo torrent,
+        out IEnumerable<ImdbFile> relevantImdbFiles)
+    {
+        switch (torrent.Category)
+        {
+            case "tvSeries":
+                relevantImdbFiles = Enumerable.Range(torrent.Year!.Value - 1, 3)
+                    .Where(year => imdbTvFilesByYear.TryGetValue(year, out var _))
+                    .SelectMany(year => imdbTvFilesByYear[year]);
+                break;
+            case "movie":
+                relevantImdbFiles = Enumerable.Range(torrent.Year!.Value - 1, 3)
+                    .Where(year => imdbMovieFilesByYear.TryGetValue(year, out var _))
+                    .SelectMany(year => imdbMovieFilesByYear[year]);
+                break;
+            default:
+                logger.LogWarning("Torrent '{Title}' has an unknown category '{Category}', skipping", torrent.NormalizedTitle, torrent.Category);
+                relevantImdbFiles = [];
+                return false;
+        }
+
+        return true;
+    }
+
+    private IEnumerable<ImdbFile> GetAllImdbFilesWithoutYear(ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear, ConcurrentDictionary<int, List<ImdbFile>> imdbMovieFilesByYear, TorrentInfo torrent)
+    {
+        switch (torrent.Category)
+        {
+            case "tvSeries":
+                return imdbTvFilesByYear.Values.SelectMany(files => files);
+                break;
+            case "movie":
+                return imdbMovieFilesByYear.Values.SelectMany(files => files);
+                break;
+            default:
+                logger.LogWarning("Torrent '{Title}' has an unknown category '{Category}', skipping", torrent.NormalizedTitle, torrent.Category);
+                return [];
+        }
+    }
 }

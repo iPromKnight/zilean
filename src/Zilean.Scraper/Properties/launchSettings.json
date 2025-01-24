@@ -25,9 +25,10 @@
       "environmentVariables": {
         "ZILEAN_PYTHON_VENV": "C:\\Python311",
         "Zilean__Database__ConnectionString": "Host=media-host;port=17000;Database=zilean;Username=postgres;Password=V8fVsqcFjiknykULWCA7egxMZAznkE;Include Error Detail=true;Timeout=30;CommandTimeout=36000;",
-        "Zilean__Imdb__UseAllCores": "true"
+        "Zilean__Imdb__UseAllCores": "true",
+        "Zilean__Imdb__MinimumScoreMatch": "0.7"
       },
-      "commandLineArgs": "resync-imdb -a"
+      "commandLineArgs": "resync-imdb -t"
     }
   }
 }
