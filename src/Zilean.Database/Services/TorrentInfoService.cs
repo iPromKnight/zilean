@@ -317,21 +317,22 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
                 ? CloseMatchTitleYearScore * 100
                 : Fuzz.Ratio(torrent.ParsedTitle, imdb.Title, PreprocessMode.Full);
 
-    private bool HasFilteredPartitionsWithYear(ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear, ConcurrentDictionary<int, List<ImdbFile>> imdbMovieFilesByYear, TorrentInfo torrent,
+    private bool HasFilteredPartitionsWithYear(
+        ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear,
+        ConcurrentDictionary<int, List<ImdbFile>> imdbMovieFilesByYear,
+        TorrentInfo torrent,
         out IEnumerable<ImdbFile> relevantImdbFiles)
     {
         switch (torrent.Category)
         {
             case "tvSeries":
-                relevantImdbFiles = Enumerable.Range(torrent.Year!.Value - 1, 3)
-                    .Where(year => imdbTvFilesByYear.TryGetValue(year, out var _))
-                    .SelectMany(year => imdbTvFilesByYear[year]);
+                relevantImdbFiles = GetFilteredFiles(imdbTvFilesByYear, torrent.Year!.Value, includeYearZero: true);
                 break;
+
             case "movie":
-                relevantImdbFiles = Enumerable.Range(torrent.Year!.Value - 1, 3)
-                    .Where(year => imdbMovieFilesByYear.TryGetValue(year, out var _))
-                    .SelectMany(year => imdbMovieFilesByYear[year]);
+                relevantImdbFiles = GetFilteredFiles(imdbMovieFilesByYear, torrent.Year!.Value, includeYearZero: true);
                 break;
+
             default:
                 logger.LogWarning("Torrent '{Title}' has an unknown category '{Category}', skipping", torrent.NormalizedTitle, torrent.Category);
                 relevantImdbFiles = [];
@@ -339,6 +340,33 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
         }
 
         return true;
+    }
+
+    private static IEnumerable<ImdbFile> GetFilteredFiles(
+        ConcurrentDictionary<int, List<ImdbFile>> filesByYear,
+        int baseYear,
+        bool includeYearZero)
+    {
+        var years = new[] { baseYear - 1, baseYear, baseYear + 1 };
+
+        foreach (var year in years)
+        {
+            if (filesByYear.TryGetValue(year, out var files))
+            {
+                foreach (var file in files)
+                {
+                    yield return file;
+                }
+            }
+        }
+
+        if (includeYearZero && filesByYear.TryGetValue(0, out var zeroYearFiles))
+        {
+            foreach (var file in zeroYearFiles)
+            {
+                yield return file;
+            }
+        }
     }
 
     private IEnumerable<ImdbFile> GetAllImdbFilesWithoutYear(ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear, ConcurrentDictionary<int, List<ImdbFile>> imdbMovieFilesByYear, TorrentInfo torrent)
