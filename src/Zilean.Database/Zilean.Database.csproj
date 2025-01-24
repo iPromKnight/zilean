@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="SimCube.Aspire" />
+    <PackageReference Include="Raffinert.FuzzySharp" />
   </ItemGroup>
 
   <ItemGroup>

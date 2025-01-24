@@ -8,7 +8,7 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
         "tvSeries",
         "tvShort",
         "tvMiniSeries",
-        "tvSpecial"
+        "tvSpecial",
     ];
 
     public async Task Import(string fileName, CancellationToken cancellationToken)

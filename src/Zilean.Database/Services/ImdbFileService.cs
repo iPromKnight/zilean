@@ -1,3 +1,5 @@
+using Zilean.Shared.Extensions;
+
 namespace Zilean.Database.Services;
 
 public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguration configuration, IServiceProvider serviceProvider) : BaseDapperService(logger, configuration), IImdbFileService
@@ -82,6 +84,50 @@ public class ImdbFileService(ILogger<ImdbFileService> logger, ZileanConfiguratio
         var imdbLastImport = await dbContext.ImportMetadata.AsNoTracking().FirstOrDefaultAsync(x => x.Key == MetadataKeys.ImdbLastImport, cancellationToken: cancellationToken);
 
         return imdbLastImport?.Value.Deserialize<ImdbLastImport>();
+    }
+
+    public async Task<ConcurrentDictionary<int, List<ImdbFile>>> GetImdbMovieFiles()
+    {
+        logger.LogInformation("Loading all IMDB entries...");
+
+        await using var sqlConnection = new NpgsqlConnection(configuration.Database.ConnectionString);
+        await sqlConnection.OpenAsync();
+
+        var imdbFiles = sqlConnection.Query<ImdbFile>(
+            """
+            SELECT "ImdbId", LOWER("Title") AS "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            WHERE "Category" IN ('movie', 'tvMovie')
+            """);
+
+        var imdbFilesByYear = imdbFiles
+            .GroupBy(imdb => imdb.Year)
+            .ToConcurrentDictionary(g => g.Key, g => g.ToList());
+
+        logger.LogInformation("Loaded {ImdbCount} IMDB entries, partitioned by {YearCount} years", imdbFilesByYear.Values.Sum(x => x.Count), imdbFilesByYear.Count);
+
+        return imdbFilesByYear;
+    }
+
+    public async Task<ConcurrentDictionary<int, List<ImdbFile>>> GetImdbTvFiles()
+    {
+        logger.LogInformation("Loading all IMDB entries...");
+
+        await using var sqlConnection = new NpgsqlConnection(configuration.Database.ConnectionString);
+        await sqlConnection.OpenAsync();
+
+        var imdbFiles = sqlConnection.Query<ImdbFile>(
+            """
+            SELECT "ImdbId", LOWER("Title") AS "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            WHERE "Category" IN ('tvSeries', 'tvShort', 'tvMiniSeries', 'tvSpecial')
+            """);
+
+        var imdbFilesByYear = imdbFiles
+            .GroupBy(imdb => imdb.Year)
+            .ToConcurrentDictionary(g => g.Key, g => g.ToList());
+
+        logger.LogInformation("Loaded {ImdbCount} IMDB entries, partitioned by {YearCount} years", imdbFilesByYear.Values.Sum(x => x.Count), imdbFilesByYear.Count);
+
+        return imdbFilesByYear;
     }
 
     public async Task SetImdbLastImportAsync(ImdbLastImport imdbLastImport)
