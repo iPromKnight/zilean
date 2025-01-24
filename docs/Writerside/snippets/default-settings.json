@@ -26,7 +26,9 @@
     "Imdb": {
       "EnableImportMatching": true,
       "EnableEndpoint": true,
-      "MinimumScoreMatch": 0.85
+      "MinimumScoreMatch": 0.85,
+      "UseAllCores": false,
+      "NumberOfCores": 2
     },
     "Ingestion": {
       "ZurgInstances": [],
