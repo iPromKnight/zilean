@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.3.4](https://github.com/iPromKnight/zilean/compare/v3.3.3...v3.3.4) (2025-01-24)
+
+
+### ⚙️ Chores
+
+* update docs ([10828ac](https://github.com/iPromKnight/zilean/commit/10828ac74183904b8ae1bcd6e079464829bd8d10))
+* update readme ([cb7af70](https://github.com/iPromKnight/zilean/commit/cb7af7007eec7d74be6f78ee682599704e29138b))
+
+
+### ⌨️ Code Refactoring
+
+* rework matching ([f42c2fa](https://github.com/iPromKnight/zilean/commit/f42c2faf4cdc85da4b37ca10a15b998a311359c9))
+
 ## [3.3.3](https://github.com/iPromKnight/zilean/compare/v3.3.2...v3.3.3) (2025-01-18)
 
 
