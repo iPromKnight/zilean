@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.4.0](https://github.com/iPromKnight/zilean/compare/v3.3.6...v3.4.0) (2025-01-26)
+
+
+### 🚀 New Features
+
+* Add the ability to opt into lucene ([c610f14](https://github.com/iPromKnight/zilean/commit/c610f14a82c1946009226d65fd4ff6c72455c6ee))
+
+
+### 🔥 Bug Fixes
+
+* ensure cleanup of resources after syncs ([4785d0c](https://github.com/iPromKnight/zilean/commit/4785d0cf3cb3d49abd36f2b24fb62833d2234c60))
+
 ## [3.3.6](https://github.com/iPromKnight/zilean/compare/v3.3.5...v3.3.6) (2025-01-24)
 
 
