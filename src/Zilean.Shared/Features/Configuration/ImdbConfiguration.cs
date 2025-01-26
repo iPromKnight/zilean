@@ -9,4 +9,6 @@ public class ImdbConfiguration
     public bool UseAllCores { get; set; } = false;
 
     public int NumberOfCores { get; set; } = 2;
+
+    public bool UseLucene { get; set; } = false;
 }

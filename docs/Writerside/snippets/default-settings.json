@@ -28,7 +28,8 @@
       "EnableEndpoint": true,
       "MinimumScoreMatch": 0.85,
       "UseAllCores": false,
-      "NumberOfCores": 2
+      "NumberOfCores": 2,
+      "UseLucene": false
     },
     "Ingestion": {
       "ZurgInstances": [],

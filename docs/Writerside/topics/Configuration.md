@@ -116,6 +116,10 @@ _Default: `false`_
 _The number of processor cores to use for parallel operations during matching_
 _Default: `2`_
 
+**Imdb.UseLucene**
+_Indicates whether the IMDB Matcher should use Lucene for searching. This is massively faster, at the cost of extra ram. Approx 3GB needed while performing resyncs._
+_Default: `false`_
+
 ### Ingestion Configuration
 **Ingestion.ZurgInstances**
 _A list of Zurg instances to scrape from._
