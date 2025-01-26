@@ -7,6 +7,9 @@
     <PackageVersion Include="Dapper" Version="2.1.35" />
     <PackageVersion Include="EFCore.BulkExtensions.PostgreSql" Version="8.1.1" />
     <PackageVersion Include="FluentAssertions" Version="6.12.2" />
+    <PackageVersion Include="Lucene.Net" Version="4.8.0-beta00017" />
+    <PackageVersion Include="Lucene.Net.Analysis.Common" Version="4.8.0-beta00017" />
+    <PackageVersion Include="Lucene.Net.QueryParser" Version="4.8.0-beta00017" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">

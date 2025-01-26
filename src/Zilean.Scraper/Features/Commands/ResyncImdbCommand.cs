@@ -3,7 +3,7 @@
 public class ResyncImdbCommand(
     ImdbMetadataLoader imdbLoader,
     ITorrentInfoService torrentInfoService,
-    IImdbFileService imdbFileService,
+    IImdbMatchingService imdbMatchingService,
     ZileanDbContext dbContext,
     IServiceProvider serviceProvider,
     ILogger<ResyncImdbCommand> logger) : AsyncCommand<ResyncImdbCommand.ResyncImdbCommandSettings>
@@ -75,16 +75,18 @@ public class ResyncImdbCommand(
         }
 
         var processableTorrents = await torrents.ToListAsync();
+
         logger.LogInformation("Found {TorrentCount} torrents", processableTorrents.Count);
 
         if (processableTorrents.Count > 0)
         {
+            await imdbMatchingService.PopulateImdbData();
+
             logger.LogInformation("Starting to process torrents...");
 
-            var imdbTvFiles = await imdbFileService.GetImdbTvFiles();
-            var imdbMovieFiles = await imdbFileService.GetImdbMovieFiles();
+            var updatedTorrents = await imdbMatchingService.MatchImdbIdsForBatchAsync(processableTorrents);
 
-            var updatedTorrents = await torrentInfoService.MatchImdbIdsForBatchAsync(processableTorrents, imdbTvFiles, imdbMovieFiles);
+            imdbMatchingService.DisposeImdbData();
 
             logger.LogInformation("Updating {TorrentCount} torrents", updatedTorrents.Count);
 

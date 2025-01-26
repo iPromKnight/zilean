@@ -33,10 +33,10 @@ public static class ServiceCollectionExtensions
 
     private static void AddImdbServices(this IServiceCollection services)
     {
-        services.AddSingleton<ImdbFileService>();
         services.AddSingleton<ImdbMetadataLoader>();
         services.AddSingleton<ImdbConfiguration>();
         services.AddSingleton<ImdbFileDownloader>();
         services.AddSingleton<ImdbFileProcessor>();
+        services.AddSingleton<ImdbFileService>();
     }
 }

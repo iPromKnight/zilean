@@ -14,6 +14,9 @@
   <ItemGroup>
     <PackageReference Include="Dapper" />
     <PackageReference Include="EFCore.BulkExtensions.PostgreSql" />
+    <PackageReference Include="Lucene.Net" />
+    <PackageReference Include="Lucene.Net.Analysis.Common" />
+    <PackageReference Include="Lucene.Net.QueryParser" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -21,8 +24,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="SimCube.Aspire" />
     <PackageReference Include="Raffinert.FuzzySharp" />
+    <PackageReference Include="SimCube.Aspire" />
   </ItemGroup>
 
   <ItemGroup>

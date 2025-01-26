@@ -10,6 +10,4 @@ public interface IImdbFileService
     Task<ImdbLastImport?> GetImdbLastImportAsync(CancellationToken cancellationToken);
     int ImdbFileCount { get; }
     Task VaccumImdbFilesIndexes(CancellationToken cancellationToken);
-    Task<ConcurrentDictionary<int, List<ImdbFile>>> GetImdbMovieFiles();
-    Task<ConcurrentDictionary<int, List<ImdbFile>>> GetImdbTvFiles();
 }
