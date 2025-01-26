@@ -6,14 +6,26 @@ namespace Zilean.Database.Services.Lucene;
 
 public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger, ZileanConfiguration configuration) : IImdbMatchingService
 {
-    private readonly ConcurrentDictionary<string, string?> _imdbCache = [];
+    private ConcurrentDictionary<string, string?>? _imdbCache;
     private LuceneSession? _imdbFilesIndex;
+    private DirectoryReader? _reader;
+    private IndexSearcher? _searcher;
 
-    public async Task PopulateImdbData() =>
+    public async Task PopulateImdbData()
+    {
         _imdbFilesIndex = await IndexImdbDocumentsInMemory();
+        _imdbCache = new();
+    }
 
-    public void DisposeImdbData() =>
-        _imdbFilesIndex.Dispose();
+    public void DisposeImdbData()
+    {
+        _reader?.Dispose();
+        _imdbFilesIndex?.Writer.Dispose();
+        _imdbFilesIndex?.Directory.Dispose();
+        _imdbFilesIndex?.Dispose();
+        _imdbCache.Clear();
+        _imdbCache = null;
+    }
 
     public Task<ConcurrentQueue<TorrentInfo>> MatchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch)
     {
@@ -40,8 +52,8 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                 t.Category,
             });
 
-        var reader = _imdbFilesIndex.Writer.GetReader(applyAllDeletes: true);
-        var searcher = new IndexSearcher(reader);
+        _reader = _imdbFilesIndex.Writer.GetReader(applyAllDeletes: true);
+        _searcher = new(_reader);
 
         Parallel.ForEach(
             groupedByYearAndCategory, parallelOptions, (torrentGroup, _) =>
@@ -54,7 +66,7 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                         continue;
                     }
 
-                    var bestMatch = GetBestMatch(torrent, searcher);
+                    var bestMatch = GetBestMatch(torrent);
 
                     if (bestMatch == null)
                     {
@@ -94,9 +106,9 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
         return Task.FromResult(updatedTorrents);
     }
 
-    private BestMatch? GetBestMatch(TorrentInfo torrent, IndexSearcher searcher, int maxResults = 10)
+    private BestMatch? GetBestMatch(TorrentInfo torrent, int maxResults = 10)
     {
-        var matches = MatchTitle(torrent, searcher, maxResults);
+        var matches = MatchTitle(torrent, maxResults);
 
         if (!matches.Any())
         {
@@ -120,7 +132,7 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
         return bestMatch;
     }
 
-    private List<BestMatch> MatchTitle(TorrentInfo torrent, IndexSearcher searcher, int maxResults = 3)
+    private List<BestMatch> MatchTitle(TorrentInfo torrent, int maxResults = 3)
     {
         if (string.IsNullOrWhiteSpace(torrent.NormalizedTitle))
         {
@@ -136,7 +148,7 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
             AddYearToQuery(torrent, combinedQuery);
         }
 
-        var topDocs = searcher.Search(combinedQuery, maxResults);
+        var topDocs = _searcher.Search(combinedQuery, maxResults);
 
         if (topDocs.ScoreDocs.Length == 0)
         {
@@ -147,7 +159,7 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
 
         foreach (var scoreDoc in topDocs.ScoreDocs)
         {
-            var doc = searcher.Doc(scoreDoc.Doc);
+            var doc = _searcher.Doc(scoreDoc.Doc);
 
             var imdbId = doc.Get(LuceneIndexEntry.ImdbId);
             var title = doc.Get(LuceneIndexEntry.Title);

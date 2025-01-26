@@ -6,7 +6,7 @@ namespace Zilean.Database.Services.FuzzyString;
 
 public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingService> logger, ZileanConfiguration configuration) : IImdbMatchingService
 {
-    private readonly ConcurrentDictionary<string, string?> _imdbCache = [];
+    private ConcurrentDictionary<string, string?>? _imdbCache;
     private ConcurrentDictionary<int,List<ImdbFile>>? _imdbTvFiles;
     private ConcurrentDictionary<int,List<ImdbFile>>? _imdbMovieFiles;
     private const double ExactMatchTitleYearScore = 2.0;
@@ -16,15 +16,18 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
     {
         _imdbTvFiles = await GetImdbTvFiles();
         _imdbMovieFiles = await GetImdbMovieFiles();
+        _imdbCache = new();
     }
 
     public void DisposeImdbData()
     {
         _imdbTvFiles.Clear();
         _imdbMovieFiles.Clear();
+        _imdbCache.Clear();
 
         _imdbTvFiles = null;
         _imdbMovieFiles = null;
+        _imdbCache = null;
     }
 
     public Task<ConcurrentQueue<TorrentInfo>> MatchImdbIdsForBatchAsync(IEnumerable<TorrentInfo> batch)
