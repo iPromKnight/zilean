@@ -129,6 +129,10 @@ _Default: `[]`_
 _A list of Zilean instances to scrape from._
 _Default: `[]`_
 
+**Ingestion.GenericInstances**
+_A list of Generic instances to scrape from._
+_Default: `[]`_
+
 **Ingestion.EnableScraping**
 _Indicates whether the Ingestion indexer should scrape from Zurg and Zilean instances._
 _Default: `false`_
@@ -174,8 +178,8 @@ _Default: `5000`_
 ## Enabling Ingestion
 
 To enable ingestion, set the `Ingestion.EnableScraping` key to `true` in the configuration.
-Also ensure that the `Ingestion.ZurgInstances` and or `Ingestion.ZileanInstances` keys are populated with the appropriate `Url`, and `EndpointType` values.
-`EndpointType` can be either `1` (Zurg) or `0` (Zilean). Zilean also requires an `ApiKey` to be set.
+Also ensure that the `Ingestion.ZurgInstances` and or `Ingestion.ZileanInstances` and or `Ingestion.GenericInstances` keys are populated with the appropriate `Url`, and `EndpointType` values.
+`EndpointType` can be `2` (Generic) or `1` (Zurg) or `0` (Zilean). Zilean also requires an `ApiKey` to be set. Generic optionally supports `Authorization` header value.
 You do not have to specify both, you can specify one or the other, or both, depending on your requirements.
 Also there is no limit to the number of instances you can scrape from.
 In order for zilean scrapes to work, the `ApiKey` must be set in the `Zilean` section of the configuration, and both `Zilean.Torrents.EnableEndpoint` and `Zilean.Torrents.EnableScrapeEndpoint` must be set to `true`.

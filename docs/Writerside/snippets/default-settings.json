@@ -34,6 +34,7 @@
     "Ingestion": {
       "ZurgInstances": [],
       "ZileanInstances": [],
+      "GenericInstances": [],
       "EnableScraping": false,
       "Kubernetes": {
         "EnableServiceDiscovery": false,

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Tests.Tests;
+namespace Zilean.Tests.Tests;
 
 public class ConfigurationTests
 {
