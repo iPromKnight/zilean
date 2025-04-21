@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/iPromKnight/zilean/compare/v3.4.0...v3.5.0) (2025-04-21)
+
+
+### 🚀 New Features
+
+* support generic ingestion endpoint ([8b78d90](https://github.com/iPromKnight/zilean/commit/8b78d909cd9846e90103e8719c56b22c92b5931e))
+
 ## [3.4.0](https://github.com/iPromKnight/zilean/compare/v3.3.6...v3.4.0) (2025-01-26)
 
 
