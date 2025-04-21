@@ -40,12 +40,20 @@ public class StreamedEntryProcessor(
             {
                 GenericEndpointType.Zurg => $"{_currentEndpoint.Url}/debug/torrents",
                 GenericEndpointType.Zilean => $"{_currentEndpoint.Url}/torrents/all",
+                GenericEndpointType.Generic => $"{_currentEndpoint.Url}{_currentEndpoint.EndpointSuffix}",
                 _ => throw new InvalidOperationException($"Unknown endpoint type: {_currentEndpoint.EndpointType}")
             };
 
             if (_currentEndpoint.EndpointType == GenericEndpointType.Zilean)
             {
                 httpClient.DefaultRequestHeaders.Add("X-Api-Key", _currentEndpoint.ApiKey);
+            }
+            if (_currentEndpoint.EndpointType == GenericEndpointType.Generic)
+            {
+                if (!string.IsNullOrEmpty(_currentEndpoint.Authorization))
+                {
+                    httpClient.DefaultRequestHeaders.Add("Authorization", _currentEndpoint.Authorization);
+                }
             }
 
             var response = await httpClient.GetAsync(fullUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);

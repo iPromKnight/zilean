@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Ingestion.Endpoints;
+namespace Zilean.Scraper.Features.Ingestion.Endpoints;
 
 public class GenericIngestionScraping(
     ZileanConfiguration configuration,
@@ -20,6 +20,8 @@ public class GenericIngestionScraping(
         AddZurgInstancesToUrls(endpointsToProcess);
 
         AddZileanInstancesToUrls(endpointsToProcess);
+
+        AddGenericInstancesToUrls(endpointsToProcess);
 
         if (endpointsToProcess.Count == 0)
         {
@@ -54,6 +56,15 @@ public class GenericIngestionScraping(
         logger.LogInformation("Ingestion scraping completed for {Count} URLs", completedCount);
 
         return 0;
+    }
+
+    private void AddGenericInstancesToUrls(List<GenericEndpoint> urlsToProcess)
+    {
+        if (configuration.Ingestion.GenericInstances.Count > 0)
+        {
+            logger.LogInformation("Adding Generic instances to the list of URLs to process");
+            urlsToProcess.AddRange(configuration.Ingestion.GenericInstances);
+        }
     }
 
     private void AddZileanInstancesToUrls(List<GenericEndpoint> urlsToProcess)

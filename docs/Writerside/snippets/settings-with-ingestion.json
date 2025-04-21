@@ -38,6 +38,12 @@
         "EndpointType": 0,
         "ApiKey": "SomeApiKey"
       }],
+      "GenericInstances": [{
+        "Url": "http://stremthru:8080",
+        "EndpointType": 2,
+        "Authorization": "Basic admin:password",
+        "EndpointSuffix": "/__experiment__/zilean/torrents?no_missing_size=1"
+      }],
       "EnableScraping": true,
       "Kubernetes": {
         "EnableServiceDiscovery": false,
