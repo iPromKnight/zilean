@@ -9,6 +9,8 @@ services:
     restart: unless-stopped
     container_name: zilean
     tty: true
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "8181:8181"
     volumes:
@@ -31,7 +33,7 @@ services:
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: zilean
     volumes:
       - postgres_data:/var/lib/postgresql/data/pgdata
