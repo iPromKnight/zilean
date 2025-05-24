@@ -5,6 +5,7 @@ riderModule.iml
 /_ReSharper.Caches/
 .DS_Store
 .idea/
+.env
 
 src/Zilean.Scraper/python/
 src/Zilean.ApiService/python/

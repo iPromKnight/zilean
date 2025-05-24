@@ -18,6 +18,12 @@ The easiest way to get up and running with %Product% is to use the provided dock
 Ensure you have the following installed:
 - Docker, Docker Desktop or Podman
 
+First, generate your postgres password with 
+
+```bash
+echo "POSTGRES_PASSWORD=$(openssl rand -base64 42 | tr -dc A-Za-z0-9 | cut -c -32 | tr -d '\n')" > .env
+```
+
 The example compose file below can be copied, and used to get the system running locally.
 
 ```yaml
