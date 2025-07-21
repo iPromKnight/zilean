@@ -38,8 +38,8 @@ public class StreamedEntryProcessor(
 
             var fullUrl = _currentEndpoint.EndpointType switch
             {
-                GenericEndpointType.Zurg => $"{_currentEndpoint.Url}/debug/torrents",
-                GenericEndpointType.Zilean => $"{_currentEndpoint.Url}/torrents/all",
+                GenericEndpointType.Zurg => $"{_currentEndpoint.Url}{_configuration.Ingestion.ZurgEndpointSuffix}",
+                GenericEndpointType.Zilean => $"{_currentEndpoint.Url}{_configuration.Ingestion.ZileanEndpointSuffix}",
                 GenericEndpointType.Generic => $"{_currentEndpoint.Url}{_currentEndpoint.EndpointSuffix}",
                 _ => throw new InvalidOperationException($"Unknown endpoint type: {_currentEndpoint.EndpointType}")
             };
