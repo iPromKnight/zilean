@@ -6,6 +6,7 @@ riderModule.iml
 .DS_Store
 .idea/
 .env
+.vs
 
 src/Zilean.Scraper/python/
 src/Zilean.ApiService/python/

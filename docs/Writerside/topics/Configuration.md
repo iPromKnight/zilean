@@ -67,8 +67,7 @@ _Default: `true`_
 ### Database Configuration
 **Database.ConnectionString**
 _The connection string for the PostgreSQL database._
-_$POSTGRES_PASSWORD should be replaced with the password in your .env_
-_Default: `Host=localhost;Database=zilean;Username=postgres;Password=$POSTGRES_PASSWORD;Include Error Detail=true;Timeout=30;CommandTimeout=3600;`_
+_Default: `Host=localhost;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;`_
 
 The database connection string comprises of the following:
 - `Host`: The host of the database, this will usually be the `containername` if you are using docker compose of the postgres instance.

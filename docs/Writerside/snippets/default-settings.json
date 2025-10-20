@@ -15,7 +15,7 @@
       "EnableEndpoint": true
     },
     "Database": {
-      "ConnectionString": "Host=postgres;Database=zilean;Username=postgres;Password=$POSTGRES_PASSWORD;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
+      "ConnectionString": "Host=postgres;Database=zilean;Username=postgres;Password=postgres;Include Error Detail=true;Timeout=30;CommandTimeout=3600;"
     },
     "Torrents": {
       "EnableEndpoint": false,
