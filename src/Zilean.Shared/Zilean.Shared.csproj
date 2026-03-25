@@ -14,6 +14,7 @@
     <PackageReference Include="pythonnet" />
     <PackageReference Include="CliWrap" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql" />
     <PackageReference Include="Serilog.Sinks.Spectre" />
     <PackageReference Include="SimCube.Aspire" />
     <PackageReference Include="System.Private.Uri" />
