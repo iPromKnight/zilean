@@ -13,14 +13,14 @@ public static class SearchEndpoints
         {
             app.MapGroup(GroupName)
                 .WithTags(GroupName)
-                .Dmm()
+                .Dmm(configuration)
                 .DisableAntiforgery();
         }
 
         return app;
     }
 
-    private static RouteGroupBuilder Dmm(this RouteGroupBuilder group)
+    private static RouteGroupBuilder Dmm(this RouteGroupBuilder group, ZileanConfiguration configuration)
     {
         group.MapPost(Search, PerformSearch)
             .Produces<TorrentInfo[]>()
@@ -30,9 +30,12 @@ public static class SearchEndpoints
             .Produces<TorrentInfo[]>()
             .AllowAnonymous();
 
-        group.MapGet(Ingest, PerformOnDemandScrape)
-            .RequireAuthorization(ApiKeyAuthentication.Policy)
-            .WithMetadata(new OpenApiSecurityMetadata(ApiKeyAuthentication.Scheme));
+        if (configuration.Dmm.EnableScraping)
+        {
+            group.MapGet(Ingest, PerformOnDemandScrape)
+                .RequireAuthorization(ApiKeyAuthentication.Policy)
+                .WithMetadata(new OpenApiSecurityMetadata(ApiKeyAuthentication.Scheme));
+        }
 
         return group;
     }
@@ -88,8 +91,9 @@ public static class SearchEndpoints
                 ? TypedResults.Ok(Array.Empty<TorrentInfo>())
                 : TypedResults.Ok(results);
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Unfiltered search failed for query: {QueryText}", queryRequest.QueryText);
             return TypedResults.Ok(Array.Empty<TorrentInfo>());
         }
     }
@@ -119,8 +123,10 @@ public static class SearchEndpoints
                 ? TypedResults.Ok(Array.Empty<TorrentInfo>())
                 : TypedResults.Ok(results);
         }
-        catch
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Filtered search failed for query: {Query}, Season: {Season}, Episode: {Episode}",
+                request.Query, request.Season, request.Episode);
             return TypedResults.Ok(Array.Empty<TorrentInfo>());
         }
     }
