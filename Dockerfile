@@ -19,6 +19,7 @@ RUN apk add --update --no-cache \
     py3-pip=~23.1 \
     curl \
     icu-libs \
+    tzdata \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
