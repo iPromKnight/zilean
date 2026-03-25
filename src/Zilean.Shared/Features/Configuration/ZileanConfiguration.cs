@@ -19,6 +19,27 @@ public class ZileanConfiguration
     public IngestionConfiguration Ingestion { get; set; } = new();
     public ParsingConfiguration Parsing { get; set; } = new();
 
+    public void Validate()
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(Database.ConnectionString))
+        {
+            errors.Add("Database.ConnectionString is required");
+        }
+
+        if (Parsing.BatchSize <= 0)
+        {
+            errors.Add("Parsing.BatchSize must be greater than 0");
+        }
+
+        if (errors.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"Configuration validation failed: {string.Join("; ", errors)}");
+        }
+    }
+
     public static void EnsureExists()
     {
         var settingsFilePath = Path.Combine(AppContext.BaseDirectory, ConfigurationLiterals.ConfigurationFolder, ConfigurationLiterals.SettingsConfigFilename);

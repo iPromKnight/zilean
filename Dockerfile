@@ -34,4 +34,7 @@ RUN rm -rf /app/python || true && \
     mkdir -p /app/python || true
 RUN pip3 install -r /app/requirements.txt -t /app/python
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8181/healthchecks/ping || exit 1
+
 ENTRYPOINT ["./zilean-api"]

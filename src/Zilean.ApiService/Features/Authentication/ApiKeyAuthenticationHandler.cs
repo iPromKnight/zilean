@@ -4,9 +4,8 @@ public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    ISystemClock clock,
     ZileanConfiguration configuration)
-    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder, clock)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {

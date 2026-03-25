@@ -12,6 +12,7 @@ public abstract class GenericProcessor<TInput>(
     protected readonly ProcessedCounts _processedCounts = new();
     protected readonly ZileanConfiguration _configuration = configuration;
     private HashSet<string> _blacklistedHashes = [];
+    private int _batchNumber;
     private readonly ObjectPool<List<ExtractedDmmEntry>> _torrentsListPool = new DefaultObjectPoolProvider().Create<List<ExtractedDmmEntry>>();
 
     protected async Task ProcessAsync(Func<ChannelWriter<Task<TInput>>, CancellationToken, Task> producerAction, CancellationToken cancellationToken)
@@ -78,6 +79,7 @@ public abstract class GenericProcessor<TInput>(
 
     private async Task OnProcessTorrentsAsync(List<Task<TInput>> batch, CancellationToken cancellationToken)
     {
+        _batchNumber++;
         var torrents = _torrentsListPool.Get();
 
         try
@@ -116,6 +118,9 @@ public abstract class GenericProcessor<TInput>(
 
                 await torrentInfoService.StoreTorrentInfo(finalizedTorrents);
                 _processedCounts.AddProcessed(finalizedTorrents.Count);
+
+                _logger.LogInformation("Batch {BatchNumber}: stored {Count} torrents, total processed: {Total}",
+                    _batchNumber, finalizedTorrents.Count, _processedCounts.TotalProcessed);
             }
         }
         catch (OperationCanceledException)

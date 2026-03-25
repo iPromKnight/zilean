@@ -28,6 +28,10 @@ public partial class DmmFileEntryProcessor(
 
     private async Task ProduceEntriesAsync(ChannelWriter<Task<ExtractedDmmEntry>> writer, CancellationToken cancellationToken)
     {
+        var lastProgressLog = Stopwatch.StartNew();
+        var filesProcessed = 0;
+        var totalFiles = _filesToProcess.Count;
+
         foreach (var file in _filesToProcess)
         {
             if (cancellationToken.IsCancellationRequested)
@@ -55,6 +59,15 @@ public partial class DmmFileEntryProcessor(
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing file: {FileName}", fileName);
+            }
+
+            filesProcessed++;
+
+            if (lastProgressLog.Elapsed.TotalSeconds >= 60)
+            {
+                _logger.LogInformation("DMM progress: {Processed}/{Total} files processed, {NewPages} new pages found",
+                    filesProcessed, totalFiles, NewPages.Count);
+                lastProgressLog.Restart();
             }
         }
 

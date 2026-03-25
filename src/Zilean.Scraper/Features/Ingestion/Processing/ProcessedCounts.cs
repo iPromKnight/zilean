@@ -15,6 +15,8 @@ public sealed class ProcessedCounts
         Interlocked.Exchange(ref _blacklistedRemoved, 0);
     }
 
+    public int TotalProcessed => _totalProcessed;
+
     public void AddProcessed(int count) => Interlocked.Add(ref _totalProcessed, count);
     public void AddAdultRemoved(int count) => Interlocked.Add(ref _adultRemoved, count);
     public void AddTrashRemoved(int count) => Interlocked.Add(ref _trashRemoved, count);

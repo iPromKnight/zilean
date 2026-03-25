@@ -16,7 +16,7 @@ public abstract class BaseDapperService(ILogger<BaseDapperService> logger, Zilea
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while executing a command.");
-            Process.GetCurrentProcess().Kill();
+            throw;
         }
     }
 
