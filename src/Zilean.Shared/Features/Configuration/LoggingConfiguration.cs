@@ -35,6 +35,9 @@ public static class LoggingConfiguration
     private static void EnsureExists(string configurationFolderPath)
     {
         var loggingPath = Path.Combine(configurationFolderPath, ConfigurationLiterals.LoggingConfigFilename);
-        File.WriteAllText(loggingPath, DefaultLoggingContents);
+        if (!File.Exists(loggingPath))
+        {
+            File.WriteAllText(loggingPath, DefaultLoggingContents);
+        }
     }
 }
