@@ -18,6 +18,7 @@ RUN apk add --update --no-cache \
     python3=~3.11 \
     py3-pip=~23.1 \
     curl \
+    git \
     icu-libs \
     && ln -sf python3 /usr/bin/python
 ENV DOTNET_RUNNING_IN_CONTAINER=true
