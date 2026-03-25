@@ -13,6 +13,15 @@ public class StartupService(
     public async Task StartingAsync(CancellationToken cancellationToken)
     {
         var logger = loggerFactory.CreateLogger<StartupService>();
+
+        // Security check — warn about insecure Postgres credentials
+        if (configuration.Database.HasInsecurePassword())
+        {
+            logger.LogWarning("SECURITY WARNING: PostgreSQL password is empty or set to the default 'postgres'. " +
+                "This is a security risk — if your database port is exposed, attackers can connect and compromise your system. " +
+                "Set a strong password via POSTGRES_PASSWORD or Zilean__Database__ConnectionString.");
+        }
+
         logger.LogInformation("Applying Migrations...");
         await using var asyncScope = serviceProvider.CreateAsyncScope();
         var dbContext = asyncScope.ServiceProvider.GetRequiredService<ZileanDbContext>();
