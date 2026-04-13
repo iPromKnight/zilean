@@ -10,19 +10,18 @@ public class OriginalTitleIndexingTests
     [Fact]
     public void Document_WithDifferentOriginalTitle_HasBothTitleFields()
     {
-        // Arrange: index a doc with title="the boat" and originalTitle="das boot"
+        // Arrange: "La vita è bella" (Italian) vs "Life Is Beautiful" (English) — completely different strings
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
-            new StringField(LuceneIndexEntry.ImdbId, "tt0082096", Field.Store.YES),
-            new TextField(LuceneIndexEntry.Title, "the boat", Field.Store.YES),
+            new StringField(LuceneIndexEntry.ImdbId, "tt0118799", Field.Store.YES),
+            new TextField(LuceneIndexEntry.Title, "life is beautiful", Field.Store.YES),
             new StringField(LuceneIndexEntry.Category, "movie", Field.Store.YES),
-            new Int32Field(LuceneIndexEntry.Year, 1981, Field.Store.YES),
+            new Int32Field(LuceneIndexEntry.Year, 1997, Field.Store.YES),
         };
 
-        // D-04: Only add originalTitle if it differs from title
-        var originalTitle = "das boot";
-        if (!string.Equals("the boat", originalTitle, StringComparison.Ordinal))
+        var originalTitle = "la vita e bella";
+        if (!string.Equals("life is beautiful", originalTitle, StringComparison.Ordinal))
         {
             doc.Add(new TextField(LuceneIndexEntry.OriginalTitle, originalTitle, Field.Store.YES));
         }
@@ -33,11 +32,10 @@ public class OriginalTitleIndexingTests
         var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
-        // Assert: document has both title and originalTitle fields
         var allDocs = searcher.Search(new MatchAllDocsQuery(), 10);
         var storedDoc = searcher.Doc(allDocs.ScoreDocs[0].Doc);
-        storedDoc.Get(LuceneIndexEntry.Title).Should().Be("the boat");
-        storedDoc.Get(LuceneIndexEntry.OriginalTitle).Should().Be("das boot");
+        storedDoc.Get(LuceneIndexEntry.Title).Should().Be("life is beautiful");
+        storedDoc.Get(LuceneIndexEntry.OriginalTitle).Should().Be("la vita e bella");
 
         reader.Dispose();
     }
@@ -114,16 +112,16 @@ public class OriginalTitleIndexingTests
     [Fact]
     public void DualFuzzyQuery_MatchesOnOriginalTitle_WhenPrimaryTitleDiffers()
     {
-        // Arrange: index a doc with title="boat" and originalTitle="boot"
-        // Using single-word titles because FuzzyQuery matches individual tokens in tokenized fields
+        // Arrange: "Cidade de Deus" (Portuguese) vs "City of God" (English)
+        // A torrent named "cidade" should match via originalTitle even though primaryTitle is "city"
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
-            new StringField(LuceneIndexEntry.ImdbId, "tt0082096", Field.Store.YES),
-            new TextField(LuceneIndexEntry.Title, "boat", Field.Store.YES),
-            new TextField(LuceneIndexEntry.OriginalTitle, "boot", Field.Store.YES),
+            new StringField(LuceneIndexEntry.ImdbId, "tt0317248", Field.Store.YES),
+            new TextField(LuceneIndexEntry.Title, "city of god", Field.Store.YES),
+            new TextField(LuceneIndexEntry.OriginalTitle, "cidade de deus", Field.Store.YES),
             new StringField(LuceneIndexEntry.Category, "movie", Field.Store.YES),
-            new Int32Field(LuceneIndexEntry.Year, 1981, Field.Store.YES),
+            new Int32Field(LuceneIndexEntry.Year, 2002, Field.Store.YES),
         };
 
         session.Writer.AddDocument(doc);
@@ -132,11 +130,11 @@ public class OriginalTitleIndexingTests
         var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
-        // Act: search for "boot" using dual FuzzyQuery with SHOULD
+        // Act: search for "cidade" — no fuzzy match possible on "city" (too different)
         var titleQuery = new BooleanQuery { MinimumNumberShouldMatch = 1 };
-        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "boot"), 2, 1, 1, false);
+        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "cidade"), 2, 1, 1, false);
         titleQuery.Add(fuzzyTitleQuery, Occur.SHOULD);
-        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "boot"), 2, 1, 1, false);
+        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "cidade"), 2, 1, 1, false);
         titleQuery.Add(fuzzyOriginalTitleQuery, Occur.SHOULD);
 
         var query = new BooleanQuery();
@@ -146,12 +144,12 @@ public class OriginalTitleIndexingTests
 
         var results = searcher.Search(query, 10);
 
-        // Assert: should find the document via originalTitle match
+        // Assert: found via originalTitle — "cidade" matches "cidade" exactly in the original_title field
         results.TotalHits.Should().BeGreaterThan(0,
-            "dual FuzzyQuery should match on originalTitle when primaryTitle doesn't match");
+            "dual FuzzyQuery should match on originalTitle when primaryTitle is completely different");
 
         var matchedDoc = searcher.Doc(results.ScoreDocs[0].Doc);
-        matchedDoc.Get(LuceneIndexEntry.ImdbId).Should().Be("tt0082096");
+        matchedDoc.Get(LuceneIndexEntry.ImdbId).Should().Be("tt0317248");
 
         reader.Dispose();
     }
@@ -159,15 +157,16 @@ public class OriginalTitleIndexingTests
     [Fact]
     public void DualFuzzyQuery_StillMatchesOnPrimaryTitle()
     {
-        // Arrange: index a doc with title="boat" and originalTitle="boot"
+        // Arrange: "Der Untergang" (German) vs "Downfall" (English)
+        // Searching "downfall" should still match via primaryTitle
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
-            new StringField(LuceneIndexEntry.ImdbId, "tt0082096", Field.Store.YES),
-            new TextField(LuceneIndexEntry.Title, "boat", Field.Store.YES),
-            new TextField(LuceneIndexEntry.OriginalTitle, "boot", Field.Store.YES),
+            new StringField(LuceneIndexEntry.ImdbId, "tt0363163", Field.Store.YES),
+            new TextField(LuceneIndexEntry.Title, "downfall", Field.Store.YES),
+            new TextField(LuceneIndexEntry.OriginalTitle, "der untergang", Field.Store.YES),
             new StringField(LuceneIndexEntry.Category, "movie", Field.Store.YES),
-            new Int32Field(LuceneIndexEntry.Year, 1981, Field.Store.YES),
+            new Int32Field(LuceneIndexEntry.Year, 2004, Field.Store.YES),
         };
 
         session.Writer.AddDocument(doc);
@@ -176,11 +175,11 @@ public class OriginalTitleIndexingTests
         var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
-        // Act: search for "boat" using dual FuzzyQuery
+        // Act: search for "downfall" — should match on primaryTitle despite originalTitle being completely different
         var titleQuery = new BooleanQuery { MinimumNumberShouldMatch = 1 };
-        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "boat"), 2, 1, 1, false);
+        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "downfall"), 2, 1, 1, false);
         titleQuery.Add(fuzzyTitleQuery, Occur.SHOULD);
-        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "boat"), 2, 1, 1, false);
+        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "downfall"), 2, 1, 1, false);
         titleQuery.Add(fuzzyOriginalTitleQuery, Occur.SHOULD);
 
         var query = new BooleanQuery();
@@ -190,7 +189,7 @@ public class OriginalTitleIndexingTests
 
         var results = searcher.Search(query, 10);
 
-        // Assert: should still find the document via primaryTitle
+        // Assert: still matches via primaryTitle (no regression)
         results.TotalHits.Should().BeGreaterThan(0,
             "dual FuzzyQuery should still match on primaryTitle (no regression)");
 

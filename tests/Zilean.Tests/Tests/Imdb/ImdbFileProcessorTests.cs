@@ -42,9 +42,9 @@ public class ImdbFileProcessorTests : IDisposable
     [Fact]
     public async Task Parser_ReadsOriginalTitle_WhenDifferentFromPrimaryTitle()
     {
-        // Arrange: Das Boot has a different original title than the English primary title
+        // Arrange: "La vita è bella" (Italian) vs "Life Is Beautiful" (English) — completely different strings
         var filePath = CreateTsvFile(
-            "tt0081505\tmovie\tThe Boat\tDas Boot\t0\t1981\t\\N\t149\tAdventure,Drama,Thriller"
+            "tt0118799\tmovie\tLife Is Beautiful\tLa vita è bella\t0\t1997\t\\N\t116\tComedy,Drama,Romance"
         );
 
         // Act
@@ -52,9 +52,9 @@ public class ImdbFileProcessorTests : IDisposable
 
         // Assert
         _capturedFiles.Should().HaveCount(1);
-        _capturedFiles[0].OriginalTitle.Should().Be("Das Boot");
-        _capturedFiles[0].Title.Should().Be("The Boat");
-        _capturedFiles[0].ImdbId.Should().Be("tt0081505");
+        _capturedFiles[0].OriginalTitle.Should().Be("La vita è bella");
+        _capturedFiles[0].Title.Should().Be("Life Is Beautiful");
+        _capturedFiles[0].ImdbId.Should().Be("tt0118799");
     }
 
     [Fact]
