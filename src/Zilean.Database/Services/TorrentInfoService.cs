@@ -173,7 +173,7 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             .Select(t => t.InfoHash)
             .ToListAsync();
 
-        return [..existingHashes];
+        return [.. existingHashes];
     }
 
     public async Task<HashSet<string>> GetBlacklistedItems()
@@ -185,6 +185,6 @@ public class TorrentInfoService(ILogger<TorrentInfoService> logger, ZileanConfig
             .Select(t => t.InfoHash)
             .ToListAsync();
 
-        return [..existingHashes];
+        return [.. existingHashes];
     }
 }

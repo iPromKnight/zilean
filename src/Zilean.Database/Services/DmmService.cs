@@ -1,4 +1,4 @@
-﻿namespace Zilean.Database.Services;
+namespace Zilean.Database.Services;
 
 public class DmmService(ILogger<DmmService> logger, ZileanConfiguration configuration, IServiceProvider serviceProvider) : BaseDapperService(logger, configuration)
 {

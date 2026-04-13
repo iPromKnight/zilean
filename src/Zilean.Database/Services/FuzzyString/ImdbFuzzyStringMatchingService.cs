@@ -7,8 +7,8 @@ namespace Zilean.Database.Services.FuzzyString;
 public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingService> logger, ZileanConfiguration configuration) : IImdbMatchingService
 {
     private ConcurrentDictionary<string, string?>? _imdbCache;
-    private ConcurrentDictionary<int,List<ImdbFile>>? _imdbTvFiles;
-    private ConcurrentDictionary<int,List<ImdbFile>>? _imdbMovieFiles;
+    private ConcurrentDictionary<int, List<ImdbFile>>? _imdbTvFiles;
+    private ConcurrentDictionary<int, List<ImdbFile>>? _imdbMovieFiles;
     private const double ExactMatchTitleYearScore = 2.0;
     private const double CloseMatchTitleYearScore = 1.5;
 

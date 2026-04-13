@@ -1,4 +1,4 @@
-﻿namespace Zilean.Database.Services;
+namespace Zilean.Database.Services;
 
 public interface IDmmService
 {

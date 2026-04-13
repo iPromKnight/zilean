@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Authentication;
+namespace Zilean.ApiService.Features.Authentication;
 
 public class ApiKeyAuthenticationHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Utilities;
+namespace Zilean.Shared.Features.Utilities;
 
 public static class ApiKey
 {

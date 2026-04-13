@@ -1,6 +1,6 @@
 namespace Zilean.Database.ModelConfiguration;
 
-public class BlacklistedItemConfiguration: IEntityTypeConfiguration<BlacklistedItem>
+public class BlacklistedItemConfiguration : IEntityTypeConfiguration<BlacklistedItem>
 {
     public void Configure(EntityTypeBuilder<BlacklistedItem> builder)
     {

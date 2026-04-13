@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Configuration;
+namespace Zilean.Shared.Features.Configuration;
 
 public class KubernetesConfiguration
 {

@@ -1,4 +1,4 @@
-﻿using ILogger = Microsoft.Extensions.Logging.ILogger;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Zilean.Scraper.Features.Ingestion.Processing;
 

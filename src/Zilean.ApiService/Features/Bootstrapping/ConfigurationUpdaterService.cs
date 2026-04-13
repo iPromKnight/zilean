@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Bootstrapping;
+namespace Zilean.ApiService.Features.Bootstrapping;
 
 public class ConfigurationUpdaterService(ZileanConfiguration configuration, ILogger<ConfigurationUpdaterService> logger) : IHostedService
 {

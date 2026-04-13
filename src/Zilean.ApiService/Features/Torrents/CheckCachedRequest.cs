@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Torrents;
+namespace Zilean.ApiService.Features.Torrents;
 
 public class CheckCachedRequest
 {

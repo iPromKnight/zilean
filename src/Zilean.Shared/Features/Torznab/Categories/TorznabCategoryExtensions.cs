@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Torznab.Categories;
+namespace Zilean.Shared.Features.Torznab.Categories;
 
 public static class TorznabCategoryExtensions
 {

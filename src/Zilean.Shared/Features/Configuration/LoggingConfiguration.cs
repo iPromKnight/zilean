@@ -1,11 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 
 namespace Zilean.Shared.Features.Configuration;
 
 public static class LoggingConfiguration
 {
     private const string DefaultLoggingContents =
-        """
+                      /*lang=json*/
+                      """
         {
           "Serilog": {
             "MinimumLevel": {

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Commands;
+namespace Zilean.Scraper.Features.Commands;
 
 public class ResyncImdbCommand(
     ImdbMetadataLoader imdbLoader,
@@ -28,7 +28,7 @@ public class ResyncImdbCommand(
 
     public override async Task<int> ExecuteAsync(CommandContext context, ResyncImdbCommandSettings settings)
     {
-        if (settings is {RetagAllImdbs: true, RetagMissingImdbs: true})
+        if (settings is { RetagAllImdbs: true, RetagMissingImdbs: true })
         {
             logger.LogError("Cannot use both --retag-missing-imdbs and --retag-all-imdbs at the same time");
             return 1;

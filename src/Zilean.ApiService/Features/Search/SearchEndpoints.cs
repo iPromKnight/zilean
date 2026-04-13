@@ -49,7 +49,7 @@ public static class SearchEndpoints
 
         bool available = mutex.TryGetLock(nameof(DmmSyncJob), 1);
 
-        if(available)
+        if (available)
         {
             try
             {

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Bootstrapping;
+namespace Zilean.Scraper.Features.Bootstrapping;
 
 public static class HostingExtensions
 {

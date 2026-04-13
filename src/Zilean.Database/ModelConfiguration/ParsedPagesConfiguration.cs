@@ -1,4 +1,4 @@
-﻿namespace Zilean.Database.ModelConfiguration;
+namespace Zilean.Database.ModelConfiguration;
 
 public class ParsedPagesConfiguration : IEntityTypeConfiguration<ParsedPages>
 {

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Blacklist;
+namespace Zilean.Shared.Features.Blacklist;
 
 public class BlacklistedItem
 {

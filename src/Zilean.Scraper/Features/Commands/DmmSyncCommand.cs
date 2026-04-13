@@ -1,4 +1,4 @@
-﻿using Zilean.Scraper.Features.Ingestion.Dmm;
+using Zilean.Scraper.Features.Ingestion.Dmm;
 
 namespace Zilean.Scraper.Features.Commands;
 

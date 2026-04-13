@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Torznab;
+namespace Zilean.ApiService.Features.Torznab;
 
 public static class TorznabQueryExtensions
 {

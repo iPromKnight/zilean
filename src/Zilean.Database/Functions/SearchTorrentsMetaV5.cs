@@ -1,9 +1,9 @@
-﻿namespace Zilean.Database.Functions;
+namespace Zilean.Database.Functions;
 
 public class SearchTorrentsMetaV5
 {
-   internal const string Create =
-        """
+    internal const string Create =
+         """
         CREATE OR REPLACE FUNCTION search_torrents_meta(
             query TEXT DEFAULT NULL,
             season INT DEFAULT NULL,

@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Search;
+namespace Zilean.ApiService.Features.Search;
 
 public class SearchFilteredRequest
 {

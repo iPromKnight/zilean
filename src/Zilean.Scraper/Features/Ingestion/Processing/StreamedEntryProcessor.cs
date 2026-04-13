@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Ingestion.Processing;
+namespace Zilean.Scraper.Features.Ingestion.Processing;
 
 public class StreamedEntryProcessor(
     ITorrentInfoService torrentInfoService,

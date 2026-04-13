@@ -3,7 +3,8 @@ namespace Zilean.Tests.Tests;
 public class ConfigurationTests
 {
     private const string MockSettingsWithIngestion =
-        """
+                             /*lang=json,strict*/
+                             """
         {
           "Zilean": {
             "Dmm": {
