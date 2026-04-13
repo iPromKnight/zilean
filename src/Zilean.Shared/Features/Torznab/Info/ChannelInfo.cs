@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Torznab.Info;
+namespace Zilean.Shared.Features.Torznab.Info;
 
 public class ChannelInfo
 {

@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Bootstrapping;
+namespace Zilean.Scraper.Features.Bootstrapping;
 
 internal sealed class TypeResolver(IServiceProvider provider) : ITypeResolver
 {

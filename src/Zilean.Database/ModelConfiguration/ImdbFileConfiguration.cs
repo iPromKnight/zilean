@@ -1,6 +1,6 @@
 namespace Zilean.Database.ModelConfiguration;
 
-public class ImdbFileConfiguration:  IEntityTypeConfiguration<ImdbFile>
+public class ImdbFileConfiguration : IEntityTypeConfiguration<ImdbFile>
 {
     public void Configure(EntityTypeBuilder<ImdbFile> builder)
     {

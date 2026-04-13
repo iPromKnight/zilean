@@ -191,7 +191,7 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
     private static void AddYearToQuery(TorrentInfo torrent, BooleanQuery combinedQuery)
     {
         var yearZeroQuery = new TermQuery(new(LuceneIndexEntry.Year, "0"));
-        var yearRangeQuery = NumericRangeQuery.NewInt32Range(LuceneIndexEntry.Year, torrent.Year!.Value-1, torrent.Year!.Value+1, true, true);
+        var yearRangeQuery = NumericRangeQuery.NewInt32Range(LuceneIndexEntry.Year, torrent.Year!.Value - 1, torrent.Year!.Value + 1, true, true);
         var yearQuery = new BooleanQuery
         {
             { yearZeroQuery, Occur.SHOULD },

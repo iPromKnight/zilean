@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Scraping;
+namespace Zilean.Shared.Features.Scraping;
 
 public class GenericEndpoint
 {

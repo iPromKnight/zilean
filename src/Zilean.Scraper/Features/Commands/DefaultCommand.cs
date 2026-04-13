@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Commands;
+namespace Zilean.Scraper.Features.Commands;
 
 public sealed class DefaultCommand(ILogger<DefaultCommand> logger) : Command<DefaultCommand.Settings>
 {

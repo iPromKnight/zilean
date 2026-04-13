@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Dmm;
+namespace Zilean.Shared.Features.Dmm;
 
 public class ParsedPages
 {

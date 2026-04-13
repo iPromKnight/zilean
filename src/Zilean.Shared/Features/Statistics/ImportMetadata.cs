@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Statistics;
+namespace Zilean.Shared.Features.Statistics;
 
 public class ImportMetadata
 {

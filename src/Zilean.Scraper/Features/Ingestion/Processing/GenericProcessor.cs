@@ -1,4 +1,4 @@
-﻿namespace Zilean.Scraper.Features.Ingestion.Processing;
+namespace Zilean.Scraper.Features.Ingestion.Processing;
 
 public abstract class GenericProcessor<TInput>(
     ILoggerFactory loggerFactory,

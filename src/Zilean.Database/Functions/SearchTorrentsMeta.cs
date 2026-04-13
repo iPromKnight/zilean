@@ -1,4 +1,4 @@
-﻿namespace Zilean.Database.Functions;
+namespace Zilean.Database.Functions;
 
 public class SearchTorrentsMeta
 {

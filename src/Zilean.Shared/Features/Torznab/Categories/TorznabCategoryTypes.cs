@@ -98,7 +98,7 @@ public static class TorznabCategoryTypes
         }
     };
 
-        public static TorznabCategory Books => new(7000, "Books")
+    public static TorznabCategory Books => new(7000, "Books")
     {
         SubCategories =
         {

@@ -1,4 +1,4 @@
-﻿// ReSharper disable InconsistentNaming
+// ReSharper disable InconsistentNaming
 namespace Zilean.ApiService.Features.Torznab;
 
 public class TorznabRequest

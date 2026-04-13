@@ -22,7 +22,7 @@ public class ImdbLuceneMatchingServiceTests
         session.Writer!.AddDocument(doc);
         session.Writer.Flush(triggerMerge: false, applyAllDeletes: false);
 
-        using var reader = session.Writer.GetReader(applyAllDeletes: true);
+        var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
         // Act: FuzzyQuery on single word "breakin" (edit distance 2 from "breaking")
@@ -32,6 +32,8 @@ public class ImdbLuceneMatchingServiceTests
         // Assert: should find the document (fails with StringField because "breaking bad" is one token)
         results.TotalHits.Should().BeGreaterThan(0,
             "FuzzyQuery should match individual words in a tokenized title, not the entire string");
+
+        reader.Dispose();
     }
 
     [Fact]

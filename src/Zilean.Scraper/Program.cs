@@ -1,4 +1,4 @@
-﻿var builder = Host.CreateDefaultBuilder();
+var builder = Host.CreateDefaultBuilder();
 
 builder.ConfigureAppConfiguration(configuration =>
 {

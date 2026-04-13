@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Imdb;
+namespace Zilean.ApiService.Features.Imdb;
 
 public class ImdbFilteredRequest
 {

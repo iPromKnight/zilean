@@ -6,7 +6,7 @@ public class ZileanDbContext : DbContext
     {
     }
 
-    public ZileanDbContext(DbContextOptions<ZileanDbContext> options): base(options)
+    public ZileanDbContext(DbContextOptions<ZileanDbContext> options) : base(options)
     {
     }
 

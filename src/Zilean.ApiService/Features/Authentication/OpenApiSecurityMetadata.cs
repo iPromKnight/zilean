@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Authentication;
+namespace Zilean.ApiService.Features.Authentication;
 
 public class OpenApiSecurityMetadata(string securityScheme)
 {

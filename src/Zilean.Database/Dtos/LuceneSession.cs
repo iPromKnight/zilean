@@ -24,8 +24,8 @@ public sealed class LuceneSession : IDisposable
 
     public void Dispose()
     {
-        Directory?.Dispose();
-        Analyzer?.Dispose();
         Writer?.Dispose();
+        Analyzer?.Dispose();
+        Directory?.Dispose();
     }
 }

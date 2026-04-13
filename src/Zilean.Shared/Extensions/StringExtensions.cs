@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Extensions;
+namespace Zilean.Shared.Extensions;
 
 public static class StringExtensions
 {

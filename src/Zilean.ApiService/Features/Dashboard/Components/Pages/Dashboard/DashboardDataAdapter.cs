@@ -1,4 +1,4 @@
-﻿namespace Zilean.ApiService.Features.Dashboard.Components.Pages.Dashboard;
+namespace Zilean.ApiService.Features.Dashboard.Components.Pages.Dashboard;
 
 public class DashboardDataAdapter(IServiceProvider serviceProvider, ParseTorrentNameService parseTorrentNameService, ILogger<DashboardDataAdapter> logger) : DataAdaptor
 {
@@ -50,10 +50,10 @@ public class DashboardDataAdapter(IServiceProvider serviceProvider, ParseTorrent
             return !dataManagerRequest.RequiresCounts
                 ? results
                 : new DataResult
-            {
-                Result = results,
-                Count = count,
-            };
+                {
+                    Result = results,
+                    Count = count,
+                };
         }
         catch (Exception e)
         {
@@ -100,7 +100,7 @@ public class DashboardDataAdapter(IServiceProvider serviceProvider, ParseTorrent
             await using var scope = serviceProvider.CreateAsyncScope();
             await using var dbContext = scope.ServiceProvider.GetRequiredService<ZileanDbContext>();
 
-            var torrent = await dbContext.Torrents.AsNoTracking().FirstOrDefaultAsync(x=> x.InfoHash == incoming.InfoHash);
+            var torrent = await dbContext.Torrents.AsNoTracking().FirstOrDefaultAsync(x => x.InfoHash == incoming.InfoHash);
             if (torrent == null)
             {
                 return null;
@@ -133,7 +133,7 @@ public class DashboardDataAdapter(IServiceProvider serviceProvider, ParseTorrent
             await using var scope = serviceProvider.CreateAsyncScope();
             await using var dbContext = scope.ServiceProvider.GetRequiredService<ZileanDbContext>();
 
-            var result = await dbContext.Torrents.Where(x=>x.InfoHash == incoming).ExecuteDeleteAsync();
+            var result = await dbContext.Torrents.Where(x => x.InfoHash == incoming).ExecuteDeleteAsync();
             return result == 0 ? throw new InvalidOperationException("No records were deleted") : value;
         }
         catch (Exception e)

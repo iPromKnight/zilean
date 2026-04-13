@@ -1,4 +1,4 @@
-﻿namespace Zilean.Shared.Features.Torznab;
+namespace Zilean.Shared.Features.Torznab;
 
 public static class TorznabErrorResponse
 {
