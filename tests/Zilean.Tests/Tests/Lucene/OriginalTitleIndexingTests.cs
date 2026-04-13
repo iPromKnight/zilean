@@ -114,13 +114,14 @@ public class OriginalTitleIndexingTests
     [Fact]
     public void DualFuzzyQuery_MatchesOnOriginalTitle_WhenPrimaryTitleDiffers()
     {
-        // Arrange: index a doc with title="the boat" and originalTitle="das boot"
+        // Arrange: index a doc with title="boat" and originalTitle="boot"
+        // Using single-word titles because FuzzyQuery matches individual tokens in tokenized fields
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
             new StringField(LuceneIndexEntry.ImdbId, "tt0082096", Field.Store.YES),
-            new TextField(LuceneIndexEntry.Title, "the boat", Field.Store.YES),
-            new TextField(LuceneIndexEntry.OriginalTitle, "das boot", Field.Store.YES),
+            new TextField(LuceneIndexEntry.Title, "boat", Field.Store.YES),
+            new TextField(LuceneIndexEntry.OriginalTitle, "boot", Field.Store.YES),
             new StringField(LuceneIndexEntry.Category, "movie", Field.Store.YES),
             new Int32Field(LuceneIndexEntry.Year, 1981, Field.Store.YES),
         };
@@ -131,11 +132,11 @@ public class OriginalTitleIndexingTests
         var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
-        // Act: search for "das boot" using dual FuzzyQuery with SHOULD
+        // Act: search for "boot" using dual FuzzyQuery with SHOULD
         var titleQuery = new BooleanQuery { MinimumNumberShouldMatch = 1 };
-        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "das boot"), 2, 1, 1, false);
+        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "boot"), 2, 1, 1, false);
         titleQuery.Add(fuzzyTitleQuery, Occur.SHOULD);
-        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "das boot"), 2, 1, 1, false);
+        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "boot"), 2, 1, 1, false);
         titleQuery.Add(fuzzyOriginalTitleQuery, Occur.SHOULD);
 
         var query = new BooleanQuery();
@@ -158,13 +159,13 @@ public class OriginalTitleIndexingTests
     [Fact]
     public void DualFuzzyQuery_StillMatchesOnPrimaryTitle()
     {
-        // Arrange: index a doc with title="the boat" and originalTitle="das boot"
+        // Arrange: index a doc with title="boat" and originalTitle="boot"
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
             new StringField(LuceneIndexEntry.ImdbId, "tt0082096", Field.Store.YES),
-            new TextField(LuceneIndexEntry.Title, "the boat", Field.Store.YES),
-            new TextField(LuceneIndexEntry.OriginalTitle, "das boot", Field.Store.YES),
+            new TextField(LuceneIndexEntry.Title, "boat", Field.Store.YES),
+            new TextField(LuceneIndexEntry.OriginalTitle, "boot", Field.Store.YES),
             new StringField(LuceneIndexEntry.Category, "movie", Field.Store.YES),
             new Int32Field(LuceneIndexEntry.Year, 1981, Field.Store.YES),
         };
@@ -175,11 +176,11 @@ public class OriginalTitleIndexingTests
         var reader = session.Writer.GetReader(applyAllDeletes: true);
         var searcher = new IndexSearcher(reader);
 
-        // Act: search for "the boat" using dual FuzzyQuery
+        // Act: search for "boat" using dual FuzzyQuery
         var titleQuery = new BooleanQuery { MinimumNumberShouldMatch = 1 };
-        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "the boat"), 2, 1, 1, false);
+        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, "boat"), 2, 1, 1, false);
         titleQuery.Add(fuzzyTitleQuery, Occur.SHOULD);
-        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "the boat"), 2, 1, 1, false);
+        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, "boat"), 2, 1, 1, false);
         titleQuery.Add(fuzzyOriginalTitleQuery, Occur.SHOULD);
 
         var query = new BooleanQuery();

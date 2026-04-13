@@ -1,6 +1,8 @@
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using Raffinert.FuzzySharp;
+using Raffinert.FuzzySharp.PreProcess;
 
 namespace Zilean.Database.Services.Lucene;
 
@@ -167,9 +169,22 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
 
             var imdbId = doc.Get(LuceneIndexEntry.ImdbId);
             var title = doc.Get(LuceneIndexEntry.Title);
+            var originalTitle = doc.Get(LuceneIndexEntry.OriginalTitle);
             var year = doc.GetField(LuceneIndexEntry.Year)?.GetInt32Value() ?? 0;
 
-            results.Add(new(imdbId, title, year, scoreDoc.Score));
+            // D-05: Determine which field matched
+            var matchedField = "title";
+            if (originalTitle != null)
+            {
+                var titleRatio = Fuzz.Ratio(torrent.NormalizedTitle, title, PreprocessMode.Full);
+                var originalTitleRatio = Fuzz.Ratio(torrent.NormalizedTitle, originalTitle, PreprocessMode.Full);
+                if (originalTitleRatio > titleRatio)
+                {
+                    matchedField = "originalTitle";
+                }
+            }
+
+            results.Add(new(imdbId, title, year, scoreDoc.Score, matchedField));
         }
 
         return results;
@@ -179,10 +194,16 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
     {
         var query = new BooleanQuery();
 
-        var fuzzyTitleQuery = new FuzzyQuery(new(LuceneIndexEntry.Title, torrent.NormalizedTitle), 2, 1, 1, false);
-        query.Add(fuzzyTitleQuery, Occur.MUST);
+        // D-01: Title queries with SHOULD, at least one must match
+        var titleQuery = new BooleanQuery { MinimumNumberShouldMatch = 1 };
+        var fuzzyTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.Title, torrent.NormalizedTitle), 2, 1, 1, false);
+        titleQuery.Add(fuzzyTitleQuery, Occur.SHOULD);
+        var fuzzyOriginalTitleQuery = new FuzzyQuery(new Term(LuceneIndexEntry.OriginalTitle, torrent.NormalizedTitle), 2, 1, 1, false);
+        titleQuery.Add(fuzzyOriginalTitleQuery, Occur.SHOULD);
 
-        var categoryQuery = new TermQuery(new(LuceneIndexEntry.Category, torrent.Category.ToLowerInvariant()));
+        query.Add(titleQuery, Occur.MUST);
+
+        var categoryQuery = new TermQuery(new Term(LuceneIndexEntry.Category, torrent.Category.ToLowerInvariant()));
         query.Add(categoryQuery, Occur.MUST);
 
         combinedQuery.Add(query, Occur.MUST);
@@ -217,11 +238,19 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                 Lower(
                 unaccent(
                     regexp_replace(
-                        regexp_replace(trim("Title"), '\s+', ' ', 'g'), -- Normalize whitespace
-                        '[^\w\s]', '', 'g' -- Remove non-alphanumeric characters but keep spaces
+                        regexp_replace(trim("Title"), '\s+', ' ', 'g'),
+                        '[^\w\s]', '', 'g'
                         )
                     )
                 ) AS "Title",
+                Lower(
+                unaccent(
+                    regexp_replace(
+                        regexp_replace(trim("OriginalTitle"), '\s+', ' ', 'g'),
+                        '[^\w\s]', '', 'g'
+                        )
+                    )
+                ) AS "OriginalTitle",
                 "Adult",
                 "Category",
                 "Year"
@@ -248,6 +277,13 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                 }),
             };
 
+            // D-04: Only add originalTitle if it differs from title (both already normalized by SQL)
+            if (!string.IsNullOrWhiteSpace(imdb.OriginalTitle) &&
+                !string.Equals(imdb.Title, imdb.OriginalTitle, StringComparison.Ordinal))
+            {
+                doc.Add(new TextField(LuceneIndexEntry.OriginalTitle, imdb.OriginalTitle, Field.Store.YES));
+            }
+
             luceneSession.Writer.AddDocument(doc);
         }
 
@@ -271,5 +307,5 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
         };
 
 
-    private record BestMatch(string ImdbId, string Title, int Year, double Score);
+    private record BestMatch(string ImdbId, string Title, int Year, double Score, string MatchedField);
 }

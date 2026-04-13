@@ -6,4 +6,5 @@ public static class LuceneIndexEntry
     public const string Title = "title";
     public const string Year = "year";
     public const string Category = "category";
+    public const string OriginalTitle = "originalTitle";
 }
