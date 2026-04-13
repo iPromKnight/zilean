@@ -6,6 +6,7 @@ public class ImdbFile
     public string ImdbId { get; set; } = default!;
     public string? Category { get; set; }
     public string? Title { get; set; }
+    public string? OriginalTitle { get; set; }
     public bool Adult { get; set; }
     public int Year { get; set; }
 }
