@@ -134,7 +134,7 @@ public static class TorznabEndpoints
             _ => results
         };
 
-        return results.ToList();
+        return [.. results];
     }
 
     private static string? GetFromTorznabCategories(int[] queryCategories, string? queryQueryType) =>

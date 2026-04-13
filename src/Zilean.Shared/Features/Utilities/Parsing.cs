@@ -25,7 +25,7 @@ public static partial class Parsing
         SpaceRegex().Replace(NormalizeSpace(s), " ");
     private static string NormalizeNumber(string s, bool isInt = false)
     {
-        var valStr = new string(s.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+        var valStr = new string([.. s.Where(c => char.IsDigit(c) || c == '.' || c == ',')]);
 
         valStr = valStr.Trim().Replace("-", "0");
 
@@ -158,7 +158,7 @@ public static partial class Parsing
     // ex:  "1.018.29mb" -> "1067754455.04" , "-" -> "0" , "---" -> "0"
     public static long GetBytes(string str)
     {
-        var valStr = new string(str.Where(c => char.IsDigit(c) || c == '.' || c == ',').ToArray());
+        var valStr = new string([.. str.Where(c => char.IsDigit(c) || c == '.' || c == ',')]);
         valStr = (valStr.Length == 0) ? "0" : valStr.Replace(",", ".");
         if (valStr.Count(c => c == '.') > 1)
         {
@@ -166,7 +166,7 @@ public static partial class Parsing
             valStr = valStr[..lastOcc].Replace(".", string.Empty) + valStr[lastOcc..];
         }
 
-        var unit = new string(str.Where(char.IsLetter).ToArray());
+        var unit = new string([.. str.Where(char.IsLetter)]);
         var val = CoerceFloat(valStr);
         return GetBytes(unit, val);
     }

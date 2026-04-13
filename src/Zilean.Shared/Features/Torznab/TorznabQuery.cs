@@ -151,7 +151,7 @@ public partial class TorznabQuery
                 queryString = queryString[..(int)limit];
             }
 
-            QueryStringParts = SplitRegex().Split(queryString).Where(p => !string.IsNullOrWhiteSpace(p) && p.Length > 1 && !commonWords.ContainsIgnoreCase(p)).ToArray();
+            QueryStringParts = [.. SplitRegex().Split(queryString).Where(p => !string.IsNullOrWhiteSpace(p) && p.Length > 1 && !commonWords.ContainsIgnoreCase(p))];
         }
 
         // Check if each part of the query string is in the given title.

@@ -48,10 +48,9 @@ public static class TorznabRequestExtensions
             }
 
             query.Categories = request.cat != null
-                ? request.cat.Split(',')
+                ? [.. request.cat.Split(',')
                     .Where(s => !string.IsNullOrWhiteSpace(s))
-                    .Select(int.Parse)
-                    .ToArray()
+                    .Select(int.Parse)]
                 : query.QueryType switch
                 {
                     "movie" when !string.IsNullOrWhiteSpace(request.imdbid) => [TorznabCategoryTypes.Movies.Id],

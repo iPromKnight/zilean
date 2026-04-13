@@ -7,9 +7,26 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      # Required by DatabaseConfiguration constructor
+      POSTGRES_PASSWORD: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          PYLIB=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+          PYVER=$(python3 -c "import sysconfig; print(sysconfig.get_config_var('LDVERSION'))")
+          echo "ZILEAN_PYTHON_PYLIB=${PYLIB}/libpython${PYVER}.so" >> $GITHUB_ENV
+          echo "PYTHONNET_PYDLL=${PYLIB}/libpython${PYVER}.so" >> $GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -26,10 +43,14 @@ jobs:
         run: dotnet format --verify-no-changes --no-restore
 
       - name: Test with Coverage
-        run: dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        run: >-
+          dotnet test --no-build --configuration Release
+          --collect:"XPlat Code Coverage"
+          --results-directory ./TestResults
+          --filter "Category!=Python"
 
       - name: Coverage Summary
-        if: always()
+        if: success()
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
           filename: '**/coverage.cobertura.xml'
@@ -37,7 +58,7 @@ jobs:
           output: both
 
       - name: Add Coverage PR Comment
-        if: github.event_name == 'pull_request' && always()
+        if: success()
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           recreate: true

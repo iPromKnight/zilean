@@ -180,9 +180,8 @@ public class ParseTorrentNameService
             }
         }
 
-        return torrents.Select(x => x.ParseResponse)
-            .OfType<TorrentInfo>()
-            .ToList();
+        return [.. torrents.Select(x => x.ParseResponse)
+            .OfType<TorrentInfo>()];
     }
 
     public async Task<TorrentInfo> ParseAndPopulateTorrentInfoAsync(TorrentInfo torrent)

@@ -18,6 +18,7 @@ public class PttPythonTests : IDisposable
     }
 
     [Fact]
+    [Trait("Category", "Python")]
     public async Task ParseTorrent_Movie_Success()
     {
         var stopwatch = new Stopwatch();
@@ -34,6 +35,7 @@ public class PttPythonTests : IDisposable
     }
 
     [Fact]
+    [Trait("Category", "Python")]
     public async Task ParseTorrent_TvSeries_Success()
     {
         var stopwatch = new Stopwatch();

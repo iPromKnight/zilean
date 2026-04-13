@@ -19,7 +19,7 @@ public class ImdbLuceneMatchingServiceTests
             new StringField(LuceneIndexEntry.Category, "tvseries", Field.Store.YES),
             new Int32Field(LuceneIndexEntry.Year, 2008, Field.Store.YES),
         };
-        session.Writer!.AddDocument(doc);
+        session.Writer.AddDocument(doc);
         session.Writer.Flush(triggerMerge: false, applyAllDeletes: false);
 
         var reader = session.Writer.GetReader(applyAllDeletes: true);
