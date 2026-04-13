@@ -10,12 +10,12 @@ public class ImdbLuceneMatchingServiceTests
     [Fact]
     public void FuzzyQuery_MatchesIndividualWords_InMultiWordTitle()
     {
-        // Arrange: index a multi-word title using StringField (replicating production bug)
+        // Arrange: index a multi-word title using TextField (tokenized, matching fixed production code)
         using var session = LuceneSession.NewInstance();
         var doc = new Document
         {
             new StringField(LuceneIndexEntry.ImdbId, "tt0903747", Field.Store.YES),
-            new StringField(LuceneIndexEntry.Title, "breaking bad", Field.Store.YES), // BUG: StringField does not tokenize
+            new TextField(LuceneIndexEntry.Title, "breaking bad", Field.Store.YES), // FIXED: TextField tokenizes into individual words
             new StringField(LuceneIndexEntry.Category, "tvseries", Field.Store.YES),
             new Int32Field(LuceneIndexEntry.Year, 2008, Field.Store.YES),
         };
