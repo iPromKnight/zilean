@@ -152,26 +152,14 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
         return Math.Max(titleScore, originalTitleScore);
     }
 
-    internal static double CalculateSingleTitleScore(TorrentInfo torrent, string? title, int year)
-    {
-        if (string.IsNullOrWhiteSpace(title))
-        {
-            return 0;
-        }
-
-        if (torrent.ParsedTitle == title && torrent.Year == year)
-        {
-            return ExactMatchTitleYearScore * 100;
-        }
-
-        if (torrent.ParsedTitle == title && torrent.Year.HasValue &&
-            Math.Abs(torrent.Year.Value - year) <= 1)
-        {
-            return CloseMatchTitleYearScore * 100;
-        }
-
-        return Fuzz.Ratio(torrent.ParsedTitle, title, PreprocessMode.Full);
-    }
+    internal static double CalculateSingleTitleScore(TorrentInfo torrent, string? title, int year) => string.IsNullOrWhiteSpace(title)
+            ? 0
+            : torrent.ParsedTitle == title && torrent.Year == year
+            ? ExactMatchTitleYearScore * 100
+            : torrent.ParsedTitle == title && torrent.Year.HasValue &&
+              Math.Abs(torrent.Year.Value - year) <= 1
+                ? CloseMatchTitleYearScore * 100
+                : Fuzz.Ratio(torrent.ParsedTitle, title, PreprocessMode.Full);
 
     private bool HasFilteredPartitionsWithYear(
         ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear,
