@@ -218,6 +218,14 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                         )
                     )
                 ) AS "Title",
+                Lower(
+                unaccent(
+                    regexp_replace(
+                        regexp_replace(trim("OriginalTitle"), '\s+', ' ', 'g'),
+                        '[^\w\s]', '', 'g'
+                        )
+                    )
+                ) AS "OriginalTitle",
                 "Adult",
                 "Category",
                 "Year"
@@ -232,7 +240,6 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
             var doc = new Document
             {
                 new StringField(LuceneIndexEntry.ImdbId, imdb.ImdbId, Field.Store.YES),
-                new StringField(LuceneIndexEntry.Title, imdb.Title, Field.Store.YES),
                 new StringField(LuceneIndexEntry.Category, GetCategory(imdb.Category).ToLowerInvariant(), Field.Store.YES),
                 new Int32Field(LuceneIndexEntry.Year, imdb.Year, new FieldType
                 {
@@ -243,6 +250,16 @@ public class ImdbLuceneMatchingService(ILogger<ImdbLuceneMatchingService> logger
                     IndexOptions = IndexOptions.DOCS_ONLY,
                 }),
             };
+
+            foreach (var title in ImdbTitleMatching.GetCandidateTitles(imdb))
+            {
+                doc.Add(new StringField(LuceneIndexEntry.Title, title, Field.Store.YES));
+            }
+
+            if (doc.GetFields(LuceneIndexEntry.Title).Length == 0)
+            {
+                continue;
+            }
 
             luceneSession.Writer.AddDocument(doc);
         }

@@ -338,6 +338,9 @@ namespace Zilean.Database.Migrations
                     b.Property<string>("Category")
                         .HasColumnType("text");
 
+                    b.Property<string>("OriginalTitle")
+                        .HasColumnType("text");
+
                     b.Property<string>("Title")
                         .HasColumnType("text");
 

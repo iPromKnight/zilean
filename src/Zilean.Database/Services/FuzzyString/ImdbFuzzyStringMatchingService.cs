@@ -1,5 +1,3 @@
-using Raffinert.FuzzySharp;
-using Raffinert.FuzzySharp.PreProcess;
 using Zilean.Shared.Extensions;
 
 namespace Zilean.Database.Services.FuzzyString;
@@ -9,8 +7,6 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
     private ConcurrentDictionary<string, string?>? _imdbCache;
     private ConcurrentDictionary<int,List<ImdbFile>>? _imdbTvFiles;
     private ConcurrentDictionary<int,List<ImdbFile>>? _imdbMovieFiles;
-    private const double ExactMatchTitleYearScore = 2.0;
-    private const double CloseMatchTitleYearScore = 1.5;
 
     public async Task PopulateImdbData()
     {
@@ -76,7 +72,7 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
                             imdb.ImdbId,
                             imdb.Title,
                             imdb.Year,
-                            Score = CalculateScore(torrent, imdb),
+                            Score = ImdbTitleMatching.CalculateScore(torrent, imdb),
                         })
                     .OrderByDescending(match => match.Score)
                     .FirstOrDefault();
@@ -138,14 +134,6 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
 
         return Task.FromResult(updatedTorrents);
     }
-
-    private static double CalculateScore(TorrentInfo torrent, ImdbFile imdb) =>
-        torrent.ParsedTitle == imdb.Title && torrent.Year == imdb.Year
-            ? ExactMatchTitleYearScore * 100
-            : torrent.ParsedTitle == imdb.Title && torrent.Year.HasValue &&
-              Math.Abs(torrent.Year.Value - imdb.Year) <= 1
-                ? CloseMatchTitleYearScore * 100
-                : Fuzz.Ratio(torrent.ParsedTitle, imdb.Title, PreprocessMode.Full);
 
     private bool HasFilteredPartitionsWithYear(
         ConcurrentDictionary<int, List<ImdbFile>> imdbTvFilesByYear,
@@ -222,7 +210,7 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
 
         var imdbFiles = sqlConnection.Query<ImdbFile>(
             """
-            SELECT "ImdbId", "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            SELECT "ImdbId", "Title", "OriginalTitle", "Adult", "Category", "Year" FROM public."ImdbFiles"
             WHERE "Category" IN ('movie', 'tvMovie')
             """);
 
@@ -244,7 +232,7 @@ public class ImdbFuzzyStringMatchingService(ILogger<ImdbFuzzyStringMatchingServi
 
         var imdbFiles = sqlConnection.Query<ImdbFile>(
             """
-            SELECT "ImdbId", "Title", "Adult", "Category", "Year" FROM public."ImdbFiles"
+            SELECT "ImdbId", "Title", "OriginalTitle", "Adult", "Category", "Year" FROM public."ImdbFiles"
             WHERE "Category" IN ('tvSeries', 'tvShort', 'tvMiniSeries', 'tvSpecial')
             """);
 

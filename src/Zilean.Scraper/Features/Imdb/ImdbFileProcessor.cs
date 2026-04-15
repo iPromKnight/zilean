@@ -21,14 +21,13 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
             BadDataFound = null,
             MissingFieldFound = null,
             HasHeaderRecord = true,
-            ShouldSkipRecord = record => !_requiredCategories.Contains(record.Row.GetField(1))
         };
 
         using var reader = new StreamReader(fileName);
         using var csv = new CsvReader(reader, csvConfig);
 
-        // skip header...
         await csv.ReadAsync();
+        csv.ReadHeader();
 
         await ReadBasicEntries(csv, imdbFileService, cancellationToken);
 
@@ -41,6 +40,15 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
     {
         while (await csv.ReadAsync())
         {
+            var category = csv.GetField(1);
+
+            if (!_requiredCategories.Contains(category))
+            {
+                continue;
+            }
+
+            var primaryTitle = GetNullableField(csv.GetField(2));
+            var originalTitle = GetNullableField(csv.GetField(3));
             var isAdultSet = int.TryParse(csv.GetField(4), out var adult);
             var yearField = csv.GetField(5);
             var isYearValid = int.TryParse(yearField == @"\N" ? "0" : yearField, out var year);
@@ -48,8 +56,9 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
             var movieData = new ImdbFile
             {
                 ImdbId = csv.GetField(0),
-                Category = csv.GetField(1),
-                Title = csv.GetField(2),
+                Category = category,
+                Title = primaryTitle ?? originalTitle,
+                OriginalTitle = originalTitle ?? primaryTitle,
                 Adult = isAdultSet && adult == 1,
                 Year = isYearValid ? year : 0
             };
@@ -62,4 +71,7 @@ public class ImdbFileProcessor(ILogger<ImdbFileProcessor> logger, IImdbFileServi
             imdbFileService.AddImdbFile(movieData);
         }
     }
+
+    private static string? GetNullableField(string? value) =>
+        string.IsNullOrWhiteSpace(value) || value == @"\N" ? null : value;
 }

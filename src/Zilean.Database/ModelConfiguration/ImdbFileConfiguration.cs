@@ -17,6 +17,9 @@ public class ImdbFileConfiguration:  IEntityTypeConfiguration<ImdbFile>
         builder.Property(i => i.Title)
             .HasColumnType("text");
 
+        builder.Property(i => i.OriginalTitle)
+            .HasColumnType("text");
+
         builder.Property(i => i.Adult)
             .HasColumnType("boolean");
 
